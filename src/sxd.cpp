@@ -41,8 +41,8 @@ void sxd::run() {
             oss << "login_time_sxd_xxxxxxxx=" << (*it)["login_time_sxd_xxxxxxxx"] << ";login_hash_sxd_xxxxxxxx=" << (*it)["login_hash_sxd_xxxxxxxx"] << "\r\n";
             std::string url = (*it)["url"];
             std::string cookie = oss.str();
-            sxd::play("R171", url, cookie);
-            //std::thread thread([url, cookie]() {sxd::play("R171", url, cookie);});
+            sxd::play("R172", url, cookie);
+            //std::thread thread([url, cookie]() {sxd::play("R172", url, cookie);});
         } catch (const std::exception& ex) {
             common::log(boost::str(boost::format("发现错误：%1%") % ex.what()));
         }
@@ -182,13 +182,13 @@ void sxd::analyze() {
                 action = common::read_int16(fis);
 
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R171", module, action);
+                protocol = db.get_protocol("R172", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(fis, data, pattern);
             } else {
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R171", module, action);
+                protocol = db.get_protocol("R172", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(ss, data, pattern);
@@ -285,7 +285,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
     std::ostringstream oss;
     oss << "【登录】玩家已开通 [" << data[0].size() << "] 项功能 ";
     for (const auto& item : data[0]) {
-        std::string function_name = db.get_function_type(version.c_str(), item[0].asInt())["name"];
+        std::string function_name = db.get_code(version, "Function", item[0].asInt())["text"];
         //oss << function_name << ", ";
         function_names.push_back(function_name);
     }
@@ -317,7 +317,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
             sxd_client_town.Mod_FunctionEnd_Base_random_award(id);
         data = sxd_client_town.Mod_FunctionEnd_Base_get_game_function_end_gift(id);
         if (data[0].asInt() == Mod_FunctionEnd_Base::SUCCESS)
-            common::log(boost::str(boost::format("【随机礼包】领取 [%1%]") % db.get_end_function_gift(version.c_str(), id)["name"]));
+            common::log(boost::str(boost::format("【随机礼包】领取 [%1%]") % db.get_code(version, "EndFunctionGift", id)["text"]));
         else
             common::log(boost::str(boost::format("【随机礼包】领取失败，result[%1%]") % data[0]));
     }
@@ -433,7 +433,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
 
         std::ostringstream oss;
         for (const auto& item : items)
-            oss << " [" << item[1] << "] 个 [" << db.get_item_type(version.c_str(), item[0].asInt())["name"] << "]，";
+            oss << " [" << item[1] << "] 个 [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]，";
         common::log(boost::str(boost::format("【结缘】当前%1%") % oss.str().substr(0, oss.str().size() - 2)));
 
         for (unsigned i = 0; i < items.size(); i++) {
@@ -444,7 +444,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
                     common::log(boost::str(boost::format("【结缘】十连开失败，result[%1%]") % data[0]));
                     break;
                 }
-                common::log(boost::str(boost::format("【结缘】十连开 [%1%]") % db.get_item_type(version.c_str(), id)["name"]));
+                common::log(boost::str(boost::format("【结缘】十连开 [%1%]") % db.get_code(version, "Item", id)["text"]));
                 data = sxd_client_town.Mod_LinkFate_Base_auto_merge_link_fate_stone();
                 if (data[0].asInt() != Mod_LinkFate_Base::SUCCESS) {
                     common::log(boost::str(boost::format("【结缘】一键吞噬失败，result[%1%]") % data[0]));
@@ -479,7 +479,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
                 common::log(boost::str(boost::format("【混沌虚空】寻找异兽失败，result[%1%]") % data[0]));
                 break;
             }
-            common::log(boost::str(boost::format("【混沌虚空】寻找异兽，发现 [%1%]") % db.get_item_type(version.c_str(), data[1].asInt())["name"]));
+            common::log(boost::str(boost::format("【混沌虚空】寻找异兽，发现 [%1%]") % db.get_code(version, "Item", data[1].asInt())["text"]));
             data = sxd_client_town.Mod_SpaceFind_Base_get_space_find();
             if (data[0] != Mod_SpaceFind_Base::SUCCESS) {
                 common::log(boost::str(boost::format("【混沌虚空】抓捕异兽失败，result[%1%]") % data[0]));
@@ -487,34 +487,34 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
             }
             std::ostringstream oss;
             for (const auto& item : data[1])
-                oss << "[" << item[1] << "] 个 [" << db.get_item_type(version.c_str(), item[0].asInt())["name"] << "]，";
+                oss << "[" << item[1] << "] 个 [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]，";
             common::log(boost::str(boost::format("【混沌虚空】抓捕异兽，获得 %1%") % oss.str().substr(0, oss.str().size() - 2)));
         }
 
         // 混沌异兽
         data = sxd_client_town.Mod_ChaosEquipment_Base_get_pack_chaos_monster_list();
-        common::log(boost::str(boost::format("【混沌虚空】灵宝制作：[%1%] 个 [灵液]") % data[0]));
+        common::log(boost::str(boost::format("【混沌虚空】灵宝制作：[%1%] 个 [灵液]") % data[0]), 0);
         std::ostringstream oss;
         for (const auto& item : data[1])
-            oss << "[" << db.get_item_type(version.c_str(), item[1].asInt())["name"] << "]，";
-        common::log(boost::str(boost::format("【混沌虚空】异兽背包：%1%") % oss.str().substr(0, oss.str().size() - 2)));
+            oss << "[" << db.get_code(version, "Item", item[1].asInt())["text"] << "]，";
+        common::log(boost::str(boost::format("【混沌虚空】异兽背包：%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
         oss.str("");
         for (const auto& item : data[2])
-            oss << "[" << db.get_item_type(version.c_str(), item[1].asInt())["name"] << "]，";
-        common::log(boost::str(boost::format("【混沌虚空】灵宝背包：%1%") % oss.str().substr(0, oss.str().size() - 2)));
+            oss << "[" << db.get_code(version, "Item", item[1].asInt())["text"] << "]，";
+        common::log(boost::str(boost::format("【混沌虚空】灵宝背包：%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
         oss.str("");
         for (const auto& item : data[3])
-            oss << "[" << item[1] << "] 个 [" << db.get_item_type(version.c_str(), item[0].asInt())["name"] << "]，";
-        common::log(boost::str(boost::format("【混沌虚空】异兽图鉴：%1%") % oss.str().substr(0, oss.str().size() - 2)));
+            oss << "[" << item[1] << "] 个 [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]，";
+        common::log(boost::str(boost::format("【混沌虚空】异兽图鉴：%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
 
         Json::Value scraps = data[3];
         for (unsigned i = 0; i < scraps.size(); i++) {
-            mss scrap_item = db.get_item_type(version.c_str(), scraps[i][0].asInt());
+            mss scrap_item = db.get_code(version, "Item", scraps[i][0].asInt());
             std::string scrap_comment = scrap_item["comment"];
-            std::string scrap_name = scrap_item["name"];
-            mss monster_item = db.get_item_type(version.c_str(), common::gbk2utf(scrap_name.substr(0, scrap_name.size() - 4)).c_str());
-            int monster_id = boost::lexical_cast<int>(monster_item["id"]);
-            std::string monster_name = monster_item["name"];
+            std::string scrap_name = scrap_item["text"];
+            mss monster_item = db.get_code(version, "Item", common::gbk2utf(scrap_name.substr(0, scrap_name.size() - 4))); // 去掉碎片
+            int monster_id = boost::lexical_cast<int>(monster_item["value"]);
+            std::string monster_name = monster_item["text"];
             // green and blue
             if ((scrap_comment.find("00ff00") != std::string::npos && scraps[i][1].asInt() >= 10) || (scrap_comment.find("00b7ee") != std::string::npos && scraps[i][1].asInt() >= 20)) {
                 // 合成
@@ -534,7 +534,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
                 // update scraps
                 data = sxd_client_town.Mod_ChaosEquipment_Base_get_pack_chaos_monster_list();
                 scraps = data[3];
-                scrap_item = db.get_item_type(version.c_str(), scraps[i][0].asInt());
+                scrap_item = db.get_code(version, "Item", scraps[i][0].asInt());
                 scrap_comment = scrap_item["comment"];
                 if ((scrap_comment.find("00ff00") != std::string::npos && scraps[i][1].asInt() >= 10) || (scrap_comment.find("00b7ee") != std::string::npos && scraps[i][1].asInt() >= 20))
                     i--;
@@ -665,7 +665,7 @@ void sxd::StUnionActivity(sxd_client& sxd_client_super_town, const std::string& 
             common::log(boost::str(boost::format("【仙盟之树】领取失败，result[%1%]") % data[0]));
             return;
         }
-        common::log(boost::str(boost::format("【仙盟之树】领取 [%1%×%2%]") % db.get_gift_type(version.c_str(), tree_info[5][0][1].asInt())["name"] % tree_info[5][0][3]));
+        common::log(boost::str(boost::format("【仙盟之树】领取 [%1%×%2%]") % db.get_code(version, "Gift", tree_info[5][0][1].asInt())["text"] % tree_info[5][0][3]));
     } else if (tree_info[2].asInt() == tree_info[3].asInt()) {
         common::log("【仙盟之树】今日许愿成功");
     } else if (tree_info[5].size() == 3) {
@@ -675,7 +675,7 @@ void sxd::StUnionActivity(sxd_client& sxd_client_super_town, const std::string& 
             common::log(boost::str(boost::format("【仙盟之树】许愿选择失败，result[%1%]") % data[0]));
             return;
         }
-        common::log(boost::str(boost::format("【仙盟之树】许愿选择第 [%1%] 个物品 [%2%]") % (index + 1) % db.get_gift_type(version.c_str(), tree_info[5][index][1].asInt())["name"]));
+        common::log(boost::str(boost::format("【仙盟之树】许愿选择第 [%1%] 个物品 [%2%]") % (index + 1) % db.get_code(version, "Gift", tree_info[5][index][1].asInt())["text"]));
     }
     // players
     data = sxd_client_super_town.Mod_StUnionActivity_Base_need_bless_player();
@@ -956,14 +956,14 @@ void sxd::ServerChatRoomPet(sxd_client& sxd_client_town, sxd_client& sxd_client_
 
 void sxd::collect() {
     try {
-        sxd::collect_protocol("R171", "H:\\神仙道\\基础数据准备\\R171\\Main\\Action\\com\\protocols");
-        sxd::collect_end_function_gift("R171", "H:\\神仙道\\基础数据准备\\R171\\Main\\Action\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_function("R171", "H:\\神仙道\\基础数据准备\\R171\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
-        sxd::collect_gift("R171", "H:\\神仙道\\基础数据准备\\R171\\Main\\Action\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_item("R171", "H:\\神仙道\\基础数据准备\\R171\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_lucky_shop_item("R171", "H:\\神仙道\\基础数据准备\\R171\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_role("R171", "H:\\神仙道\\基础数据准备\\R171\\scripts\\com\\assist\\server\\RoleType.as");
-        sxd::collect_town("R171", "H:\\神仙道\\基础数据准备\\R171\\templet\\com\\assist\\server\\source\\TownTypeData.as");
+        sxd::collect_protocol("R172", "H:\\神仙道\\基础数据准备\\R172\\Main\\Action\\com\\protocols");
+        sxd::collect_end_function_gift("R172", "H:\\神仙道\\基础数据准备\\R172\\Main\\Action\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_function("R172", "H:\\神仙道\\基础数据准备\\R172\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
+        sxd::collect_gift("R172", "H:\\神仙道\\基础数据准备\\R172\\Main\\Action\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_item("R172", "H:\\神仙道\\基础数据准备\\R172\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_lucky_shop_item("R172", "H:\\神仙道\\基础数据准备\\R172\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_role("R172", "H:\\神仙道\\基础数据准备\\R172\\scripts\\com\\assist\\server\\RoleType.as");
+        sxd::collect_town("R172", "H:\\神仙道\\基础数据准备\\R172\\templet\\com\\assist\\server\\source\\TownTypeData.as");
     } catch (const std::exception& ex) {
         std::cerr << boost::str(boost::format("发现错误：%1%") % ex.what()) << std::endl;
     }

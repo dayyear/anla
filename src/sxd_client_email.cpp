@@ -22,7 +22,7 @@ void sxd_client::email() {
             }
             std::ostringstream oss;
             for (const auto& item : email[7])
-                oss << "[" << db.get_item_type(version.c_str(), item[0].asInt())["name"] << "¡Á" << item[1] << "]£¬";
+                oss << "[" << db.get_code(version, "Item", item[0].asInt())["text"] << "¡Á" << item[1] << "]£¬";
             common::log(boost::str(boost::format("¡¾ÓÊÏä¡¿ÊÕÈ¡¸½¼þ %1%") % oss.str().substr(0, oss.str().size() - 2)));
         }
         data = this->Mod_Email_Base_delete_email(Mod_Email_Base::ONE, email[0].asInt());

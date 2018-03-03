@@ -6,7 +6,7 @@
 
 database::database() {
     //common::log("Open database.");
-    if (sqlite3_open(".\\sxd.sqlite", &db))
+    if (sqlite3_open("..\\sxd.sqlite", &db))
         throw std::runtime_error(std::string("Can't open database: ") + sqlite3_errmsg(db));
 } //database::database
 
@@ -16,6 +16,20 @@ database::~database(void) {
     //if (sqlite3_close(db))
     //    throw std::runtime_error(std::string("Can't close database: ") + sqlite3_errmsg(db));
 } //database::~database
+
+void database::execute(const std::string& sql) {
+    this->execute(sql.c_str());
+}
+
+void database::execute(const char* sql) {
+    char* zErrMsg = nullptr;
+    if (sqlite3_exec(db, sql, 0, 0, &zErrMsg)) {
+        std::ostringstream err;
+        err << "SQL error: " << zErrMsg;
+        sqlite3_free(zErrMsg);
+        throw std::runtime_error(err.str());
+    }
+}
 
 std::list<mss> database::get_records(const std::string& table, const std::string& where_clause) {
     return this->get_records(table.c_str(), where_clause.c_str());
@@ -43,26 +57,29 @@ mss database::get_record(const char* table, const char* where_clause) {
     auto items = get_records(table, where_clause);
     if (items.size() == 0) {
         std::ostringstream err;
-        err << "Not found record with " << where_clause;
+        err << "Not found record in " << table << " with " << where_clause;
         throw std::runtime_error(err.str());
     } else if (items.size() > 1) {
         std::ostringstream err;
-        err << "Find too many records with " << where_clause;
+        err << "Find too many records in " << table << " with " << where_clause;
         throw std::runtime_error(err.str());
     }
     return *items.begin();
 }
 
+// table user
 std::list<mss> database::get_all_users() {
     return get_records("user", "1=1");
 }
 
+// table protocol
 mss database::get_protocol(const char* version, short module, short action) {
     std::ostringstream where_clause;
     where_clause << "version='" << version << "' and module=" << module << " and action=" << action;
     return this->get_record("protocol", where_clause.str());
 }
 
+// table config
 std::string database::get_config(const char* user, const char* name) {
     std::ostringstream where_clause;
     where_clause << "user='" << user << "' and name='" << name << "'";
@@ -89,7 +106,8 @@ std::string database::get_config(const char* user, const char* name) {
     return (*items.begin())["value"];
 }
 
-mss database::get_lucky_shop_item(const std::string& version, int id){
+// table lucky_shop_item
+mss database::get_lucky_shop_item(const std::string& version, int id) {
     return this->get_lucky_shop_item(version.c_str(), id);
 }
 
@@ -103,6 +121,7 @@ mss database::get_lucky_shop_item(const char* version, int id) {
     return item;
 }
 
+// table code
 mss database::get_code(const std::string& version, const std::string& type, int value) {
     return this->get_code(version.c_str(), type.c_str(), value);
 }
@@ -113,74 +132,14 @@ mss database::get_code(const char* version, const char* type, int value) {
     return this->get_record("code", where_clause.str());
 }
 
-mss database::get_function_type(const char* version, int id) {
-    std::ostringstream where_clause;
-    where_clause << "version='" << version << "' and id=" << id;
-    return this->get_record("function_type", where_clause.str());
+mss database::get_code(const std::string& version, const std::string& type, const std::string& text) {
+    return this->get_code(version.c_str(), type.c_str(), text.c_str());
 }
 
-mss database::get_end_function_gift(const char* version, int id) {
+mss database::get_code(const char* version, const char* type, const char* text) {
     std::ostringstream where_clause;
-    where_clause << "version='" << version << "' and id=" << id;
-    auto items = get_records("end_function_gift", where_clause.str().c_str());
-    if (items.size() == 0) {
-        std::ostringstream err;
-        err << "Not found end function gift with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    } else if (items.size() > 1) {
-        std::ostringstream err;
-        err << "Find too many end function gifts with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    }
-    return *items.begin();
-}
-
-mss database::get_gift_type(const char* version, int id) {
-    std::ostringstream where_clause;
-    where_clause << "version='" << version << "' and id=" << id;
-    auto items = get_records("gift_type", where_clause.str().c_str());
-    if (items.size() == 0) {
-        std::ostringstream err;
-        err << "Not found gift type with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    } else if (items.size() > 1) {
-        std::ostringstream err;
-        err << "Find too many gift types with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    }
-    return *items.begin();
-}
-
-mss database::get_item_type(const char* version, int id) {
-    std::ostringstream where_clause;
-    where_clause << "version='" << version << "' and id=" << id;
-    auto items = get_records("item_type", where_clause.str().c_str());
-    if (items.size() == 0) {
-        std::ostringstream err;
-        err << "Not found item type with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    } else if (items.size() > 1) {
-        std::ostringstream err;
-        err << "Find too many item types with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    }
-    return *items.begin();
-}
-
-mss database::get_item_type(const char* version, const char* name) {
-    std::ostringstream where_clause;
-    where_clause << "version='" << version << "' and name='" << name << "'";
-    auto items = get_records("item_type", where_clause.str().c_str());
-    if (items.size() == 0) {
-        std::ostringstream err;
-        err << "Not found item type with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    } else if (items.size() > 1) {
-        std::ostringstream err;
-        err << "Find too many item types with " << where_clause.str();
-        throw std::runtime_error(err.str());
-    }
-    return *items.begin();
+    where_clause << "version='" << version << "' and type='" << type << "' and text='" << text << "'";
+    return this->get_record("code", where_clause.str());
 }
 
 int database::callback(void* p, int argc, char** argv, char** azColName) {
@@ -191,19 +150,5 @@ int database::callback(void* p, int argc, char** argv, char** azColName) {
     pitems->push_back(item);
     return 0;
 } //database::callback_user
-
-void database::execute(const std::string& sql) {
-    this->execute(sql.c_str());
-}
-
-void database::execute(const char* sql) {
-    char* zErrMsg = nullptr;
-    if (sqlite3_exec(db, sql, 0, 0, &zErrMsg)) {
-        std::ostringstream err;
-        err << "SQL error: " << zErrMsg;
-        sqlite3_free(zErrMsg);
-        throw std::runtime_error(err.str());
-    }
-}
 
 database db;

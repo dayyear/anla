@@ -77,11 +77,11 @@ void sxd_client::lucky_shop(const std::string& player_name) {
             continue;
         if (lucky_store_id) {
             auto item = db.get_lucky_shop_item(version, lucky_store_id);
-            //common::log(boost::str(boost::format("【神秘商人】[%1%×%2%]，售价[铜钱×%3%]，[元宝×%4%]") % item["item_name"] % item["count"] % item["coin"] % item["ingot"]));
+            common::log(boost::str(boost::format("【神秘商人】[%1%×%2%]，售价[铜钱×%3%]，[元宝×%4%]") % item["item_name"] % item["count"] % item["coin"] % item["ingot"]), 0);
         } else {
             data = this->Mod_Item_Base_get_item_basical_infos(&item_id, 1);
             auto item = db.get_code(version, "Item", item_id);
-            //common::log(boost::str(boost::format("【神秘商人】[%1%×99]，售价[铜钱×%2%]，[元宝×0]") % item["text"] % (data[0][0][3].asInt() * 99)));
+            common::log(boost::str(boost::format("【神秘商人】[%1%×99]，售价[铜钱×%2%]，[元宝×0]") % item["text"] % (data[0][0][3].asInt() * 99)), 0);
         }
     }
     // buy
@@ -119,8 +119,10 @@ void sxd_client::lucky_shop(const std::string& player_name) {
 
 void sxd_client::black_shop(const std::string& player_name) {
     // read config
-    Json::Value black_shop_config;
-    std::istringstream(db.get_config(player_name.c_str(), "BlackShop")) >> black_shop_config;
+    Json::Value config;
+    std::istringstream(db.get_config(player_name.c_str(), "BlackShop")) >> config;
+    for (const auto& item : config)
+        common::log(boost::str(boost::format("【BlackShop】[%1%(%2%)]") % db.get_code(version, "Item", item.asInt())["text"] % item), 0);
     // black_shop
     Json::Value data = this->Mod_LuckyStore_Base_black_shop_item_list();
     Json::Value black_shop_items = data[0];
@@ -132,7 +134,7 @@ void sxd_client::black_shop(const std::string& player_name) {
         int blcak_shop_id = black_shop_item[0].asInt();
         int item_id = black_shop_item[1].asInt();
         std::string item_name = db.get_code(version, "Item", item_id)["text"];
-        if (std::find_if(black_shop_config.begin(), black_shop_config.end(), [item_id](const Json::Value& x) {return x.asInt()==item_id;}) == black_shop_config.end())
+        if (std::find_if(config.begin(), config.end(), [item_id](const Json::Value& x) {return x.asInt()==item_id;}) == config.end())
             continue;
         // buy
         data = this->Mod_LuckyStore_Base_buy_black_shop_item(blcak_shop_id);
