@@ -9,10 +9,10 @@ public:
     static const int NOT_ENOUGH_FATE_GRID = 46;
 };
 
-void sxd_client::item_reel(const std::string& player_name) {
+void sxd_client::item_reel() {
     // read config
     Json::Value config;
-    std::istringstream(db.get_config(player_name.c_str(), "ItemReel")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "ItemReel")) >> config;
     for (const auto& item : config)
         common::log(boost::str(boost::format("¡¾ItemReel¡¿[%1%]") % db.get_code(version, "Item", item.asInt())["text"]), 0);
     // pack
@@ -42,10 +42,10 @@ void sxd_client::item_reel(const std::string& player_name) {
 
 }
 
-void sxd_client::item_use(const std::string& player_name) {
+void sxd_client::item_use() {
     // read config
     Json::Value config;
-    std::istringstream(db.get_config(player_name.c_str(), "ItemUse")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "ItemUse")) >> config;
     for (const auto& item : config)
         common::log(boost::str(boost::format("¡¾ItemUse¡¿[%1%]") % item.asString()), 0);
     // pack
@@ -74,10 +74,10 @@ void sxd_client::item_use(const std::string& player_name) {
     }
 }
 
-void sxd_client::item_sell(const std::string& player_name) {
+void sxd_client::item_sell() {
     // read config
     Json::Value config;
-    std::istringstream(db.get_config(player_name.c_str(), "ItemSell")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "ItemSell")) >> config;
     for (const auto& item : config)
         common::log(boost::str(boost::format("¡¾ItemSell¡¿[%1%]") % db.get_code(version, "Item", item.asInt())["text"]), 0);
     // pack

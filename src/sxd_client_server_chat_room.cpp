@@ -1,4 +1,62 @@
+#include <boost/format.hpp>
+#include "common.h"
 #include "sxd_client.h"
+
+class Mod_ServerChatRoom_Base {
+public:
+    static const int UNDO = 4;
+    static const int DONE = 5;
+    static const int SUCCESS = 9;
+    static const int CAN_FEED = 34;
+    static const int CAN_ESCORT = 35;
+    static const int ESCORTING = 36;
+    static const int INGOT_ESCORTING = 37;
+    static const int ESCORT_DONE = 38;
+    static const int NORMAL = 41;           // 喂养，派遣
+    static const int INGOT = 42;            // 一键喂养，高级派遣
+};
+
+int sxd_client::login_server_chat(sxd_client* sxd_client_town) {
+
+    // get status
+    Json::Value data = sxd_client_town->Mod_ServerChatRoom_Base_get_chat_room_status();
+    if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+        common::log(boost::str(boost::format("【全网聊天】入口未开启，status[%1%]") % data[0]));
+        return 1;
+    }
+
+    // get login information: node, servername, stagename, timestamp, login_code, host, port
+    data = sxd_client_town->Mod_ServerChatRoom_Base_get_chat_room_logincode(data[1][0][0].asInt());
+    std::string node = data[1].asString();
+    std::string servername = data[2].asString();
+    std::string stagename = data[3].asString();
+    int timestamp = data[4].asInt();
+    std::string login_code = data[5].asString();
+    std::string host = data[6].asString();
+    std::string port = data[7].asString();
+
+    // connect
+    this->connect(host, port);
+    common::log(boost::str(boost::format("【全网聊天】连接服务器 [%1%:%2%] 成功") % host % port));
+
+    // login
+    data = this->Mod_ServerChatRoom_Base_login_chat_room(node, sxd_client_town->player_id, servername, stagename, timestamp, login_code);
+    if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+        common::log(boost::str(boost::format("【全网聊天】登录失败，result[%1%]") % data[0]));
+        return 2;
+    }
+    player_id = data[1].asInt();
+    common::log(boost::str(boost::format("【全网聊天】登录成功，player_id[%1%]") % player_id));
+
+    // chat
+    Json::Value config;
+    std::istringstream(db.get_config(user_id.c_str(), "Chat")) >> config;
+    std::string message = config[rand() % config.size()].asString();
+    this->Mod_ServerChatRoom_Base_chat_with_players(common::gbk2utf(message));
+    common::log(boost::str(boost::format("【全网聊天】%1%") % message));
+
+    return 0;
+}
 
 //============================================================================
 // R171

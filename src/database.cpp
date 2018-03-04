@@ -80,9 +80,9 @@ mss database::get_protocol(const char* version, short module, short action) {
 }
 
 // table config
-std::string database::get_config(const char* user, const char* name) {
+std::string database::get_config(const char* user_id, const char* name) {
     std::ostringstream where_clause;
-    where_clause << "user='" << user << "' and name='" << name << "'";
+    where_clause << "user='" << user_id << "' and name='" << name << "'";
     auto items = get_records("config", where_clause.str().c_str());
     if (items.size() == 0) {
         where_clause.str("");

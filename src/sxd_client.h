@@ -13,32 +13,39 @@
 class sxd_client {
 public:
     //============================================================================
-    // - sxd_client
+    // - sxd_client.cpp
     //============================================================================
-    sxd_client(const std::string& version);
+    sxd_client(const std::string& version, const std::string& user_id);
     virtual ~sxd_client();
     void connect(const std::string& host, const std::string& port);
 
     //============================================================================
-    // - sxd_client_town
+    // - sxd_client_town.cpp
     //============================================================================
-    Json::Value Mod_Player_Base_login(const std::string& player_name, const std::string& hash_code, const std::string& time2, const std::string& source, int regdate, const std::string& id_card, int open_time, char is_newst, const std::string& stage, const std::string& client);
+    int login_town(const std::string& web_page);
+    Json::Value Mod_Player_Base_login(const std::string& player_name, const std::string& hash_code, const std::string& time, const std::string& source, int regdate, const std::string& id_card, int open_time, char is_newst, const std::string& stage, const std::string& client);
     Json::Value Mod_Player_Base_get_player_info();
     Json::Value Mod_Player_Base_player_info_contrast(int player_id);
-
-    Json::Value Mod_Role_Base_get_role_list(int player_id);
-
-    Json::Value Mod_Town_Base_enter_town(int town_map_id, int player_id);
-
     Json::Value Mod_Player_Base_get_player_function();
+    Json::Value Mod_Role_Base_get_role_list(int player_id);
+    Json::Value Mod_Town_Base_enter_town(int town_map_id);
 
+    //============================================================================
+    // - sxd_client_gift.cpp
+    //============================================================================
     Json::Value Mod_FunctionEnd_Base_game_function_end_gift();
     Json::Value Mod_FunctionEnd_Base_random_award(int id);
     Json::Value Mod_FunctionEnd_Base_get_game_function_end_gift(int id);
 
+    //============================================================================
+    // -
+    //============================================================================
     Json::Value Mod_GetPeach_Base_peach_info();
     Json::Value Mod_GetPeach_Base_batch_get_peach();
 
+    //============================================================================
+    // -
+    //============================================================================
     Json::Value Mod_Farm_Base_get_farmlandinfo_list();
     Json::Value Mod_Farm_Base_harvest(int land_id, bool is_double = false);
     Json::Value Mod_Farm_Base_buy_coin_tree_count_info();
@@ -46,9 +53,9 @@ public:
     Json::Value Mod_Farm_Base_plant_herbs(int land_id, int play_role_id, int type, int herbs_star_level);
 
     // 物品
-    void item_reel(const std::string& player_name);
-    void item_use(const std::string& player_name);
-    void item_sell(const std::string& player_name);
+    void item_reel();
+    void item_use();
+    void item_sell();
     Json::Value Mod_Item_Base_get_player_pack_item_list();
     Json::Value Mod_Item_Base_get_player_warehouse_grids();
     Json::Value Mod_Item_Base_get_player_home_warehouse_grids();
@@ -61,7 +68,7 @@ public:
 
     // 聊天
     void chat(const std::string& player_name);
-    void Mod_Chat_Base_chat_with_players(const std::string& message);
+    void Mod_Chat_Base_chat_with_players(int type, const std::string& message);
 
     // 任务
     Json::Value Mod_Quest_Base_list_player_quest();
@@ -69,8 +76,8 @@ public:
     Json::Value Mod_Mission_Base_get_sections(int town_map_id);
 
     // 神秘商人
-    void lucky_shop(const std::string& player_name);
-    void black_shop(const std::string& player_name);
+    void lucky_shop();
+    void black_shop();
     Json::Value Mod_LuckyStore_Base_get_lucky_store_item_list();
     Json::Value Mod_LuckyStore_Base_buy_lucky_store_item(int npc_id, int item_id, int lucky_store_id);
     Json::Value Mod_LuckyStore_Base_black_shop_item_list();
@@ -90,7 +97,7 @@ public:
     Json::Value Mod_LinkFate_Base_auto_merge_link_fate_stone();
 
     // 培养
-    void training(const std::string& player_name, int player_id);
+    void training();
     Json::Value Mod_Training_Base_training(int player_role_id, int type);
     Json::Value Mod_Training_Base_modify_role_data(int player_role_id);
 
@@ -121,10 +128,11 @@ public:
     //============================================================================
     // - 仙界
     //============================================================================
+    int login_super_town(sxd_client* sxd_client_town);
     Json::Value Mod_StcLogin_Base_get_status();
     Json::Value Mod_StcLogin_Base_get_login_info();
-    Json::Value Mod_StLogin_Base_login(const std::string& server_name, int player_id, const std::string& nickname, int time, const std::string& pass_code);
-    Json::Value Mod_StTown_Base_enter_town(int player_id);
+    Json::Value Mod_StLogin_Base_login(const std::string& server_name, int player_id_town, const std::string& nickname, int time, const std::string& pass_code);
+    Json::Value Mod_StTown_Base_enter_town();
 
     // 仙盟之树
     Json::Value Mod_StUnionActivity_Base_get_st_union_tree_info();
@@ -150,6 +158,7 @@ public:
     //============================================================================
     // - 圣域
     //============================================================================
+    int login_saint_area(sxd_client* sxd_client_town);
     Json::Value Mod_SaintAreaLogin_Base_get_status();
     Json::Value Mod_SaintAreaLogin_Base_get_login_info();
     Json::Value Mod_SaintAreaLogin_Base_login(const std::string& server_name, int player_id, const std::string& nickname, int time, const std::string& pass_code);
@@ -162,6 +171,7 @@ public:
     //============================================================================
     // - 聊天室
     //============================================================================
+    int login_server_chat(sxd_client* sxd_client_town);
     Json::Value Mod_ServerChatRoom_Base_get_recent_room_list();
     Json::Value Mod_ServerChatRoom_Base_get_chat_room_status();
     Json::Value Mod_ServerChatRoom_Base_get_chat_room_logincode(int id);
@@ -181,11 +191,13 @@ private:
     boost::asio::io_service ios;
     boost::asio::ip::tcp::resolver resolver;
     boost::asio::ip::tcp::socket sock;
-    std::string host;
-    std::string port;
-    std::string version;
-    short pre_module { 0 };
-    short pre_action { 0 };
+
+    std::string version;        // 版本，构造函数初始化
+    std::string user_id;        // 对应数据库表config的id，构造函数初始化
+    int player_id;              // 在login中赋值
+    short pre_module;
+    short pre_action;
+
 };
 
 #endif /* SXD_CLIENT_H_ */

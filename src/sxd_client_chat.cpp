@@ -3,29 +3,28 @@
 #include "common.h"
 #include "sxd_client.h"
 
-void sxd_client::chat(const std::string& player_name) {
-    // read config
-    Json::Value config;
-    std::istringstream(db.get_config(player_name.c_str(), "Chat")) >> config;
-    // chat
-    std::string message = config[rand() % config.size()].asString();
-    this->Mod_Chat_Base_chat_with_players(common::gbk2utf(message));
-    common::log(boost::str(boost::format("【世界】%1%") % message));
-}
+class Mod_SaintAreaTown_Base {
+public:
+    static const int WORLD = 1;
+    static const int ST_TOWN = 4;
+};
 
 //============================================================================
 // R171 聊天
 // {module:6, action:0,
 // request:[Utils.UByteUtil, Utils.StringUtil, Utils.StringUtil, Utils.StringUtil],
+// ChatView.as 126:
+//     _data.call(Mod_Chat_Base.chat_with_players, callBack, [data.messageType, data.message, data.eipNum, data.eipIndex]);
 // Example
-//     [ 1, "\u65b0\u5e74\u5feb\u4e50", "", "" ]
+//     世界聊天：[ 1, "\u65b0\u5e74\u5feb\u4e50", "", "" ]
+//     仙界聊天：[ 4, "\u5176\u4e50\u878d\u878d", "", "" ]
 // response:[Utils.IntUtil, Utils.UByteUtil]};
 // Example
 //     no response
 //============================================================================
-void sxd_client::Mod_Chat_Base_chat_with_players(const std::string& message) {
+void sxd_client::Mod_Chat_Base_chat_with_players(int type, const std::string& message) {
     Json::Value data;
-    data.append(1);
+    data.append(type);
     data.append(message);
     data.append("");
     data.append("");

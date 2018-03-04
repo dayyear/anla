@@ -10,8 +10,10 @@
 #include "common.h"
 #include "sxd_client.h"
 
-sxd_client::sxd_client(const std::string& version) :
-        resolver(ios), sock(ios), version(version) {
+sxd_client::sxd_client(const std::string& version, const std::string& user_id) :
+        resolver(ios), sock(ios), player_id(0), pre_module(0), pre_action(0) {
+    this->version = version;
+    this->user_id = user_id;
 }
 
 sxd_client::~sxd_client() {
@@ -19,8 +21,6 @@ sxd_client::~sxd_client() {
 }
 
 void sxd_client::connect(const std::string& host, const std::string& port) {
-    this->host = host;
-    this->port = port;
     boost::asio::ip::tcp::resolver::query query(host, port);
     boost::asio::connect(sock, resolver.resolve(query));
 }
@@ -116,13 +116,6 @@ Json::Value sxd_client::send_and_receive(const Json::Value& data_s, short module
     short module_r, action_r;
     Json::Value data_r;
     this->send_frame(data_s, module_s, action_s);
-    /*#define MAX_LOOP 100
-     for (int i = 0; i < MAX_LOOP; i++) {
-     this->receive_frame(data_r, module_r, action_r);
-     if (module_s == module_r && action_s == action_r)
-     return data_r;
-     }
-     throw std::runtime_error("MAX_LOOP");*/
     auto start = std::time(NULL);
     for (;;) {
         this->receive_frame(data_r, module_r, action_r);

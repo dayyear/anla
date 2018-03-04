@@ -12,12 +12,12 @@ public:
     static const int ShenMiShangRen = 101;
 };
 
-void sxd_client::lucky_shop(const std::string& player_name) {
+void sxd_client::lucky_shop() {
     // read config
     Json::Value config1, config2;
     std::map<int, int> items_config1, items_config2;
-    std::istringstream(db.get_config(player_name.c_str(), "LuckyStore1")) >> config1;
-    std::istringstream(db.get_config(player_name.c_str(), "LuckyStore2")) >> config2;
+    std::istringstream(db.get_config(user_id.c_str(), "LuckyStore1")) >> config1;
+    std::istringstream(db.get_config(user_id.c_str(), "LuckyStore2")) >> config2;
     // ÉÌÆ·ÅäÖÃ
     for (const auto& item : config1)
         items_config1[item[0].asInt()] = item[1].asInt();
@@ -117,10 +117,10 @@ void sxd_client::lucky_shop(const std::string& player_name) {
     }
 }
 
-void sxd_client::black_shop(const std::string& player_name) {
+void sxd_client::black_shop() {
     // read config
     Json::Value config;
-    std::istringstream(db.get_config(player_name.c_str(), "BlackShop")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "BlackShop")) >> config;
     for (const auto& item : config)
         common::log(boost::str(boost::format("¡¾BlackShop¡¿[%1%(%2%)]") % db.get_code(version, "Item", item.asInt())["text"] % item), 0);
     // black_shop

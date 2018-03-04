@@ -23,7 +23,7 @@ public:
     // table protocol
     mss get_protocol(const char* version, short module, short action);
     // table config
-    std::string get_config(const char* user, const char* name);
+    std::string get_config(const char* user_id, const char* name);
     // table lucky_shop_item
     mss get_lucky_shop_item(const std::string& version, int id);
     mss get_lucky_shop_item(const char* version, int id);

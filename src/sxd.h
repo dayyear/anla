@@ -14,7 +14,7 @@ public:
     static void collect();
 
 private:
-    static void play(const std::string& version, const std::string& url, const std::string& cookie);
+    static void play(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie);
 
     static void StUnionActivity(sxd_client& sxd_client_super_town, const std::string& version);
     static void WishPool(sxd_client& sxd_client_super_town, const std::string& version);

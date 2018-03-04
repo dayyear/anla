@@ -11,9 +11,10 @@ public:
     static const int NOENOUGHITEM = 10;
 };
 
-void sxd_client::training(const std::string& player_name, int player_id) {
+void sxd_client::training() {
     // config
-    std::string config = db.get_config(player_name.c_str(), "Training");
+    std::string config = db.get_config(user_id.c_str(), "Training");
+    common::log(boost::str(boost::format("¡¾Training¡¿[%1%]") % config), 0);
     // roles
     Json::Value data = this->Mod_Role_Base_get_role_list(player_id);
     auto roles = data[14];

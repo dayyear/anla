@@ -30,7 +30,7 @@ sxd::~sxd() {
 void sxd::run() {
     srand((unsigned) time( NULL));
     std::string user_ini = common::read_file("user.ini");
-    boost::regex user_regex("\\[(?<id>.*?)\\]\r\nurl=(?<url>.*?)\r\ncode=(?<user>.*?)\r\ntime=(?<_time>.*?)\r\nhash=(?<_hash>.*?)\r\ntime1=(?<login_time_sxd_xxxxxxxx>.*?)\r\nhash1=(?<login_hash_sxd_xxxxxxxx>.*?)\r\nname=(?<name>.*?)\r\n");
+    boost::regex user_regex("\\[(?<user_id>.*?)\\]\r\nurl=(?<url>.*?)\r\ncode=(?<user>.*?)\r\ntime=(?<_time>.*?)\r\nhash=(?<_hash>.*?)\r\ntime1=(?<login_time_sxd_xxxxxxxx>.*?)\r\nhash1=(?<login_hash_sxd_xxxxxxxx>.*?)\r\nname=(?<name>.*?)\r\n");
     for (auto it = boost::sregex_iterator(user_ini.begin(), user_ini.end(), user_regex); it != boost::sregex_iterator(); it++) {
         try {
             common::log("", 1, 1, 0);
@@ -39,9 +39,10 @@ void sxd::run() {
             oss << "Cookie: user=" << (*it)["user"] << ";";
             oss << "_time=" << (*it)["_time"] << ";_hash=" << (*it)["_hash"] << ";";
             oss << "login_time_sxd_xxxxxxxx=" << (*it)["login_time_sxd_xxxxxxxx"] << ";login_hash_sxd_xxxxxxxx=" << (*it)["login_hash_sxd_xxxxxxxx"] << "\r\n";
+            std::string user_id = (*it)["user_id"];
             std::string url = (*it)["url"];
             std::string cookie = oss.str();
-            sxd::play("R172", url, cookie);
+            sxd::play("R172", user_id, url, cookie);
             //std::thread thread([url, cookie]() {sxd::play("R172", url, cookie);});
         } catch (const std::exception& ex) {
             common::log(boost::str(boost::format("发现错误：%1%") % ex.what()));
@@ -203,129 +204,80 @@ void sxd::analyze() {
     } // for items
 }
 
-void sxd::play(const std::string& version, const std::string& url, const std::string& cookie) {
-    //============================================================================
-    // 1. host and port for web
-    //============================================================================
-    boost::smatch match;
-    if (!regex_search(url, match, boost::regex("http://(.*?)(:\\d*)?/(.*)")))
-        throw std::runtime_error("[url] 匹配出错");
-    std::string host_web(match[1]);
-    std::string port_web(match[2]);
-    port_web = port_web.size() ? port_web.substr(1) : "80";
+bool contain(const std::vector<std::string>& v, const std::string& s) {
+    return std::find(v.begin(), v.end(), s) != v.end();
+}
 
-    //============================================================================
-    // 2. play page and play parameters
-    //============================================================================
-    sxd_web web;
-    web.connect(host_web, port_web);
-    std::string response_body = web.get(url, cookie);
-    if (!regex_search(response_body, match, boost::regex("\"&player_name=(.*?)\"[\\s\\S]*\"&hash_code=(.*?)\"[\\s\\S]*\"&time=(.*?)\"[\\s\\S]*\"&ip=(.*?)\"[\\s\\S]*\"&port=(.*?)\"[\\s\\S]*\"&server_id=(.*?)\"[\\s\\S]*\"&source=(.*?)\"[\\s\\S]*\"&regdate=(.*?)\"[\\s\\S]*\"&id_card=(.*?)\"[\\s\\S]*\"&open_time=(.*?)\"[\\s\\S]*\"&is_newst=(.*?)\"[\\s\\S]*\"&stage=(.*?)\"[\\s\\S]*\"&client=(.*?)\"")))
-        throw std::runtime_error("请使用登录器重新登录");
+void sxd::play(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie) {
 
-    std::string player_name(match[1]);                           // 用于login(0,0)
-    std::string hash_code(match[2]);                             // 用于login(0,0)
-    std::string time2(match[3]);                                 // 用于login(0,0)
-    std::string host_town(match[4]);                             // 用于socket.Connect()
-    std::string port_town(match[5]);                             // 用于socket.Connect()
-    std::string source(match[7]);                                // 用于login(0,0)
-    int regdate = boost::lexical_cast<int>(match[8]);            // 用于login(0,0)
-    std::string id_card(match[9]);                               // 用于login(0,0)
-    int open_time = boost::lexical_cast<int>(match[10]);         // 用于login(0,0)
-    char is_newst = boost::lexical_cast<int>(match[11]);         // 用于login(0,0)
-    std::string stage = common::uri_decode(match[12]);           // 用于login(0,0)
-    std::string client = common::uri_decode(match[13]);          // 用于login(0,0)
+    // initiate four clients
+    sxd_client sxd_client_town(version, user_id);
+    sxd_client sxd_client_super_town(version, user_id);
+    sxd_client sxd_client_saint_area(version, user_id);
+    sxd_client sxd_client_chat_room(version, user_id);
+    Json::Value data;
 
-    //============================================================================
-    // - town connect
-    //============================================================================
-    sxd_client sxd_client_town(version), sxd_client_super_town(version), sxd_client_saint_area(version), sxd_client_chat_room(version);
-    sxd_client_town.connect(host_town, port_town);
-    common::log(boost::str(boost::format("【登录】连接服务器 [%1%:%2%] 成功") % host_town % port_town));
-
-    //============================================================================
-    // - 登录
-    //============================================================================
-    Json::Value data = sxd_client_town.Mod_Player_Base_login(player_name, hash_code, time2, source, regdate, id_card, open_time, is_newst, stage, client);
-    if (data[0].asInt())
-        throw std::runtime_error(boost::str(boost::format("【登录】失败，logined[%1%]") % data[0].asInt()));
-    int player_id = data[1].asInt();
-    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id));
-
-    //============================================================================
-    // - 玩家基本信息
-    //============================================================================
-    data = sxd_client_town.Mod_Player_Base_get_player_info();
-    std::string nickname = data[0].asString();
-    int town_map_id = data[9].asInt();
-    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3]));
-
-    //============================================================================
-    // - 玩家排名信息
-    //============================================================================
-    data = sxd_client_town.Mod_Player_Base_player_info_contrast(player_id);
-    std::string faction_name = common::utf2gbk(data[0][0][2].asString());
-    common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]));
-
-    //============================================================================
-    // - 进入城镇
-    //============================================================================
-    data = sxd_client_town.Mod_Town_Base_enter_town(town_map_id, player_id);
-    if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]));
-    } else {
-        common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]));
+    // get web page from url and cookie
+    std::string web_page;
+    {
+        boost::smatch match;
+        if (!regex_search(url, match, boost::regex("http://(.*?)(:\\d*)?/(.*)")))
+            throw std::runtime_error("[url] 匹配出错");
+        std::string host(match[1]);
+        std::string port(match[2]);
+        port = port.size() ? port.substr(1) : "80";
+        sxd_web web;
+        web.connect(host, port);
+        web_page = web.get(url, cookie);
     }
 
-    //============================================================================
-    // - 玩家已开通功能
-    //============================================================================
+    // login town
+    if (sxd_client_town.login_town(web_page))
+        return;
+
+    // get player functions
     std::vector<std::string> function_names;
-    data = sxd_client_town.Mod_Player_Base_get_player_function();
-    std::ostringstream oss;
-    oss << "【登录】玩家已开通 [" << data[0].size() << "] 项功能 ";
-    for (const auto& item : data[0]) {
-        std::string function_name = db.get_code(version, "Function", item[0].asInt())["text"];
-        //oss << function_name << ", ";
-        function_names.push_back(function_name);
+    {
+        data = sxd_client_town.Mod_Player_Base_get_player_function();
+        common::log(boost::str(boost::format("【登录】玩家已开通 [%1%] 项功能") % data[0].size()));
+        for (const auto& item : data[0]) {
+            std::string function_name = db.get_code(version, "Function", item[0].asInt())["text"];
+            common::log(boost::str(boost::format("【Function】[%1%(%2%)]") % function_name % item[0]), 0);
+            function_names.push_back(function_name);
+        }
     }
-    common::log(oss.str());
 
-    if (std::find(function_names.begin(), function_names.end(), "神秘商人") == function_names.end())
+    // -
+    {
+        data = sxd_client_town.Mod_FunctionEnd_Base_game_function_end_gift();
+        Json::Value gifts = data[0];
+        for (const auto& gift : gifts) {
+            int id = gift[0].asInt();
+            if (gift[8].asInt() == 0)
+                sxd_client_town.Mod_FunctionEnd_Base_random_award(id);
+            data = sxd_client_town.Mod_FunctionEnd_Base_get_game_function_end_gift(id);
+            if (data[0].asInt() == Mod_FunctionEnd_Base::SUCCESS)
+                common::log(boost::str(boost::format("【随机礼包】领取 [%1%]") % db.get_code(version, "EndFunctionGift", id)["text"]));
+            else
+                common::log(boost::str(boost::format("【随机礼包】领取失败，result[%1%]") % data[0]));
+        }
+    }
+
+    // -
+    if (!contain(function_names, "神秘商人"))
         common::log("【神秘商人】未开通");
     else {
-        sxd_client_town.lucky_shop(player_name);
-        sxd_client_town.black_shop(player_name);
-        sxd_client_town.item_reel(player_name);
-        sxd_client_town.item_use(player_name);
-        sxd_client_town.item_sell(player_name);
+        sxd_client_town.lucky_shop();
+        sxd_client_town.black_shop();
+        sxd_client_town.item_reel();
+        sxd_client_town.item_use();
+        sxd_client_town.item_sell();
     }
-    if (std::find(function_names.begin(), function_names.end(), "世界 ") == function_names.end())
-        common::log("【世界】未开通");
+
+    // -
+    if (!contain(function_names, "摘仙桃"))
+        common::log("【摘仙桃】未开通");
     else {
-        sxd_client_town.chat(player_name);
-    }
-
-    //============================================================================
-    // - 随机礼包
-    //============================================================================
-    data = sxd_client_town.Mod_FunctionEnd_Base_game_function_end_gift();
-    Json::Value gifts = data[0];
-    for (const auto& gift : gifts) {
-        int id = gift[0].asInt();
-        if (gift[8].asInt() == 0)
-            sxd_client_town.Mod_FunctionEnd_Base_random_award(id);
-        data = sxd_client_town.Mod_FunctionEnd_Base_get_game_function_end_gift(id);
-        if (data[0].asInt() == Mod_FunctionEnd_Base::SUCCESS)
-            common::log(boost::str(boost::format("【随机礼包】领取 [%1%]") % db.get_code(version, "EndFunctionGift", id)["text"]));
-        else
-            common::log(boost::str(boost::format("【随机礼包】领取失败，result[%1%]") % data[0]));
-    }
-
-    //============================================================================
-    // - 摘仙桃
-    //============================================================================
-    if (std::find(function_names.begin(), function_names.end(), "摘仙桃") != function_names.end()) {
         data = sxd_client_town.Mod_GetPeach_Base_peach_info();
         int fruit_lv = 70 + data[0].asInt() * 5;
         int peach_num = data[1].asInt();
@@ -337,12 +289,9 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
             else
                 common::log(boost::str(boost::format("【摘仙桃】一键摘桃失败，result[%1%]") % data[0]));
         }
-    } else
-        common::log("【摘仙桃】未开通");
+    }
 
-    //============================================================================
-    // - 药园
-    //============================================================================
+    // -
     if (std::find(function_names.begin(), function_names.end(), "药园") != function_names.end()) {
         // 药园土地列表
         data = sxd_client_town.Mod_Farm_Base_get_farmlandinfo_list();
@@ -463,7 +412,7 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
     if (std::find(function_names.begin(), function_names.end(), "培养") == function_names.end())
         common::log("【培养】未开通");
     else {
-        sxd_client_town.training(player_name, player_id);
+        sxd_client_town.training();
     }
 
     if (std::find(function_names.begin(), function_names.end(), "混沌虚空") == function_names.end())
@@ -565,64 +514,21 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
     //============================================================================
     if (std::find(function_names.begin(), function_names.end(), "仙界") == function_names.end())
         common::log("【仙界】未开通");
-    else {
-        data = sxd_client_town.Mod_StcLogin_Base_get_status();
-        if (data[0].asInt() != Mod_StcLogin_Base::OPEN)
-            common::log(boost::str(boost::format("【仙界】入口未开启，status[%1%]") % data[0]));
+    else if (!sxd_client_super_town.login_super_town(&sxd_client_town)) {
+        if (std::find(function_names.begin(), function_names.end(), "仙盟") == function_names.end())
+            common::log("【仙盟】未开通");
         else {
-            common::log("【仙界】入口已开启");
+            // 仙盟之树
+            StUnionActivity(sxd_client_super_town, version);
+            // 魔神挑战
+            sxd_client_super_town.st_union_task();
+        }
 
-            //============================================================================
-            // - 仙界登录信息
-            //============================================================================
-            data = sxd_client_town.Mod_StcLogin_Base_get_login_info();
-            std::string host_super_town = data[0].asString();
-            std::string port_super_town = data[1].asString();
-            std::string server_name_super_town = data[2].asString();
-            int time_super_town = data[3].asInt();
-            std::string pass_code = data[4].asString();
-
-            //============================================================================
-            // - super town connect
-            //============================================================================
-            sxd_client_super_town.connect(host_super_town, port_super_town);
-            common::log(boost::str(boost::format("【仙界】连接服务器 [%1%:%2%] 成功") % host_super_town % port_super_town));
-
-            //============================================================================
-            // - 仙界登录
-            //============================================================================
-            data = sxd_client_super_town.Mod_StLogin_Base_login(server_name_super_town, player_id, nickname, time_super_town, pass_code);
-            if (data[0].asInt())
-                throw std::runtime_error(boost::str(boost::format("【仙界】登录失败，result[%1%]") % data[0]));
-            int player_id_super_town = data[1].asInt();
-            common::log(boost::str(boost::format("【仙界】登录成功，player_id[%1%]") % player_id_super_town));
-
-            //============================================================================
-            // - 进入仙界
-            //============================================================================
-            data = sxd_client_super_town.Mod_StTown_Base_enter_town(player_id_super_town);
-            if (data[0].asInt() != Mod_StTown_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【仙界】玩家进入 [仙界] 失败，result[%1%]") % data[0]));
-            } else {
-                common::log("【仙界】玩家进入 [仙界]");
-            }
-
-            // 仙盟
-            if (std::find(function_names.begin(), function_names.end(), "仙盟") == function_names.end())
-                common::log("【仙盟】未开通");
-            else {
-                // 仙盟之树
-                StUnionActivity(sxd_client_super_town, version);
-                // 魔神挑战
-                sxd_client_super_town.st_union_task();
-            }
-
-            // 许愿池
-            if (std::find(function_names.begin(), function_names.end(), "许愿池") == function_names.end())
-                common::log("【许愿池】未开通");
-            else {
-                WishPool(sxd_client_super_town, version);
-            }
+        // 许愿池
+        if (std::find(function_names.begin(), function_names.end(), "许愿池") == function_names.end())
+            common::log("【许愿池】未开通");
+        else {
+            WishPool(sxd_client_super_town, version);
         }
     }
 
@@ -631,10 +537,9 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
     //============================================================================
     if (std::find(function_names.begin(), function_names.end(), "圣域") == function_names.end())
         common::log("【圣域】未开通");
-    else {
-        if (!SaintAreaLogin(sxd_client_town, sxd_client_saint_area, player_id, nickname)) {
-            SaTakeBible(sxd_client_saint_area);
-        }
+    else if (!sxd_client_saint_area.login_saint_area(&sxd_client_town)) {
+        // 圣域取经
+        SaTakeBible(sxd_client_saint_area);
     }
 
     //============================================================================
@@ -642,12 +547,8 @@ void sxd::play(const std::string& version, const std::string& url, const std::st
     //============================================================================
     if (std::find(function_names.begin(), function_names.end(), "聊天室") == function_names.end())
         common::log("【聊天室】未开通");
-    else {
-        int player_id_chat_room;
-        std::string servername;
-        if (!ServerChatRoomLogin(sxd_client_town, sxd_client_chat_room, player_id, player_id_chat_room, servername, player_name)) {
-            ServerChatRoomPet(sxd_client_town, sxd_client_chat_room, player_id_chat_room, nickname, servername);
-        }
+    else if (!sxd_client_chat_room.login_server_chat(&sxd_client_town)) {
+
     }
 }
 
@@ -775,51 +676,6 @@ void sxd::WishPool(sxd_client& sxd_client_super_town, const std::string& version
     }
 }
 
-int sxd::SaintAreaLogin(sxd_client& sxd_client_town, sxd_client& sxd_client_saint_area, int player_id, const std::string& nickname) {
-    // 圣域状态
-    Json::Value data = sxd_client_town.Mod_SaintAreaLogin_Base_get_status();
-    if (data[0].asInt() != Mod_SaintAreaLogin_Base::OPEN) {
-        common::log(boost::str(boost::format("【圣域】入口未开启，status[%1%]") % data[0]));
-        return 1;
-    }
-    common::log("【圣域】入口已开启");
-
-    // 圣域登录信息
-    data = sxd_client_town.Mod_SaintAreaLogin_Base_get_login_info();
-    if (data[1].asInt() == 0) {
-        common::log("【圣域】玩家未成圣");
-        return 2;
-    }
-    std::string host_saint_area = data[0].asString();
-    std::string port_saint_area = data[1].asString();
-    std::string server_name_saint_area = data[2].asString();
-    int time_saint_area = data[3].asInt();
-    std::string pass_code = data[4].asString();
-
-    // 连接
-    sxd_client_saint_area.connect(host_saint_area, port_saint_area);
-    common::log(boost::str(boost::format("【圣域】连接服务器 [%1%:%2%] 成功") % host_saint_area % port_saint_area));
-
-    // 圣域登录
-    data = sxd_client_saint_area.Mod_SaintAreaLogin_Base_login(server_name_saint_area, player_id, nickname, time_saint_area, pass_code);
-    if (data[0].asInt() != Mod_SaintAreaLogin_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【圣域】登录失败，result[%1%]") % data[0]));
-        return 3;
-    }
-    int player_id_saint_area = data[1].asInt();
-    common::log(boost::str(boost::format("【圣域】登录成功，player_id[%1%]") % player_id_saint_area));
-
-    // 进入圣域
-    data = sxd_client_saint_area.Mod_SaintAreaTown_Base_enter_town();
-    if (data[0].asInt() != Mod_SaintAreaTown_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【圣域】玩家进入 [圣域] 失败，result[%1%]") % data[0]));
-        return 4;
-    }
-    common::log("【圣域】玩家进入 [圣域]");
-
-    return 0;
-}
-
 void sxd::SaTakeBible(sxd_client& sxd_client_saint_area) {
     std::string protectors[] = { "", "白龙马", "沙悟净", "猪八戒", "孙悟空", "唐僧" };
     // first get
@@ -853,106 +709,64 @@ void sxd::SaTakeBible(sxd_client& sxd_client_saint_area) {
     }
 }
 
-int sxd::ServerChatRoomLogin(sxd_client& sxd_client_town, sxd_client& sxd_client_chat_room, int player_id, int& player_id_chat_room, std::string& servername, const std::string& player_name) {
-    // 聊天室状态
-    Json::Value data = sxd_client_town.Mod_ServerChatRoom_Base_get_chat_room_status();
-    if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【聊天室】状态获取失败，result[%1%]") % data[0]));
-        return 1;
-    }
+/*void sxd::ServerChatRoomPet(sxd_client& sxd_client_town, sxd_client& sxd_client_chat_room, int player_id_chat_room, const std::string& nickname, const std::string& servername) {
+ for (int i = 0; i < 10; i++) {
+ Json::Value data = sxd_client_chat_room.Mod_ServerChatRoom_Base_get_player_pet_escort_info();
+ Json::Value pet_escort_info = data;
+ switch (pet_escort_info[2].asInt()) {
 
-    // 聊天室登录信息
-    data = sxd_client_town.Mod_ServerChatRoom_Base_get_chat_room_logincode(data[1][0][0].asInt());
-    std::string node = data[1].asString();
-    servername = data[2].asString();
-    std::string stagename = data[3].asString();
-    int timestamp = data[4].asInt();
-    std::string login_code = data[5].asString();
-    std::string ip = data[6].asString();
-    std::string port = data[7].asString();
+ case Mod_ServerChatRoom_Base::CAN_FEED:
+ if (pet_escort_info[6].asInt() == Mod_ServerChatRoom_Base::UNDO) {
+ data = sxd_client_town.Mod_ServerChatRoom_Base_feed_pet(Mod_ServerChatRoom_Base::NORMAL);
+ if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+ common::log(boost::str(boost::format("【宠物派遣】喂养失败，result[%1%]") % data[0]));
+ return;
+ }
+ common::log("【宠物派遣】喂养一次");
+ }
+ std::this_thread::sleep_for(std::chrono::seconds(10));
+ data = sxd_client_chat_room.Mod_ServerChatRoom_Base_chat_with_players(boost::str(boost::format("MSG7_%1%_%2%_%3%") % player_id_chat_room % nickname % servername));
+ if (data[1].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+ common::log(boost::str(boost::format("【宠物派遣】邀请失败，result[%1%]") % data[1]));
+ return;
+ }
+ common::log(boost::str(boost::format("【宠物派遣】邀请 [%1%/10]") % (i + 1)));
+ std::this_thread::sleep_for(std::chrono::seconds(10));
+ break;
 
-    // 连接
-    sxd_client_chat_room.connect(ip, port);
-    common::log(boost::str(boost::format("【聊天室】连接服务器 [%1%:%2%] 成功") % ip % port));
+ case Mod_ServerChatRoom_Base::CAN_ESCORT:
+ data = sxd_client_town.Mod_ServerChatRoom_Base_escort_pet(Mod_ServerChatRoom_Base::NORMAL);
+ if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+ common::log(boost::str(boost::format("【宠物派遣】派遣失败，result[%1%]") % data[0]));
+ return;
+ }
+ common::log("【宠物派遣】派遣");
+ return;
 
-    // 聊天室登录
-    data = sxd_client_chat_room.Mod_ServerChatRoom_Base_login_chat_room(node, player_id, servername, stagename, timestamp, login_code);
-    if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【聊天室】登录失败，result[%1%]") % data[0]));
-        return 2;
-    }
-    player_id_chat_room = data[1].asInt();
-    common::log(boost::str(boost::format("【聊天室】登录成功，player_id[%1%]") % player_id_chat_room));
+ case Mod_ServerChatRoom_Base::ESCORTING:
+ case Mod_ServerChatRoom_Base::INGOT_ESCORTING:
+ common::log("【宠物派遣】派遣中...");
+ return;
 
-    // read config
-    Json::Value config;
-    std::istringstream(db.get_config(player_name.c_str(), "ServerChatRoom")) >> config;
-    // chat
-    std::string message = config[rand() % config.size()].asString();
-    sxd_client_chat_room.Mod_ServerChatRoom_Base_chat_with_players(common::gbk2utf(message));
-    common::log(boost::str(boost::format("【全网】%1%") % message));
+ case Mod_ServerChatRoom_Base::ESCORT_DONE:
+ if (pet_escort_info[8].asInt() == Mod_ServerChatRoom_Base::UNDO) {
+ data = sxd_client_town.Mod_ServerChatRoom_Base_get_pet_escort_award();
+ if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+ common::log(boost::str(boost::format("【宠物派遣】领取失败，result[%1%]") % data[0]));
+ return;
+ }
+ common::log("【宠物派遣】领取");
+ } else {
+ common::log("【宠物派遣】今日派遣任务已完成");
+ }
+ return;
 
-    return 0;
-}
-
-void sxd::ServerChatRoomPet(sxd_client& sxd_client_town, sxd_client& sxd_client_chat_room, int player_id_chat_room, const std::string& nickname, const std::string& servername) {
-    for (int i = 0; i < 10; i++) {
-        Json::Value data = sxd_client_chat_room.Mod_ServerChatRoom_Base_get_player_pet_escort_info();
-        Json::Value pet_escort_info = data;
-        switch (pet_escort_info[2].asInt()) {
-
-        case Mod_ServerChatRoom_Base::CAN_FEED:
-            if (pet_escort_info[6].asInt() == Mod_ServerChatRoom_Base::UNDO) {
-                data = sxd_client_town.Mod_ServerChatRoom_Base_feed_pet(Mod_ServerChatRoom_Base::NORMAL);
-                if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
-                    common::log(boost::str(boost::format("【宠物派遣】喂养失败，result[%1%]") % data[0]));
-                    return;
-                }
-                common::log("【宠物派遣】喂养一次");
-            }
-            std::this_thread::sleep_for(std::chrono::seconds(10));
-            data = sxd_client_chat_room.Mod_ServerChatRoom_Base_chat_with_players(boost::str(boost::format("MSG7_%1%_%2%_%3%") % player_id_chat_room % nickname % servername));
-            if (data[1].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【宠物派遣】邀请失败，result[%1%]") % data[1]));
-                return;
-            }
-            common::log(boost::str(boost::format("【宠物派遣】邀请 [%1%/10]") % (i + 1)));
-            std::this_thread::sleep_for(std::chrono::seconds(10));
-            break;
-
-        case Mod_ServerChatRoom_Base::CAN_ESCORT:
-            data = sxd_client_town.Mod_ServerChatRoom_Base_escort_pet(Mod_ServerChatRoom_Base::NORMAL);
-            if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【宠物派遣】派遣失败，result[%1%]") % data[0]));
-                return;
-            }
-            common::log("【宠物派遣】派遣");
-            return;
-
-        case Mod_ServerChatRoom_Base::ESCORTING:
-        case Mod_ServerChatRoom_Base::INGOT_ESCORTING:
-            common::log("【宠物派遣】派遣中...");
-            return;
-
-        case Mod_ServerChatRoom_Base::ESCORT_DONE:
-            if (pet_escort_info[8].asInt() == Mod_ServerChatRoom_Base::UNDO) {
-                data = sxd_client_town.Mod_ServerChatRoom_Base_get_pet_escort_award();
-                if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
-                    common::log(boost::str(boost::format("【宠物派遣】领取失败，result[%1%]") % data[0]));
-                    return;
-                }
-                common::log("【宠物派遣】领取");
-            } else {
-                common::log("【宠物派遣】今日派遣任务已完成");
-            }
-            return;
-
-        default:
-            common::log(boost::str(boost::format("【宠物派遣】未知状态，status[%1%]") % pet_escort_info[2]));
-            return;
-        }
-    }
-}
+ default:
+ common::log(boost::str(boost::format("【宠物派遣】未知状态，status[%1%]") % pet_escort_info[2]));
+ return;
+ }
+ }
+ }*/
 
 void sxd::collect() {
     try {

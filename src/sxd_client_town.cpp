@@ -1,4 +1,85 @@
+#include <boost/format.hpp>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
+#include "common.h"
 #include "sxd_client.h"
+
+class Mod_Player_Base {
+public:
+    static const int SUCCEED = 0;
+};
+
+class Mod_Town_Base {
+public:
+    static const int SUCCESS = 41;
+};
+
+int sxd_client::login_town(const std::string& web_page) {
+
+    // 1. validation
+    boost::smatch match;
+    if (!regex_search(web_page, match, boost::regex("\"&player_name=(.*?)\"[\\s\\S]*\"&hash_code=(.*?)\"[\\s\\S]*\"&time=(.*?)\"[\\s\\S]*\"&ip=(.*?)\"[\\s\\S]*\"&port=(.*?)\"[\\s\\S]*\"&server_id=(.*?)\"[\\s\\S]*\"&source=(.*?)\"[\\s\\S]*\"&regdate=(.*?)\"[\\s\\S]*\"&id_card=(.*?)\"[\\s\\S]*\"&open_time=(.*?)\"[\\s\\S]*\"&is_newst=(.*?)\"[\\s\\S]*\"&stage=(.*?)\"[\\s\\S]*\"&client=(.*?)\""))) {
+        common::log("请使用登录器重新登录");
+        return 1;
+    }
+    if (match[1].str() != user_id) {
+        common::log("user_id不一致");
+        return 2;
+    }
+
+    // 2. get login information
+    std::string hash_code(match[2]);                             // 用于login(0,0)
+    std::string time(match[3]);                                  // 用于login(0,0)
+    std::string host(match[4]);                                  // 用于socket.Connect()
+    std::string port(match[5]);                                  // 用于socket.Connect()
+    std::string source(match[7]);                                // 用于login(0,0)
+    int regdate = boost::lexical_cast<int>(match[8]);            // 用于login(0,0)
+    std::string id_card(match[9]);                               // 用于login(0,0)
+    int open_time = boost::lexical_cast<int>(match[10]);         // 用于login(0,0)
+    char is_newst = boost::lexical_cast<int>(match[11]);         // 用于login(0,0)
+    std::string stage = common::uri_decode(match[12]);           // 用于login(0,0)
+    std::string client = common::uri_decode(match[13]);          // 用于login(0,0)
+
+    // 3. connect
+    this->connect(host, port);
+    common::log(boost::str(boost::format("【登录】连接服务器 [%1%:%2%] 成功") % host % port));
+
+    // 4. login
+    Json::Value data = this->Mod_Player_Base_login(user_id, hash_code, time, source, regdate, id_card, open_time, is_newst, stage, client);
+    if (data[0].asInt() != Mod_Player_Base::SUCCEED) {
+        common::log(boost::str(boost::format("【登录】失败，result[%1%]") % data[0].asInt()));
+        return 3;
+    }
+    player_id = data[1].asInt();
+    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id));
+
+    // 5. player infomation
+    data = this->Mod_Player_Base_get_player_info();
+    std::string nickname = data[0].asString();
+    int town_map_id = data[9].asInt();
+    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3]));
+
+    // 6. player contrast infomation
+    data = this->Mod_Player_Base_player_info_contrast(player_id);
+    common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]));
+
+    // 7. enter_town
+    data = this->Mod_Town_Base_enter_town(town_map_id);
+    if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
+        common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]));
+        return 4;
+    }
+    common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]));
+
+    // 8. chat
+    Json::Value config;
+    std::istringstream(db.get_config(user_id.c_str(), "Chat")) >> config;
+    std::string message = config[rand() % config.size()].asString();
+    this->Mod_Chat_Base_chat_with_players(1, common::gbk2utf(message));
+    common::log(boost::str(boost::format("【世界聊天】%1%") % message));
+
+    return 0;
+}
 
 //============================================================================
 // R170
@@ -22,11 +103,11 @@
 //        return;
 //    }// end function
 //============================================================================
-Json::Value sxd_client::Mod_Player_Base_login(const std::string& player_name, const std::string& hash_code, const std::string& time2, const std::string& source, int regdate, const std::string& id_card, int open_time, char is_newst, const std::string& stage, const std::string& client) {
+Json::Value sxd_client::Mod_Player_Base_login(const std::string& player_name, const std::string& hash_code, const std::string& time, const std::string& source, int regdate, const std::string& id_card, int open_time, char is_newst, const std::string& stage, const std::string& client) {
     Json::Value data;
     data.append(player_name);
     data.append(hash_code);
-    data.append(time2);
+    data.append(time);
     data.append(source);
     data.append(regdate);
     data.append(id_card);
@@ -77,6 +158,34 @@ Json::Value sxd_client::Mod_Player_Base_player_info_contrast(int player_id) {
 }
 
 //============================================================================
+// R170
+// 玩家已开通功能
+// {module:0, action:6,
+// request:[],
+// response:[[Utils.IntUtil, Utils.ByteUtil]]}
+// PlayerData.as 1169:
+//     private function format_get_player_function(param1:Array) : Array
+//     {
+//         var _loc_3:* = null;
+//         var _loc_4:* = null;
+//         param1 = param1[0];
+//         var _loc_2:* = [];
+//         for (_loc_3 in param1)
+//         {
+//
+//             _loc_4 = {};
+//             oObject.list(param1[_loc_3], _loc_4, ["id", "isPlayed"]);
+//             _loc_2.push(_loc_4);
+//         }
+//         return _loc_2;
+//     }// end function
+//============================================================================
+Json::Value sxd_client::Mod_Player_Base_get_player_function() {
+    Json::Value data;
+    return this->send_and_receive(data, 0, 6);
+}
+
+//============================================================================
 // R171
 // {module:5, action:2,
 // request:[Utils.IntUtil],
@@ -113,106 +222,10 @@ Json::Value sxd_client::Mod_Role_Base_get_role_list(int player_id) {
 // Mod_Town_Base.as 48:
 //     public static const SUCCESS:int = 41;
 //============================================================================
-Json::Value sxd_client::Mod_Town_Base_enter_town(int town_map_id, int player_id) {
+Json::Value sxd_client::Mod_Town_Base_enter_town(int town_map_id) {
     Json::Value data;
     data.append(town_map_id);
     return this->send_and_receive(data, 1, 0);
-}
-
-//============================================================================
-// R170
-// 玩家已开通功能
-// {module:0, action:6,
-// request:[],
-// response:[[Utils.IntUtil, Utils.ByteUtil]]}
-// PlayerData.as 1169:
-//     private function format_get_player_function(param1:Array) : Array
-//     {
-//         var _loc_3:* = null;
-//         var _loc_4:* = null;
-//         param1 = param1[0];
-//         var _loc_2:* = [];
-//         for (_loc_3 in param1)
-//         {
-//
-//             _loc_4 = {};
-//             oObject.list(param1[_loc_3], _loc_4, ["id", "isPlayed"]);
-//             _loc_2.push(_loc_4);
-//         }
-//         return _loc_2;
-//     }// end function
-//============================================================================
-Json::Value sxd_client::Mod_Player_Base_get_player_function() {
-    Json::Value data;
-    return this->send_and_receive(data, 0, 6);
-}
-
-//============================================================================
-// R171
-// 获取随机礼包信息
-// {module:127, action:1,
-// request:[],
-// response:[[Utils.ShortUtil, Utils.ShortUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.ShortUtil, Utils.ShortUtil, Utils.IntUtil, Utils.ByteUtil]]}
-// FunctionEndData.as 56:
-//     _loc_4 = GiftType.getEndFunctionGift(_loc_1[_loc_3][0]);
-//     GiftType.getEndFunctionGift(_loc_1[_loc_3][0]).giftId = _loc_4.id;
-//     _loc_4.iconPath = URI.functionEndUrl + _loc_4.id + ".png";
-//     _loc_4.flag = 1;
-//     _loc_4.message = "";
-//     _loc_4.addMsg = "";
-//     _loc_4.state_point = _loc_1[_loc_3][1];       // 境界
-//     _loc_4.skill = _loc_1[_loc_3][2];             // 阅历
-//     _loc_4.xian_ling = _loc_1[_loc_3][3];         // 仙令
-//     _loc_4.fame = _loc_1[_loc_3][4];              // 声望
-//     _loc_4.nimbus = _loc_1[_loc_3][5];            // 灵气
-//     _loc_4.coin_buff = _loc_1[_loc_3][6];         // 铜钱加成
-//     _loc_4.exp_buff = _loc_1[_loc_3][7];          // 经验加成
-//     _loc_4.ingot = _loc_1[_loc_3][8];             // 元宝
-//     _loc_4.sortNum = 2000 + _loc_4.sort * 100;    // 排序
-//     _loc_4.bei = _loc_1[_loc_3][9];               // 翻倍
-// Example
-//     [ [ [ 13, 0, 0, 0, 0, 0, 0, 0, 0, 10 ], [ 7, 0, 0, 0, 0, 0, 0, 0, 0, 2 ], [ 16, 0, 0, 0, 0, 0, 0, 0, 0, 2 ], [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 2 ], [ 4, 0, 0, 0, 0, 0, 0, 0, 0, 4 ] ] ]
-//============================================================================
-Json::Value sxd_client::Mod_FunctionEnd_Base_game_function_end_gift() {
-    Json::Value data;
-    return this->send_and_receive(data, 127, 1);
-}
-
-//============================================================================
-// R171
-// 随机
-// {module:127, action:3,
-// request:[Utils.ShortUtil],
-// response:[Utils.ShortUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil]}
-// FunctionEndData.as 202:
-//     _loc_3.state_point = param1[0];
-//     _loc_3.skill = param1[1];
-//     _loc_3.xian_ling = param1[2];
-//     _loc_3.fame = param1[3];
-//     _loc_3.nimbus = param1[4];
-//     _loc_3.exp_buff = param1[5];
-//     this.randomIngot = param1[6];
-//============================================================================
-Json::Value sxd_client::Mod_FunctionEnd_Base_random_award(int id) {
-    Json::Value data;
-    data.append(id);
-    return this->send_and_receive(data, 127, 3);
-}
-
-//============================================================================
-// R171
-// 领取
-// {module:127, action:2,
-// request:[Utils.ShortUtil],
-// response:[Utils.UByteUtil, Utils.ShortUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.ShortUtil, Utils.ShortUtil, Utils.ByteUtil]}
-// FunctionEndData.as 191:
-//     this.result = param1[0];
-//     this.isHaveNext = param1[8] == 1;
-//============================================================================
-Json::Value sxd_client::Mod_FunctionEnd_Base_get_game_function_end_gift(int id) {
-    Json::Value data;
-    data.append(id);
-    return this->send_and_receive(data, 127, 2);
 }
 
 //============================================================================
@@ -372,81 +385,3 @@ Json::Value sxd_client::Mod_Farm_Base_plant_herbs(int land_id, int play_role_id,
     return this->send_and_receive(data, 13, 5);
 }
 
-//============================================================================
-// R171
-// 仙界状态
-// {module:96, action:1,
-// request:[],
-// response:[Utils.UByteUtil, [Utils.IntUtil, Utils.IntUtil, Utils.UByteUtil]]}
-// StcLoginData.as 38:
-//     oObject.list(param1, this.stcStatusObj, ["status", "close_time_list"]);
-// Example
-//     [ 0, [ [ 1506736800, 1506765600, 4 ] ] ]
-//============================================================================
-Json::Value sxd_client::Mod_StcLogin_Base_get_status() {
-    Json::Value data;
-    return this->send_and_receive(data, 96, 1);
-}
-
-//============================================================================
-// R170
-// 仙界登录信息
-// {module:96, action:0,
-// request:[],
-// response:[Utils.StringUtil, Utils.ShortUtil, Utils.StringUtil, Utils.IntUtil, Utils.StringUtil, Utils.StringUtil]}
-// StcLoginData.as 22:
-//     public function get_login_info(param1:Array) : void
-//     {
-//         this.stcLoginObj = new Object();
-//         var _loc_2:* = 0;
-//         this.stcLoginObj.serverHost = param1[_loc_2++];
-//         this.stcLoginObj.port = param1[_loc_2++];
-//         this.stcLoginObj.serverName = param1[_loc_2++];
-//         this.stcLoginObj.time = param1[_loc_2++];
-//         this.stcLoginObj.passCode = param1[_loc_2++];
-//         this.stcLoginObj.serverTownName = param1[_loc_2++];
-//         this.stcLoginObj.playerId = 32;
-//         return;
-//     }// end function
-// Example
-//     [ "8x072.xd.com", 9400, "s04", 1519271240, "04c7653a374a9567e33d4fd3a8f210b9", "super_town_s0" ]
-//============================================================================
-Json::Value sxd_client::Mod_StcLogin_Base_get_login_info() {
-    Json::Value data;
-    return this->send_and_receive(data, 96, 0);
-}
-
-//============================================================================
-// R171
-// 圣域状态
-// {module:293, action:2,
-// request:[], response:[Utils.UByteUtil, [Utils.IntUtil, Utils.IntUtil, Utils.UByteUtil]]}
-// SaintAreaLoginData.as 66:
-//     oObject.list(param1, this.saintAreaStatusObj, ["status", "close_time_list"]);
-// Example
-//     [ 2, [ [ 1506736800, 1506744000, 6 ] ] ]
-//============================================================================
-Json::Value sxd_client::Mod_SaintAreaLogin_Base_get_status(){
-    Json::Value data;
-    return this->send_and_receive(data, 293, 2);
-}
-//============================================================================
-// R171
-// 圣域登录信息
-// {module:293, action:1,
-// request:[], response:[Utils.StringUtil, Utils.ShortUtil, Utils.StringUtil, Utils.IntUtil, Utils.StringUtil, Utils.StringUtil]}
-// SaintAreaLoginData.as 54:
-//     this.saintAreaLoginObj.serverHost = param1[_loc_2++];
-//     this.saintAreaLoginObj.port = param1[_loc_2++];
-//     this.saintAreaLoginObj.serverName = param1[_loc_2++];
-//     this.saintAreaLoginObj.time = param1[_loc_2++];
-//     this.saintAreaLoginObj.passCode = param1[_loc_2++];
-//     this.saintAreaLoginObj.serverTownName = param1[_loc_2++];
-// Example
-//     [ "8x073.xd.com", 9203, "s04", 1519223759, "cbc143f15b87fc91e82cebd29627418f", "saint_area_s01" ]
-//     [ "", 0, "", 0, "", "" ]
-//============================================================================
-Json::Value sxd_client::Mod_SaintAreaLogin_Base_get_login_info(){
-    Json::Value data;
-    return this->send_and_receive(data, 293, 1);
-}

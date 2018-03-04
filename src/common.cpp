@@ -6,6 +6,7 @@
 #include <boost/locale/encoding.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/date_time/posix_time/time_formatters.hpp>
+#include <boost/filesystem.hpp>
 
 #include "common.h"
 
@@ -243,13 +244,19 @@ std::string common::to_string(const boost::posix_time::ptime& pt, const char* fo
 
 void common::log(const std::string& message, bool console, bool file, bool time) {
     boost::posix_time::ptime now(boost::posix_time::second_clock::local_time());
+    std::string path = "log";
+    boost::filesystem::create_directory(path);
     if (console) {
-        if (time)
+        std::ofstream ofile(path + "\\" + to_string(now, "%Y-%m-%d.txt"), std::ios::binary | std::ios::out | std::ios::app);
+        if (time) {
             std::cout << to_string(now, "%H:%M:%S") << " ";
+            ofile << to_string(now, "%H:%M:%S") << " ";
+        }
         std::cout << message << std::endl;
+        ofile << message << std::endl;
     }
     if (file) {
-        std::ofstream ofile(to_string(now, "%Y-%m-%d.txt"), std::ios::binary | std::ios::out | std::ios::app);
+        std::ofstream ofile(path + "\\" + to_string(now, "%Y-%m-%d.log"), std::ios::binary | std::ios::out | std::ios::app);
         if (time)
             ofile << to_string(now, "%H:%M:%S") << " ";
         ofile << message << std::endl;
