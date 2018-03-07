@@ -1,3 +1,4 @@
+#include <thread>
 #include <boost/format.hpp>
 #include "common.h"
 #include "sxd_client.h"
@@ -150,6 +151,75 @@ Json::Value sxd_client::Mod_ServerChatRoom_Base_login_chat_room(const std::strin
     data.append(timestamp);
     data.append(login_code);
     return this->send_and_receive(data, 336, 12);
+}
+
+void sxd_client::pet_escort(sxd_client* sxd_client_town) {
+
+    // get nickname
+    Json::Value data = sxd_client_town->Mod_Player_Base_get_player_info();
+    std::string nickname = data[0].asString();
+    // get servername
+    data = sxd_client_town->Mod_ServerChatRoom_Base_get_chat_room_status();
+    data = sxd_client_town->Mod_ServerChatRoom_Base_get_chat_room_logincode(data[1][0][0].asInt());
+    std::string servername = data[2].asString();
+
+    // try 10 times
+    for (int i = 0; i < 10; i++) {
+        data = this->Mod_ServerChatRoom_Base_get_player_pet_escort_info();
+        Json::Value pet_escort_info = data;
+        switch (pet_escort_info[2].asInt()) {
+
+        case Mod_ServerChatRoom_Base::CAN_FEED:
+            if (pet_escort_info[6].asInt() == Mod_ServerChatRoom_Base::UNDO) {
+                data = sxd_client_town->Mod_ServerChatRoom_Base_feed_pet(Mod_ServerChatRoom_Base::NORMAL);
+                if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+                    common::log(boost::str(boost::format("【宠物派遣】喂养失败，result[%1%]") % data[0]));
+                    return;
+                }
+                common::log("【宠物派遣】喂养一次");
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            data = this->Mod_ServerChatRoom_Base_chat_with_players(boost::str(boost::format("MSG7_%1%_%2%_%3%") % player_id % nickname % servername));
+            if (data[1].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【宠物派遣】邀请失败，result[%1%]") % data[1]));
+                return;
+            }
+            common::log(boost::str(boost::format("【宠物派遣】邀请 [%1%/10]") % (i + 1)));
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            break;
+
+        case Mod_ServerChatRoom_Base::CAN_ESCORT:
+            data = sxd_client_town->Mod_ServerChatRoom_Base_escort_pet(Mod_ServerChatRoom_Base::NORMAL);
+            if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【宠物派遣】派遣失败，result[%1%]") % data[0]));
+                return;
+            }
+            common::log("【宠物派遣】派遣");
+            return;
+
+        case Mod_ServerChatRoom_Base::ESCORTING:
+        case Mod_ServerChatRoom_Base::INGOT_ESCORTING:
+            common::log("【宠物派遣】派遣中...");
+            return;
+
+        case Mod_ServerChatRoom_Base::ESCORT_DONE:
+            if (pet_escort_info[8].asInt() == Mod_ServerChatRoom_Base::UNDO) {
+                data = sxd_client_town->Mod_ServerChatRoom_Base_get_pet_escort_award();
+                if (data[0].asInt() != Mod_ServerChatRoom_Base::SUCCESS) {
+                    common::log(boost::str(boost::format("【宠物派遣】领取失败，result[%1%]") % data[0]));
+                    return;
+                }
+                common::log("【宠物派遣】领取");
+            } else {
+                common::log("【宠物派遣】今日派遣任务已完成");
+            }
+            return;
+
+        default:
+            common::log(boost::str(boost::format("【宠物派遣】未知状态，status[%1%]") % pet_escort_info[2]));
+            return;
+        }
+    }
 }
 
 //============================================================================

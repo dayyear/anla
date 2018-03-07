@@ -117,35 +117,6 @@ void sxd_client::lucky_shop() {
     }
 }
 
-void sxd_client::black_shop() {
-    // read config
-    Json::Value config;
-    std::istringstream(db.get_config(user_id.c_str(), "BlackShop")) >> config;
-    for (const auto& item : config)
-        common::log(boost::str(boost::format("°æBlackShop°ø[%1%(%2%)]") % db.get_code(version, "Item", item.asInt())["text"] % item), 0);
-    // black_shop
-    Json::Value data = this->Mod_LuckyStore_Base_black_shop_item_list();
-    Json::Value black_shop_items = data[0];
-    for (const auto& black_shop_item : black_shop_items) {
-        if (black_shop_item[7].asInt())
-            continue;
-        if (black_shop_item[3].asInt())
-            continue;
-        int blcak_shop_id = black_shop_item[0].asInt();
-        int item_id = black_shop_item[1].asInt();
-        std::string item_name = db.get_code(version, "Item", item_id)["text"];
-        if (std::find_if(config.begin(), config.end(), [item_id](const Json::Value& x) {return x.asInt()==item_id;}) == config.end())
-            continue;
-        // buy
-        data = this->Mod_LuckyStore_Base_buy_black_shop_item(blcak_shop_id);
-        if (data[0].asInt() != Mod_LuckyStore_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]  ß∞‹£¨result[%2%]") % item_name % data[0]));
-            return;
-        }
-        common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]") % item_name));
-    }
-}
-
 //============================================================================
 // R171
 // …Ò√ÿ…Ã»À
@@ -185,6 +156,35 @@ Json::Value sxd_client::Mod_LuckyStore_Base_buy_lucky_store_item(int npc_id, int
     data.append(item_id);
     data.append(lucky_store_id);
     return this->send_and_receive(data, 87, 6);
+}
+
+void sxd_client::black_shop() {
+    // read config
+    Json::Value config;
+    std::istringstream(db.get_config(user_id.c_str(), "BlackShop")) >> config;
+    for (const auto& item : config)
+        common::log(boost::str(boost::format("°æBlackShop°ø[%1%(%2%)]") % db.get_code(version, "Item", item.asInt())["text"] % item), 0);
+    // black_shop
+    Json::Value data = this->Mod_LuckyStore_Base_black_shop_item_list();
+    Json::Value black_shop_items = data[0];
+    for (const auto& black_shop_item : black_shop_items) {
+        if (black_shop_item[7].asInt())
+            continue;
+        if (black_shop_item[3].asInt())
+            continue;
+        int blcak_shop_id = black_shop_item[0].asInt();
+        int item_id = black_shop_item[1].asInt();
+        std::string item_name = db.get_code(version, "Item", item_id)["text"];
+        if (std::find_if(config.begin(), config.end(), [item_id](const Json::Value& x) {return x.asInt()==item_id;}) == config.end())
+            continue;
+        // buy
+        data = this->Mod_LuckyStore_Base_buy_black_shop_item(blcak_shop_id);
+        if (data[0].asInt() != Mod_LuckyStore_Base::SUCCESS) {
+            common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]  ß∞‹£¨result[%2%]") % item_name % data[0]));
+            return;
+        }
+        common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]") % item_name));
+    }
 }
 
 //============================================================================

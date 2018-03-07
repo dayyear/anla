@@ -1,4 +1,34 @@
+#include <boost/format.hpp>
+#include "common.h"
 #include "sxd_client.h"
+
+class Mod_ThreeAnniversarySignIn_Base {
+public:
+    static const int YES = 0;
+    static const int SUCCESS = 25;
+};
+
+void sxd_client::sign_in() {
+    Json::Value data = this->Mod_ThreeAnniversarySignIn_Base_get_sign_in_status();
+    if (data[0].asInt() != Mod_ThreeAnniversarySignIn_Base::YES)
+        common::log(boost::str(boost::format("【新年签到】活动未开启，isActivity[%1%]") % data[0]));
+    else {
+        if (data[1].asInt() != Mod_ThreeAnniversarySignIn_Base::YES)
+            common::log(boost::str(boost::format("【新年签到】活动不可参与，isCanJoin[%1%]") % data[1]));
+        else {
+            data = this->Mod_ThreeAnniversarySignIn_Base_get_player_sign_in_info();
+            if (data[3].asInt() == Mod_ThreeAnniversarySignIn_Base::YES)
+                common::log("【新年签到】今日已签到");
+            else {
+                data = this->Mod_ThreeAnniversarySignIn_Base_player_sign_in();
+                if (data[0].asInt() == Mod_ThreeAnniversarySignIn_Base::SUCCESS)
+                    common::log("【新年签到】今日签到成功");
+                else
+                    common::log(boost::str(boost::format("【新年签到】今日签到失败，result[%1%]") % data[0]));
+            }
+        }
+    }
+}
 
 //============================================================================
 // R171

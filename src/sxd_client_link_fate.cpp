@@ -1,4 +1,44 @@
+#include <boost/format.hpp>
+#include "common.h"
 #include "sxd_client.h"
+
+class Mod_LinkFate_Base {
+public:
+    static const int SUCCESS = 5;
+};
+
+void sxd_client::link_fate() {
+    Json::Value data = this->Mod_LinkFate_Base_get_link_fate_box();
+    Json::Value items = data[0];
+
+    std::ostringstream oss;
+    for (const auto& item : items)
+        oss << " [" << item[1] << "] 个 [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]，";
+    common::log(boost::str(boost::format("【结缘】当前%1%") % oss.str().substr(0, oss.str().size() - 2)));
+
+    for (unsigned i = 0; i < items.size(); i++) {
+        if (items[i][1].asInt()) {
+            int id = items[i][0].asInt();
+            data = this->Mod_LinkFate_Base_one_key_open_box(id);
+            if (data[0].asInt() != Mod_LinkFate_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【结缘】十连开失败，result[%1%]") % data[0]));
+                break;
+            }
+            common::log(boost::str(boost::format("【结缘】十连开 [%1%]") % db.get_code(version, "Item", id)["text"]));
+            data = this->Mod_LinkFate_Base_auto_merge_link_fate_stone();
+            if (data[0].asInt() != Mod_LinkFate_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【结缘】一键吞噬失败，result[%1%]") % data[0]));
+                break;
+            }
+            common::log("【结缘】一键吞噬");
+            // update items
+            data = this->Mod_LinkFate_Base_get_link_fate_box();
+            items = data[0];
+            if (items[i][1].asInt())
+                i--;
+        }
+    }
+}
 
 //============================================================================
 // R171

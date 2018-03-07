@@ -1,4 +1,141 @@
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+#include "common.h"
 #include "sxd_client.h"
+
+class Mod_ChaosEquipment_Base {
+public:
+    static const int SUCCESS = 0;
+};
+
+class Mod_SpaceFind_Base {
+public:
+    static const int NORMAL = 0;
+    static const int USEINGOT = 1;
+    static const int SUCCESS = 2;
+};
+
+void sxd_client::space_find() {
+    Json::Value data = this->Mod_SpaceFind_Base_open_space_find();
+    int count = data[0].asInt();
+    common::log(boost::str(boost::format("°æªÏ„Á–Èø’°øΩÒ»’ªπø…◊•≤∂ [%1%] ¥Œ") % count));
+    for (int i = 0; i < count; i++) {
+        data = this->Mod_SpaceFind_Base_do_space_find(Mod_SpaceFind_Base::NORMAL);
+        if (data[0] != Mod_SpaceFind_Base::SUCCESS) {
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø—∞’““Ï ﬁ ß∞‹£¨result[%1%]") % data[0]));
+            break;
+        }
+        common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø—∞’““Ï ﬁ£¨∑¢œ÷ [%1%]") % db.get_code(version, "Item", data[1].asInt())["text"]));
+        data = this->Mod_SpaceFind_Base_get_space_find();
+        if (data[0] != Mod_SpaceFind_Base::SUCCESS) {
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø◊•≤∂“Ï ﬁ ß∞‹£¨result[%1%]") % data[0]));
+            break;
+        }
+        std::ostringstream oss;
+        for (const auto& item : data[1])
+            oss << "[" << item[1] << "] ∏ˆ [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]£¨";
+        common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø◊•≤∂“Ï ﬁ£¨ªÒµ√ %1%") % oss.str().substr(0, oss.str().size() - 2)));
+    }
+}
+
+//============================================================================
+// R171
+// ªÏ„Á–Èø’
+// {module:123, action:0,
+// request:[], response:[Utils.ShortUtil, Utils.IntUtil, Utils.ShortUtil, Utils.StringUtil, Utils.ShortUtil, Utils.IntUtil, Utils.UByteUtil]}
+// SpaceFindController.as 20:
+//     oObject.list(_loc_2, _loc_1, ["count", "item_id", "golden", "be_app_nickname", "can_buy_count", "integral", "useType"]);
+// Example
+//     [ 2, 0, 5, "", 20, 0, 0 ]
+//============================================================================
+Json::Value sxd_client::Mod_SpaceFind_Base_open_space_find() {
+    Json::Value data;
+    return this->send_and_receive(data, 123, 0);
+}
+
+//============================================================================
+// R171
+// —∞’““Ï ﬁ
+// {module:123, action:1,
+// request:[Utils.UByteUtil],
+// Example
+//     [ 0 ]
+// response:[Utils.UByteUtil, Utils.IntUtil, Utils.ShortUtil, Utils.IntUtil, Utils.UByteUtil]}
+// SpaceFindController.as 34:
+//     oObject.list(_loc_2, _loc_1, ["result", "item_id", "golden", "integral", "useType"]);
+// Example
+//     [ 2, 1824, 5, 0, 0 ]
+//============================================================================
+Json::Value sxd_client::Mod_SpaceFind_Base_do_space_find(int type) {
+    Json::Value data;
+    data.append(type);
+    return this->send_and_receive(data, 123, 1);
+}
+//============================================================================
+// R171
+// ◊•≤∂
+// {module:123, action:2,
+// request:[], response:[Utils.UByteUtil, [Utils.IntUtil, Utils.ShortUtil], Utils.ShortUtil, Utils.ShortUtil]}
+// SpaceFindController.as 44:
+//     oObject.list(_loc_2, _loc_1, ["result", "find_goods", "count", "can_buy_count"]);
+// Example
+//     [ 2, [ [ 1845, 1 ], [ 1854, 1 ] ], 1, 20 ]
+//============================================================================
+Json::Value sxd_client::Mod_SpaceFind_Base_get_space_find() {
+    Json::Value data;
+    return this->send_and_receive(data, 123, 2);
+}
+
+void sxd_client::chaos_equipment() {
+    Json::Value data = this->Mod_ChaosEquipment_Base_get_pack_chaos_monster_list();
+    common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø¡È±¶÷∆◊˜£∫[%1%] ∏ˆ [¡È“∫]") % data[0]), 0);
+    std::ostringstream oss;
+    for (const auto& item : data[1])
+        oss << "[" << db.get_code(version, "Item", item[1].asInt())["text"] << "]£¨";
+    common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø“Ï ﬁ±≥∞¸£∫%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
+    oss.str("");
+    for (const auto& item : data[2])
+        oss << "[" << db.get_code(version, "Item", item[1].asInt())["text"] << "]£¨";
+    common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø¡È±¶±≥∞¸£∫%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
+    oss.str("");
+    for (const auto& item : data[3])
+        oss << "[" << item[1] << "] ∏ˆ [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]£¨";
+    common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø“Ï ﬁÕºº¯£∫%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
+
+    Json::Value scraps = data[3];
+    for (unsigned i = 0; i < scraps.size(); i++) {
+        mss scrap_item = db.get_code(version, "Item", scraps[i][0].asInt());
+        std::string scrap_comment = scrap_item["comment"];
+        std::string scrap_name = scrap_item["text"];
+        mss monster_item = db.get_code(version, "Item", common::gbk2utf(scrap_name.substr(0, scrap_name.size() - 4))); // »•µÙÀÈ∆¨
+        int monster_id = boost::lexical_cast<int>(monster_item["value"]);
+        std::string monster_name = monster_item["text"];
+        // green and blue
+        if ((scrap_comment.find("00ff00") != std::string::npos && scraps[i][1].asInt() >= 10) || (scrap_comment.find("00b7ee") != std::string::npos && scraps[i][1].asInt() >= 20)) {
+            // ∫œ≥…
+            data = this->Mod_ChaosEquipment_Base_make_chaos_monster(monster_id);
+            if (data[0].asInt() != Mod_ChaosEquipment_Base::SUCCESS) {
+                common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∫œ≥… [%1%]  ß∞‹") % monster_name));
+                break;
+            }
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∫œ≥… [%1%]") % monster_name));
+            // ∑÷Ω‚
+            data = this->Mod_ChaosEquipment_Base_resolve_player_chaos_monster(data[1][0][0].asInt());
+            if (data[0].asInt() != Mod_ChaosEquipment_Base::SUCCESS) {
+                common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∑÷Ω‚ [%1%]  ß∞‹") % monster_name));
+                break;
+            }
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∑÷Ω‚ [%1%]") % monster_name));
+            // update scraps
+            data = this->Mod_ChaosEquipment_Base_get_pack_chaos_monster_list();
+            scraps = data[3];
+            scrap_item = db.get_code(version, "Item", scraps[i][0].asInt());
+            scrap_comment = scrap_item["comment"];
+            if ((scrap_comment.find("00ff00") != std::string::npos && scraps[i][1].asInt() >= 10) || (scrap_comment.find("00b7ee") != std::string::npos && scraps[i][1].asInt() >= 20))
+                i--;
+        }
+    }
+}
 
 //============================================================================
 // R171
@@ -68,50 +205,3 @@ Json::Value sxd_client::Mod_ChaosEquipment_Base_resolve_player_chaos_monster(int
     return this->send_and_receive(data, 124, 13);
 }
 
-//============================================================================
-// R171
-// ªÏ„Á–Èø’
-// {module:123, action:0,
-// request:[], response:[Utils.ShortUtil, Utils.IntUtil, Utils.ShortUtil, Utils.StringUtil, Utils.ShortUtil, Utils.IntUtil, Utils.UByteUtil]}
-// SpaceFindController.as 20:
-//     oObject.list(_loc_2, _loc_1, ["count", "item_id", "golden", "be_app_nickname", "can_buy_count", "integral", "useType"]);
-// Example
-//     [ 2, 0, 5, "", 20, 0, 0 ]
-//============================================================================
-Json::Value sxd_client::Mod_SpaceFind_Base_open_space_find() {
-    Json::Value data;
-    return this->send_and_receive(data, 123, 0);
-}
-
-//============================================================================
-// R171
-// —∞’““Ï ﬁ
-// {module:123, action:1,
-// request:[Utils.UByteUtil],
-// Example
-//     [ 0 ]
-// response:[Utils.UByteUtil, Utils.IntUtil, Utils.ShortUtil, Utils.IntUtil, Utils.UByteUtil]}
-// SpaceFindController.as 34:
-//     oObject.list(_loc_2, _loc_1, ["result", "item_id", "golden", "integral", "useType"]);
-// Example
-//     [ 2, 1824, 5, 0, 0 ]
-//============================================================================
-Json::Value sxd_client::Mod_SpaceFind_Base_do_space_find(int type) {
-    Json::Value data;
-    data.append(type);
-    return this->send_and_receive(data, 123, 1);
-}
-//============================================================================
-// R171
-// ◊•≤∂
-// {module:123, action:2,
-// request:[], response:[Utils.UByteUtil, [Utils.IntUtil, Utils.ShortUtil], Utils.ShortUtil, Utils.ShortUtil]}
-// SpaceFindController.as 44:
-//     oObject.list(_loc_2, _loc_1, ["result", "find_goods", "count", "can_buy_count"]);
-// Example
-//     [ 2, [ [ 1845, 1 ], [ 1854, 1 ] ], 1, 20 ]
-//============================================================================
-Json::Value sxd_client::Mod_SpaceFind_Base_get_space_find() {
-    Json::Value data;
-    return this->send_and_receive(data, 123, 2);
-}

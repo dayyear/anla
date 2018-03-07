@@ -1,13 +1,5 @@
-#include <thread>
-#include <boost/format.hpp>
-#include "common.h"
-#include "sxd_client.h"
 
-class Mod_SaintAreaTown_Base {
-public:
-    static const int WORLD = 1;
-    static const int ST_TOWN = 4;
-};
+#include "sxd_client.h"
 
 //============================================================================
 // R171 адлЛ
