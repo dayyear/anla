@@ -8,7 +8,49 @@ public:
     static const int BLESS_SUCCESS = 7;
 };
 
+std::string sxd_client::get_st_union_name() {
+    Json::Value data = this->Mod_StTown_Base_get_players();
+    auto me = std::find_if(data[0].begin(), data[0].end(), [=](const Json::Value& x) {return x[0].asInt()==player_id;});
+    return common::utf2gbk((*me)[12].asString());
+}
+
+//============================================================================
+// R172 ÏÉÃËÐÅÏ¢
+// {module:178, action:4, request:[], response:[Utils.IntUtil, Utils.StringUtil, Utils.ShortUtil, Utils.ShortUtil, Utils.ShortUtil, Utils.IntUtil, Utils.IntUtil, Utils.StringUtil, Utils.StringUtil, [Utils.IntUtil, Utils.StringUtil, Utils.StringUtil, Utils.StringUtil, Utils.ShortUtil, Utils.ByteUtil, Utils.ShortUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.UByteUtil]]};
+// StUnionData.as 147:
+//     oObject.list(param1, this._myUnionInfo, ["st_union_id", "name", "level", "rank", "member_count", "exp", "cur_week_exp", "qq_group", "notice"]);
+//============================================================================
+Json::Value sxd_client::Mod_StUnion_Base_get_player_st_union_info() {
+    Json::Value data;
+    return this->send_and_receive(data, 178, 4);
+}
+
+//============================================================================
+// R172 ÏÉÃËÉÏÏã
+//============================================================================
+void sxd_client::st_union_god_incense() {
+    Json::Value data = this->Mod_StUnionActivity_Base_st_union_god_incense(1);
+    if (data[0].asInt() == Mod_StUnionActivity_Base::SUCCESS)
+        common::log("¡¾ÏÉÃËÉÏÏã¡¿¸øÏÉÃËÉñÏñÉÏ [°×Ì´Ïã]");
+}
+
+//============================================================================
+// R172 ÏÉÃËÉÏÏã
+// {module:179, action:11, request:[Utils.IntUtil],
+//     {1:["°×Ì´Ïã", 0, 5, 10, 10, 0, 100], 2:["ËÕºÏÏã", 30, 50, 100, 30, 1, 0], 3:["ÌìÄ¾Ïã", 90, 1000, 1000, 100, 2, 0]};
+// response:[Utils.UByteUtil, Utils.ShortUtil, Utils.ShortUtil, Utils.IntUtil]};
+//============================================================================
+Json::Value sxd_client::Mod_StUnionActivity_Base_st_union_god_incense(int id) {
+    Json::Value data;
+    data.append(id);
+    return this->send_and_receive(data, 179, 11);
+}
+
+//============================================================================
+// R171 ÏÉÃËÖ®Ê÷
+//============================================================================
 void sxd_client::st_union_activity() {
+
     // tree
     Json::Value data = this->Mod_StUnionActivity_Base_get_st_union_tree_info();
     Json::Value tree_info = data;

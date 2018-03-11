@@ -44,6 +44,7 @@ public:
     Json::Value Mod_Player_Base_player_info_contrast(int player_id);
     Json::Value Mod_Player_Base_get_player_function();
     Json::Value Mod_Player_Base_get_game_assistant_info();
+    Json::Value Mod_Player_Base_server_time();
     Json::Value Mod_Role_Base_get_role_list(int player_id);
     Json::Value Mod_Town_Base_enter_town(int town_map_id);
 
@@ -183,10 +184,15 @@ public:
     Json::Value Mod_StcLogin_Base_get_login_info();
     Json::Value Mod_StLogin_Base_login(const std::string& server_name, int player_id_town, const std::string& nickname, int time, const std::string& pass_code);
     Json::Value Mod_StTown_Base_enter_town();
+    Json::Value Mod_StTown_Base_get_players();
 
     //============================================================================
     // - sxd_client_st_union.cpp
     //============================================================================
+    std::string get_st_union_name();
+    Json::Value Mod_StUnion_Base_get_player_st_union_info();
+    void st_union_god_incense();
+    Json::Value Mod_StUnionActivity_Base_st_union_god_incense(int id);
     void st_union_activity();
     Json::Value Mod_StUnionActivity_Base_get_st_union_tree_info();
     Json::Value Mod_StUnionActivity_Base_need_bless_player();
@@ -234,6 +240,31 @@ public:
     void exploit_shop();
     Json::Value Mod_StArena_Base_exploit_shop_item_list();
     Json::Value Mod_StArena_Base_buy_exploit_shop_item(int id, int count);
+
+    //============================================================================
+    // - sxd_client_st_super_sport.cpp
+    //============================================================================
+    void get_rank_award(sxd_client* sxd_client_town);
+    Json::Value Mod_StSuperSport_Base_get_player_st_super_sport();
+    Json::Value Mod_StSuperSport_Base_get_rank_award(int level);
+    void get_score_award();
+    Json::Value Mod_StSuperSport_Base_can_get_score_award();
+    Json::Value Mod_StSuperSport_Base_player_score_award_info();
+    Json::Value Mod_StSuperSport_Base_player_get_score_award(int index);
+    void point_race(sxd_client* sxd_client_town);
+    Json::Value Mod_StSuperSport_Base_get_st_super_sport_status();
+    Json::Value Mod_StSuperSport_Base_challenge_list();
+    Json::Value Mod_StSuperSport_Base_get_rank_award();
+    Json::Value Mod_StSuperSport_Base_challenge(int index);
+    void war_race(sxd_client* sxd_client_town);
+    Json::Value Mod_StSuperSport_Base_get_race_step();
+    Json::Value Mod_StSuperSport_Base_get_race_list(int group);
+    Json::Value Mod_StSuperSport_Base_bet(int id);
+
+    // - sxd_client_st_daoyuan_shop.cpp
+    void st_daoyuan_shop();
+    Json::Value Mod_StDaoyuanShop_Base_daoyuan_shop_item_list();
+    Json::Value Mod_StDaoyuanShop_Base_buy_daoyuan_shop_item(int id, int count);
 
     //============================================================================
     // - sxd_client_saint_area.cpp

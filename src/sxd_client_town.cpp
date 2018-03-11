@@ -155,7 +155,7 @@ Json::Value sxd_client::Mod_Player_Base_player_info_contrast(int player_id) {
 }
 
 //============================================================================
-// R170 玩家已开通功能
+// R170 玩家已开启功能
 // {module:0, action:6,
 // request:[],
 // response:[[Utils.IntUtil, Utils.ByteUtil]]}
@@ -191,6 +191,15 @@ Json::Value sxd_client::Mod_Player_Base_get_player_function() {
 Json::Value sxd_client::Mod_Player_Base_get_game_assistant_info(){
     Json::Value data;
     return this->send_and_receive(data, 0, 42);
+}
+
+//============================================================================
+// R172 服务器时间
+// {module:0, action:22, request:[], response:[Utils.IntUtil]};
+//============================================================================
+Json::Value sxd_client::Mod_Player_Base_server_time(){
+    Json::Value data;
+    return this->send_and_receive(data, 0, 22);
 }
 
 //============================================================================

@@ -166,3 +166,16 @@ Json::Value sxd_client::Mod_StTown_Base_enter_town() {
     return this->send_and_receive(data, 95, 0);
 }
 
+//============================================================================
+// R172 在线玩家信息
+// {module:95, action:6, request:[], response:[[Utils.IntUtil, Utils.IntUtil, Utils.StringUtil, Utils.ShortUtil, Utils.ShortUtil, Utils.IntUtil, Utils.StringUtil, Utils.StringUtil, Utils.ShortUtil, Utils.ByteUtil, Utils.IntUtil, Utils.IntUtil, Utils.StringUtil, Utils.UByteUtil, Utils.UByteUtil, Utils.ShortUtil, Utils.IntUtil, Utils.StringUtil, Utils.IntUtil, Utils.ShortUtil, [Utils.UByteUtil, Utils.ByteUtil, Utils.ByteUtil, Utils.ShortUtil]]]};
+// StTownData.as 132:
+//     param1 = param1[0];
+//     for each (_loc_3 in param1)
+//         oObject.list(_loc_3, _loc_4, ["player_id", "role_id", "nickname", "position_x", "position_y", "equip_item_id", "stage_name", "server_name", "is_world_war_top", "is_star", "transport", "avatar", "st_union_name", "immortal_flag", "saint_flag", "mount_rune_type_id", "children_role_id", "children_nickname", "children_suit_id", "orange_equipment_fllow_id", "follow_pet_list"]);
+//============================================================================
+Json::Value sxd_client::Mod_StTown_Base_get_players(){
+    Json::Value data;
+    return this->send_and_receive(data, 95, 6);
+}
+

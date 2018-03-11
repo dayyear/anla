@@ -241,7 +241,7 @@ void sxd::play(const std::string& version, const std::string& user_id, const std
     std::vector<std::string> function_ids;
     {
         data = sxd_client_town.Mod_Player_Base_get_player_function();
-        common::log(boost::str(boost::format("【登录】玩家已开通 [%1%] 项功能") % data[0].size()));
+        common::log(boost::str(boost::format("【登录】玩家已开启 [%1%] 项功能") % data[0].size()));
         for (const auto& item : data[0]) {
             function_ids.push_back(item[0].asString());
             std::string function_name = db.get_code(version, "Function", item[0].asInt())["text"];
@@ -260,7 +260,7 @@ void sxd::play(const std::string& version, const std::string& user_id, const std
 
     // lucky shop
     if (!contain(function_names, "神秘商人"))
-        common::log("【神秘商人】未开通");
+        common::log("【神秘商人】未开启");
     else {
         sxd_client_town.item_sell();                            // 物品出售
         sxd_client_town.lucky_shop();                           // 神秘商人
@@ -271,46 +271,46 @@ void sxd::play(const std::string& version, const std::string& user_id, const std
 
     // get peach
     if (!contain(function_names, "摘仙桃"))
-        common::log("【摘仙桃】未开通");
+        common::log("【摘仙桃】未开启");
     else {
         sxd_client_town.get_peach();
     }
 
     // farm
     if (!contain(function_names, "药园"))
-        common::log("【药园】未开通");
+        common::log("【药园】未开启");
     else {
         sxd_client_town.harvest();
         if (!contain(function_names, "发财树"))
-            common::log("【药园】未开通 [发财树]");
+            common::log("【药园】未开启 [发财树]");
         else
             sxd_client_town.plant();
     }
 
     // sign in
     if (!contain(function_names, "周年活动"))
-        common::log("【新年签到】未开通");
+        common::log("【新年签到】未开启");
     else {
         sxd_client_town.sign_in();
     }
 
     // link fate
     if (!contain(function_names, "结缘"))
-        common::log("【结缘】未开通");
+        common::log("【结缘】未开启");
     else {
         sxd_client_town.link_fate();
     }
 
     // training
     if (!contain(function_names, "培养"))
-        common::log("【培养】未开通");
+        common::log("【培养】未开启");
     else {
         sxd_client_town.training();
     }
 
     // chaos equipment
     if (!contain(function_names, "混沌虚空"))
-        common::log("【混沌虚空】未开通");
+        common::log("【混沌虚空】未开启");
     else {
         sxd_client_town.space_find();           // 混沌虚空
         sxd_client_town.chaos_equipment();      // 混沌异兽
@@ -318,48 +318,55 @@ void sxd::play(const std::string& version, const std::string& user_id, const std
 
     // email
     if (!contain(function_names, "邮箱"))
-        common::log("【邮箱】未开通");
+        common::log("【邮箱】未开启");
     else {
         sxd_client_town.email();
     }
 
     // super sport
     if (!contain(function_names, "竞技场"))
-        common::log("【竞技场】未开通");
+        common::log("【竞技场】未开启");
     else {
         sxd_client_town.super_sport();
     }
 
     // courtyard pet
     if (!contain(function_names, "宠物"))
-        common::log("【宠物】未开通");
+        common::log("【宠物】未开启");
     else {
         sxd_client_town.courtyard_pet();
     }
 
     // super town
     if (!contain(function_names, "仙界"))
-        common::log("【仙界】未开通");
+        common::log("【仙界】未开启");
     else if (!sxd_client_super_town.login_super_town(&sxd_client_town)) {
 
         // st_union
         if (!contain(function_names, "仙盟"))
-            common::log("【仙盟】未开通");
+            common::log("【仙盟】未开启");
         else {
-            sxd_client_super_town.st_union_activity();          // 仙盟之树
-            sxd_client_super_town.st_union_task();              // 魔神挑战
+            std::string st_union_name = sxd_client_super_town.get_st_union_name();
+            if (st_union_name.size() == 0)
+                common::log("【仙盟】未加入仙盟");
+            else {
+                common::log(boost::str(boost::format("【仙盟】进入仙盟 [%1%]") % st_union_name));
+                sxd_client_super_town.st_union_god_incense();       // 仙盟上香
+                sxd_client_super_town.st_union_activity();          // 仙盟之树
+                sxd_client_super_town.st_union_task();              // 魔神挑战
+            }
         }
 
         // wish pool
         if (!contain(function_names, "许愿池"))
-            common::log("【许愿池】未开通");
+            common::log("【许愿池】未开启");
         else {
             sxd_client_super_town.wish_pool();
         }
 
         // st take bible
         if (!contain(function_names, "跨服取经"))
-            common::log("【仙界取经】未开通");
+            common::log("【仙界取经】未开启");
         else {
             if (contain(function_names, "主角飞升"))
                 common::log("【仙界取经】主角已成圣，升级为 [圣域取经]");
@@ -369,30 +376,52 @@ void sxd::play(const std::string& version, const std::string& user_id, const std
 
         // furniture effect
         if (!contain(function_names, "家园"))
-            common::log("【家园】未开通");
+            common::log("【家园】未开启");
         else {
             sxd_client_super_town.furniture_effect();
         }
 
         // st arena
         if (!contain(function_ids, "132"))
-            common::log("【仙界竞技场】未开通");
+            common::log("【仙界竞技场】未开启");
         else {
             sxd_client_super_town.st_arena();           // 挑战
             sxd_client_town.exploit_shop();             // 荣誉商店买内丹
         }
+
+        // st super sport
+        if (!contain(function_ids, "93"))
+            common::log("【神魔竞技】未开启");
+        else {
+            if (contain(function_names, "主角飞升"))
+                common::log("【神魔竞技】主角已成圣，升级为 [圣域竞技场]");
+            else {
+                sxd_client_super_town.get_rank_award(&sxd_client_town);     // 排名奖励
+                sxd_client_super_town.get_score_award();                    // 神魔大礼
+                sxd_client_super_town.point_race(&sxd_client_town);         // 积分赛
+                sxd_client_super_town.war_race(&sxd_client_town);           // 神魔大战(未测试)
+            }
+        }
+
+        // st arena
+        if (!contain(function_names, "仙界商店"))
+            common::log("【仙界商店】未开启");
+        else {
+            sxd_client_super_town.st_daoyuan_shop();
+        }
+
     }
 
     // saint area
     if (!contain(function_names, "圣域"))
-        common::log("【圣域】未开通");
+        common::log("【圣域】未开启");
     else if (!sxd_client_saint_area.login_saint_area(&sxd_client_town)) {
         sxd_client_saint_area.sa_take_bible();                  // 圣域取经
     }
 
     // server chat room
     if (!contain(function_names, "聊天室"))
-        common::log("【全网聊天】未开通");
+        common::log("【全网聊天】未开启");
     else if (!sxd_client_chat_room.login_server_chat(&sxd_client_town)) {
         sxd_client_chat_room.pet_escort(&sxd_client_town);
     }

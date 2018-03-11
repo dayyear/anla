@@ -14,43 +14,45 @@ void sxd_client::st_arena() {
 
     // get race step
     Json::Value data = this->Mod_StArena_Base_get_race_step();
-    if (data[0].asInt() != Mod_StArena_Base::SCORE_RACE) {
+    if (data[0].asInt() == Mod_StArena_Base::SCORE_RACE_COMPLETE) {
         common::log("【仙界竞技场】今日 [争霸赛]");
         return;
-    }
-    common::log("【仙界竞技场】今日 [积分赛]");
+    } else if (data[0].asInt() == Mod_StArena_Base::SCORE_RACE) {
+        common::log("【仙界竞技场】今日 [积分赛]");
 
-    // open st arena
-    data = this->Mod_StArena_Base_open_st_arena();
-    common::log(boost::str(boost::format("【仙界竞技场】我的积分 [%1%]，积分奖励 [%2%荣誉]，今日还可挑战 [%3%] 次") % data[0] % data[2] % data[1]));
-    if (data[1].asInt() == 0)
-        return;
+        // open st arena
+        data = this->Mod_StArena_Base_open_st_arena();
+        common::log(boost::str(boost::format("【仙界竞技场】我的积分 [%1%]，积分奖励 [%2%荣誉]，今日还可挑战 [%3%] 次") % data[0] % data[2] % data[1]));
+        if (data[1].asInt() == 0)
+            return;
 
-    // sort
-    Json::Value challenge_list = data[5];       // 挑战者
-    std::vector<Json::Value> challenge_vector;  // 挑战者排序
-    std::copy(challenge_list.begin(), challenge_list.end(), std::back_inserter(challenge_vector));
-    std::sort(challenge_vector.begin(), challenge_vector.end(), [](Json::Value& x, Json::Value& y) {return x[1].asInt()<y[1].asInt();});
+        // sort
+        Json::Value challenge_list = data[5];       // 挑战者
+        std::vector<Json::Value> challenge_vector;  // 挑战者排序
+        std::copy(challenge_list.begin(), challenge_list.end(), std::back_inserter(challenge_vector));
+        std::sort(challenge_vector.begin(), challenge_vector.end(), [](Json::Value& x, Json::Value& y) {return x[1].asInt()<y[1].asInt();});
 
-    // challenge
-    data = this->Mod_StArena_Base_challenge(challenge_vector[0][0].asInt());
-    if (data[0].asInt() != Mod_StArena_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【仙界竞技场】挑战失败，result[%1%]") % data[0]));
-        return;
-    }
-    std::string challenge_name = common::utf2gbk(data[1][0][2][1][1].asString());
-    if (data[3].asInt())
-        common::log(boost::str(boost::format("【仙界竞技场】挑战 [%1%]，战胜获得积分 [%2%]") % challenge_name % data[3]));
-    else {
-        common::log(boost::str(boost::format("【仙界竞技场】挑战 [%1%]，战败") % challenge_name));
+        // challenge
+        data = this->Mod_StArena_Base_challenge(challenge_vector[0][0].asInt());
+        if (data[0].asInt() != Mod_StArena_Base::SUCCESS) {
+            common::log(boost::str(boost::format("【仙界竞技场】挑战失败，result[%1%]") % data[0]));
+            return;
+        }
+        std::string challenge_name = common::utf2gbk(data[1][0][2][1][1].asString());
+        if (data[3].asInt())
+            common::log(boost::str(boost::format("【仙界竞技场】挑战 [%1%]，战胜获得积分 [%2%]") % challenge_name % data[3]));
+        else {
+            common::log(boost::str(boost::format("【仙界竞技场】挑战 [%1%]，战败") % challenge_name));
 
-        // refresh
-        data = this->Mod_StArena_Base_refresh_player_list();
-        if (data[0] != Mod_StArena_Base::SUCCESS)
-            common::log(boost::str(boost::format("【仙界竞技场】换一批失败，result[%1%]") % data[0]));
-        else
-            common::log("【仙界竞技场】换一批");
-    }
+            // refresh
+            data = this->Mod_StArena_Base_refresh_player_list();
+            if (data[0] != Mod_StArena_Base::SUCCESS)
+                common::log(boost::str(boost::format("【仙界竞技场】换一批失败，result[%1%]") % data[0]));
+            else
+                common::log("【仙界竞技场】换一批");
+        }
+    } else
+        common::log(boost::str(boost::format("【仙界竞技场】数据异常，race_step[%1%]") % data[0]));
 }
 
 //============================================================================
