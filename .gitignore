@@ -1,6 +1,9 @@
-Release/	
+Release/
 Release_Gui/
 Debug/
 Debug_Gui/
 browser.ini
 user.ini
+sxdassist.exe
+sxdassist.dat
+SXD Assistant Login Tool.exe
