@@ -6,7 +6,7 @@ void sxd_client::get_peach() {
     Json::Value data = this->Mod_GetPeach_Base_peach_info();
     int fruit_lv = 70 + data[0].asInt() * 5;
     int peach_num = data[1].asInt();
-    common::log(boost::str(boost::format("【摘仙桃】当前 [%1%] 个 [%2%] 级仙桃") % peach_num % fruit_lv));
+    common::log(boost::str(boost::format("【摘仙桃】当前 [%1%] 个 [%2%] 级仙桃") % peach_num % fruit_lv), 0);
     if (peach_num > 0) {
         data = this->Mod_GetPeach_Base_batch_get_peach();
         if (data[0].asInt() == 0)

@@ -2,18 +2,45 @@
 #include "common.h"
 #include "sxd_client.h"
 
+class Mod_Player_Base {
+public:
+    static const int SUCCEED = 0;
+    static const int ACTION_SUCCESS = 88;
+};
+
+class Mod_Farm_Base {
+public:
+    static const int SUCCESS = 8;
+};
+
 void sxd_client::gift3() {
     Json::Value data = this->Mod_Player_Base_get_game_assistant_info();
-    // 灵石
-    if (data[30].asInt() == 0)
-        this->Mod_SealSoul_Base_get_day_stone();
-    // 俸禄
-    if (data[13].asInt() == 0)
-        this->Mod_Player_Base_get_player_camp_salary();
+    Json::Value game_assistant_info = data;
+    // 灵石 is_can_get_stone(30)
+    if (game_assistant_info[30].asInt() == Mod_Player_Base::SUCCEED) {
+        data = this->Mod_SealSoul_Base_get_day_stone();
+        if (data[0].asInt() == 1)
+            common::log(boost::str(boost::format("【礼包】领取 [灵石×%1%]") % data[1]));
+        else
+            common::log(boost::str(boost::format("【礼包】领取灵石失败，result[%1%]") % data[0]));
+    }
+    // 俸禄 is_get_camp_salary[13]
+    if (game_assistant_info[13].asInt() == Mod_Player_Base::SUCCEED) {
+        data = this->Mod_Player_Base_get_player_camp_salary();
+        if (data[0].asInt() == Mod_Player_Base::ACTION_SUCCESS)
+            common::log(boost::str(boost::format("【礼包】领取俸禄 [铜钱×%1%]") % data[1]));
+        else
+            common::log(boost::str(boost::format("【礼包】领取俸禄失败，result[%1%]") % data[0]));
+    }
     // 仙令
     data = this->Mod_Farm_Base_player_is_player_get_xian_ling_gift();
-    if (data[0].asInt() > 0)
-        this->Mod_Farm_Base_player_get_xian_ling_gift();
+    if (data[0].asInt()) {
+        data = this->Mod_Farm_Base_player_get_xian_ling_gift();
+        if (data[0].asInt() == Mod_Farm_Base::SUCCESS)
+            common::log(boost::str(boost::format("【礼包】领取 [仙令×%1%]") % data[1]));
+        else
+            common::log(boost::str(boost::format("【礼包】领取仙令失败，[%1%]") % data[0]));
+    }
 }
 
 //============================================================================
@@ -27,27 +54,39 @@ void sxd_client::gift3() {
 // response:[Utils.ByteUtil, Utils.IntUtil]};
 // SealSoulData.as 154:
 //     oObject.list(param1, this.getDayStone, ["state", "stone_coun"]);
+// SealStoneView.as 163:
+//     if (_loc_1["state"] == 1)
 // Example
 //     [ 1, 70 ]
 //============================================================================
-void sxd_client::Mod_SealSoul_Base_get_day_stone() {
+Json::Value sxd_client::Mod_SealSoul_Base_get_day_stone() {
     Json::Value data;
     data.append(0);
-    this->send_frame(data, 34, 18);
+    return this->send_and_receive(data, 34, 18);
 }
 
 //============================================================================
 // R172 俸禄
 // {module:0, action:20, request:[], response:[Utils.UByteUtil, Utils.IntUtil]};
+// PlayerData.as 352:
+//     this.campSalaryStatus = param1[0];
+//     this.getPlayerCampSalary = param1[1];
+// Example
+//     [ 87, 326000 ]
 //============================================================================
-void sxd_client::Mod_Player_Base_get_player_camp_salary() {
+Json::Value sxd_client::Mod_Player_Base_get_player_camp_salary() {
     Json::Value data;
-    this->send_frame(data, 0, 20);
+    return this->send_and_receive(data, 0, 20);
 }
 
 //============================================================================
 // R172 仙令数量
 // {module:13, action:19, request:[], response:[Utils.ByteUtil]};
+// FarmData.as 546:
+//     this.getXianLingNum = param1[0];
+// Example
+//     [ 8 ]
+//     [ 0 ]
 //============================================================================
 Json::Value sxd_client::Mod_Farm_Base_player_is_player_get_xian_ling_gift() {
     Json::Value data;
@@ -57,10 +96,14 @@ Json::Value sxd_client::Mod_Farm_Base_player_is_player_get_xian_ling_gift() {
 //============================================================================
 // R172 仙令
 // {module:13, action:20, request:[], response:[Utils.UByteUtil, Utils.ByteUtil]};
+// FarmData.as 552:
+//     this.getXianLingResult = param1[0];
+// Example
+//     [ 8, 8 ]
 //============================================================================
-void sxd_client::Mod_Farm_Base_player_get_xian_ling_gift() {
+Json::Value sxd_client::Mod_Farm_Base_player_get_xian_ling_gift() {
     Json::Value data;
-    this->send_frame(data, 13, 20);
+    return this->send_and_receive(data, 13, 20);
 }
 
 class Mod_FunctionEnd_Base {
@@ -163,7 +206,7 @@ void sxd_client::gift() {
         if (data[0].asInt() != Mod_Item_Base::ACTION_SUCCESS)
             common::log(boost::str(boost::format("【礼包】领取失败，result[%1%]") % data[0]));
         else
-            common::log(boost::str(boost::format("【礼包】领取 [%1%]") % common::utf2gbk(message)));
+            common::log(boost::str(boost::format("【礼包】%1%") % common::utf2gbk(message)));
     }
 }
 
@@ -212,7 +255,8 @@ Json::Value sxd_client::Mod_Item_Base_player_get_super_gift(int id) {
 // HeroesWarData.as 233:
 //     oObject.list(this._objGetEndGift, _loc_1, ["has_gift", "fame", "coin"]);
 // Example
-//
+//    [ 27, 1760, 880000 ]
+//    [ 28, 0, 0 ]
 //============================================================================
 void sxd_client::Mod_HeroesWar_Base_get_end_gift() {
     Json::Value data;
@@ -222,6 +266,9 @@ void sxd_client::Mod_HeroesWar_Base_get_end_gift() {
 //============================================================================
 // R172 自定义挑战礼包
 // {module:136, action:20, request:[], response:[Utils.UByteUtil, Utils.IntUtil, Utils.ShortUtil, Utils.ShortUtil]};
+// Example
+//     [ 10, 0, 0, 0 ]
+//     [ 13, 0, 0, 0 ]
 //============================================================================
 void sxd_client::Mod_StChallenge_Base_get_end_li_bao() {
     Json::Value data;
@@ -231,6 +278,10 @@ void sxd_client::Mod_StChallenge_Base_get_end_li_bao() {
 //============================================================================
 // R172 极限挑战宝箱
 // {module:169, action:5, request:[], response:[Utils.UByteUtil]};
+// Example
+//     [ 8 ]
+//     [ 6 ]
+//     no response
 //============================================================================
 void sxd_client::Mod_UnlimitChallenge_Base_get_end_award() {
     Json::Value data;

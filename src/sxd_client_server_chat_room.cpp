@@ -25,6 +25,7 @@ int sxd_client::login_server_chat(sxd_client* sxd_client_town) {
         common::log(boost::str(boost::format("【全网聊天】入口未开启，status[%1%]") % data[0]));
         return 1;
     }
+    this->user_id = sxd_client_town->user_id;
 
     // get login information: node, servername, stagename, timestamp, login_code, host, port
     data = sxd_client_town->Mod_ServerChatRoom_Base_get_chat_room_logincode(data[1][0][0].asInt());
@@ -51,10 +52,10 @@ int sxd_client::login_server_chat(sxd_client* sxd_client_town) {
 
     // chat
     Json::Value config;
-    std::istringstream(db.get_config(user_id.c_str(), "Chat")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "ServerChat")) >> config;
     std::string message = config[rand() % config.size()].asString();
     this->Mod_ServerChatRoom_Base_chat_with_players(common::gbk2utf(message));
-    common::log(boost::str(boost::format("【全网聊天】%1%") % message));
+    common::log(boost::str(boost::format("【全网聊天】%1%") % message), 0);
 
     return 0;
 }
@@ -199,7 +200,7 @@ void sxd_client::pet_escort(sxd_client* sxd_client_town) {
 
         case Mod_ServerChatRoom_Base::ESCORTING:
         case Mod_ServerChatRoom_Base::INGOT_ESCORTING:
-            common::log("【宠物派遣】派遣中...");
+            common::log("【宠物派遣】派遣中...", 0);
             return;
 
         case Mod_ServerChatRoom_Base::ESCORT_DONE:
@@ -211,7 +212,7 @@ void sxd_client::pet_escort(sxd_client* sxd_client_town) {
                 }
                 common::log("【宠物派遣】领取");
             } else {
-                common::log("【宠物派遣】今日派遣任务已完成");
+                common::log("【宠物派遣】今日派遣任务已完成", 0);
             }
             return;
 

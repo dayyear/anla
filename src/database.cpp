@@ -6,8 +6,12 @@
 
 database::database() {
     //common::log("Open database.");
-    if (sqlite3_open(".\\sxd.sqlite", &db))
-        throw std::runtime_error(std::string("Can't open database: ") + sqlite3_errmsg(db));
+    if (sqlite3_open_v2(".\\sxd.sqlite", &db, SQLITE_OPEN_READWRITE, NULL) == 0)
+        return;
+    if (sqlite3_open_v2("..\\sxd.sqlite", &db, SQLITE_OPEN_READWRITE, NULL) == 0)
+        return;
+    std::cerr << sqlite3_errmsg(db) << std::endl;
+    exit(1);
 } //database::database
 
 database::~database(void) {

@@ -1,0 +1,1 @@
+windres -o anlarc.o anla.rc

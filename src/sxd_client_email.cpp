@@ -14,7 +14,7 @@ void sxd_client::email() {
     Json::Value data = this->Mod_Email_Base_get_email_info();
     Json::Value email_info = data;
     for (const auto& email : email_info[0]) {
-        if (email[8].asInt() == Mod_Email_Base::UNGET) {
+        if (email[8].asInt() == Mod_Email_Base::UNGET && email[7].size()) {
             data = this->Mod_Email_Base_get_attachment_award(email[0].asInt());
             if (data[0].asInt() != Mod_Email_Base::SUCCESS) {
                 common::log(boost::str(boost::format("°æ” œ‰°ø ’»°∏Ωº˛ ß∞‹£¨result[%1%]") % data[0]));

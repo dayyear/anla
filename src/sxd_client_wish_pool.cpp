@@ -12,7 +12,7 @@ public:
 void sxd_client::wish_pool() {
     Json::Value data = this->Mod_WishPool_Base_get_wish_pool_info();
     Json::Value wish_pool_info = data;
-    common::log(boost::str(boost::format("【许愿池】[祝福值×%1%]") % wish_pool_info[1]));
+    common::log(boost::str(boost::format("【许愿池】[祝福值×%1%]") % wish_pool_info[1]), 0);
     int wish_count = 0;
     for (const auto& item : wish_pool_info[0])
         if (item[1].asInt() == Mod_WishPool_Base::YES)
@@ -48,7 +48,7 @@ void sxd_client::wish_pool() {
             }
             common::log("【许愿池】领取奖励");
         } else
-            common::log("【许愿池】奖励已领取");
+            common::log("【许愿池】奖励已领取", 0);
     }
 
     int count = wish_pool_info[6].asInt();

@@ -6,6 +6,8 @@
 
 #include <boost/date_time/posix_time/ptime.hpp>
 
+#include <windef.h>
+
 class common {
 public:
     common(void);
@@ -47,7 +49,7 @@ public:
     static std::string to_string(const boost::posix_time::ptime& pt, const char* format);
 
     // »’÷æ
-    static void log(const std::string& message, bool console = true, bool file = true, bool time = true);
+    static void log(const std::string& message, int hwnd = -1, bool file = true, bool time = true);
 };
 
 #endif /* COMMON_H_ */

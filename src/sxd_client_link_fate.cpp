@@ -14,7 +14,7 @@ void sxd_client::link_fate() {
     std::ostringstream oss;
     for (const auto& item : items)
         oss << " [" << item[1] << "] 个 [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]，";
-    common::log(boost::str(boost::format("【结缘】当前%1%") % oss.str().substr(0, oss.str().size() - 2)));
+    common::log(boost::str(boost::format("【结缘】当前%1%") % oss.str().substr(0, oss.str().size() - 2)), 0);
 
     for (unsigned i = 0; i < items.size(); i++) {
         if (items[i][1].asInt()) {

@@ -2,9 +2,9 @@
 #include <memory>
 #include <sstream>
 #include <regex>
+#include <windows.h>
 
 #include <boost/locale/encoding.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>
 
@@ -242,17 +242,27 @@ std::string common::to_string(const boost::posix_time::ptime& pt, const char* fo
     return str;
 }
 
-void common::log(const std::string& message, bool console, bool file, bool time) {
+void common::log(const std::string& message, int hwnd, bool file, bool time) {
     boost::posix_time::ptime now(boost::posix_time::second_clock::local_time());
     std::string path = "log";
     boost::filesystem::create_directory(path);
-    if (console) {
+    if (hwnd) {
         std::ofstream ofile(path + "\\" + to_string(now, "%Y-%m-%d.txt"), std::ios::binary | std::ios::out | std::ios::app);
         if (time) {
-            std::cout << to_string(now, "%H:%M:%S") << " ";
+            if (hwnd < 0)
+                std::cout << to_string(now, "%H:%M:%S") << " ";
+            else {
+                SendMessage((HWND) hwnd, EM_SETSEL, SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0), SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0));
+                SendMessage((HWND) hwnd, EM_REPLACESEL, 0, (LPARAM) (to_string(now, "%H:%M:%S") + " ").c_str());
+            }
             ofile << to_string(now, "%H:%M:%S") << " ";
         }
-        std::cout << message << std::endl;
+        if (hwnd < 0)
+            std::cout << message << std::endl;
+        else {
+            SendMessage((HWND) hwnd, EM_SETSEL, SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0), SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0));
+            SendMessage((HWND) hwnd, EM_REPLACESEL, 0, (LPARAM) (message + "\r\n").c_str());
+        }
         ofile << message << std::endl;
     }
     if (file) {
@@ -263,4 +273,3 @@ void common::log(const std::string& message, bool console, bool file, bool time)
         ofile.close();
     }
 }
-

@@ -31,10 +31,10 @@ void sxd_client::item_reel() {
             if (data[0].asInt() == Mod_Item_Base::ACTION_SUCCESS)
                 common::log(boost::str(boost::format("【背包】合成 [%1%]") % item_name));
             else if (data[0].asInt() == Mod_Item_Base::MATERIAL_NOT_ENOUGH) {
-                common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，材料不足") % item_name));
+                //common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，材料不足") % item_name));
                 break;
             } else {
-                common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，result[%2%]") % item_name % data[0]));
+                common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，result[%2%]") % item_name % data[0]), 0);
                 break;
             }
         }
@@ -91,10 +91,9 @@ void sxd_client::item_sell() {
         if (std::find_if(config.begin(), config.end(), [item_id](const Json::Value& x) {return x.asInt()==item_id;}) == config.end())
             continue;
         data = this->Mod_Item_Base_player_sell_item(box_id);
-        if (data[0].asInt() != Mod_Item_Base::ACTION_SUCCESS) {
+        if (data[0].asInt() != Mod_Item_Base::ACTION_SUCCESS)
             common::log(boost::str(boost::format("【背包】出售 [%1%]失败，result[%2%]") % item_name % data[0]));
-            break;
-        } else
+        else
             common::log(boost::str(boost::format("【背包】出售 [%1%]") % item_name));
     }
 }

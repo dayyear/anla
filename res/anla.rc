@@ -1,0 +1,14 @@
+#include <windows.h>
+#include "..\\src\\resource.h"
+
+IDI_MYICON ICON "ELEEYE.ICO"
+
+IDR_MYMENU MENU
+BEGIN
+    POPUP "ÓÃ»§(&U)"
+    BEGIN
+        MENUITEM "µÇÂ¼(&L)", ID_USER_LOGIN
+        MENUITEM "ÍË³ö(&X)", ID_USER_EXIT
+    END
+END
+

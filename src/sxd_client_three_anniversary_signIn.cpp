@@ -11,14 +11,14 @@ public:
 void sxd_client::sign_in() {
     Json::Value data = this->Mod_ThreeAnniversarySignIn_Base_get_sign_in_status();
     if (data[0].asInt() != Mod_ThreeAnniversarySignIn_Base::YES)
-        common::log(boost::str(boost::format("【新年签到】活动未开启，isActivity[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【新年签到】活动未开启，isActivity[%1%]") % data[0]), 0);
     else {
         if (data[1].asInt() != Mod_ThreeAnniversarySignIn_Base::YES)
-            common::log(boost::str(boost::format("【新年签到】活动不可参与，isCanJoin[%1%]") % data[1]));
+            common::log(boost::str(boost::format("【新年签到】活动不可参与，isCanJoin[%1%]") % data[1]), 0);
         else {
             data = this->Mod_ThreeAnniversarySignIn_Base_get_player_sign_in_info();
             if (data[3].asInt() == Mod_ThreeAnniversarySignIn_Base::YES)
-                common::log("【新年签到】今日已签到");
+                common::log("【新年签到】今日已签到", 0);
             else {
                 data = this->Mod_ThreeAnniversarySignIn_Base_player_sign_in();
                 if (data[0].asInt() == Mod_ThreeAnniversarySignIn_Base::SUCCESS)

@@ -8,13 +8,14 @@ public:
     sxd();
     virtual ~sxd();
 
-    static void run(int index=0);
+    static void run(std::string arg, bool auto_exit);
     static void login();
     static void analyze();
     static void collect();
 
 private:
-    static void play(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie);
+    static void auto_play(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie);
+    static void batch_fate(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie);
 
     static void collect_protocol(const std::string& version, const std::string& path);
     static void collect_end_function_gift(const std::string& version, const std::string& path);

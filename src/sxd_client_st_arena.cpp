@@ -15,14 +15,14 @@ void sxd_client::st_arena() {
     // get race step
     Json::Value data = this->Mod_StArena_Base_get_race_step();
     if (data[0].asInt() == Mod_StArena_Base::SCORE_RACE_COMPLETE) {
-        common::log("【仙界竞技场】今日 [争霸赛]");
+        common::log("【仙界竞技场】今日 [争霸赛]", 0);
         return;
     } else if (data[0].asInt() == Mod_StArena_Base::SCORE_RACE) {
-        common::log("【仙界竞技场】今日 [积分赛]");
+        common::log("【仙界竞技场】今日 [积分赛]", 0);
 
         // open st arena
         data = this->Mod_StArena_Base_open_st_arena();
-        common::log(boost::str(boost::format("【仙界竞技场】我的积分 [%1%]，积分奖励 [%2%荣誉]，今日还可挑战 [%3%] 次") % data[0] % data[2] % data[1]));
+        common::log(boost::str(boost::format("【仙界竞技场】我的积分 [%1%]，积分奖励 [%2%荣誉]，今日还可挑战 [%3%] 次") % data[0] % data[2] % data[1]), 0);
         if (data[1].asInt() == 0)
             return;
 
@@ -44,7 +44,8 @@ void sxd_client::st_arena() {
         else {
             common::log(boost::str(boost::format("【仙界竞技场】挑战 [%1%]，战败") % challenge_name));
 
-            // refresh
+            // refresh_player_list 容易卡住
+            /*this->Mod_StArena_Base_refresh_player_list(); common::log("【仙界竞技场】换一批");*/
             data = this->Mod_StArena_Base_refresh_player_list();
             if (data[0] != Mod_StArena_Base::SUCCESS)
                 common::log(boost::str(boost::format("【仙界竞技场】换一批失败，result[%1%]") % data[0]));

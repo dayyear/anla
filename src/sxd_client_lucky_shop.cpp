@@ -1,4 +1,5 @@
 #include <vector>
+#include <thread>
 #include <boost/format.hpp>
 #include "common.h"
 #include "sxd_client.h"
@@ -108,6 +109,10 @@ void sxd_client::lucky_shop() {
         if (count_config <= count_my)
             continue;
         // buy
+        // buy_lucky_store_item容易卡
+        /*this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, lucky_store_id);
+        common::log(boost::str(boost::format("【神秘商人】购买 [%1%]") % db.get_code(version, "Item", item_id)["text"]));
+        std::this_thread::sleep_for(std::chrono::seconds(3));*/
         data = this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, lucky_store_id);
         if (data[0].asInt() != Mod_LuckyStore_Base::LUCKY_SUCCESS) {
             common::log(boost::str(boost::format("【神秘商人】购买 [%1%] 失败，result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]));

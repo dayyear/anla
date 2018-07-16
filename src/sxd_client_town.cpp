@@ -1,6 +1,8 @@
 #include <boost/format.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#include <thread>
+
 #include "common.h"
 #include "sxd_client.h"
 
@@ -11,7 +13,7 @@ public:
 
 class Mod_Town_Base {
 public:
-    static const int SUCCESS = 41;
+    static const int SUCCESS = 43;
 };
 
 int sxd_client::login_town(const std::string& web_page) {
@@ -19,13 +21,10 @@ int sxd_client::login_town(const std::string& web_page) {
     // 1. validation
     boost::smatch match;
     if (!regex_search(web_page, match, boost::regex("\"&player_name=(.*?)\"[\\s\\S]*\"&hash_code=(.*?)\"[\\s\\S]*\"&time=(.*?)\"[\\s\\S]*\"&ip=(.*?)\"[\\s\\S]*\"&port=(.*?)\"[\\s\\S]*\"&server_id=(.*?)\"[\\s\\S]*\"&source=(.*?)\"[\\s\\S]*\"&regdate=(.*?)\"[\\s\\S]*\"&id_card=(.*?)\"[\\s\\S]*\"&open_time=(.*?)\"[\\s\\S]*\"&is_newst=(.*?)\"[\\s\\S]*\"&stage=(.*?)\"[\\s\\S]*\"&client=(.*?)\""))) {
-        common::log("请使用登录器重新登录");
+        common::log("请使用登录器重新登录", hwnd);
         return 1;
     }
-    if (match[1].str() != user_id) {
-        common::log("user_id不一致");
-        return 2;
-    }
+    this->user_id = match[1].str();
 
     // 2. get login information
     std::string hash_code(match[2]);                             // 用于login(0,0)
@@ -42,41 +41,41 @@ int sxd_client::login_town(const std::string& web_page) {
 
     // 3. connect
     this->connect(host, port);
-    common::log(boost::str(boost::format("【登录】连接服务器 [%1%:%2%] 成功") % host % port));
+    common::log(boost::str(boost::format("【登录】连接服务器 [%1%:%2%] 成功") % host % port), hwnd);
 
     // 4. login
     Json::Value data = this->Mod_Player_Base_login(user_id, hash_code, time, source, regdate, id_card, open_time, is_newst, stage, client);
     if (data[0].asInt() != Mod_Player_Base::SUCCEED) {
-        common::log(boost::str(boost::format("【登录】失败，result[%1%]") % data[0].asInt()));
+        common::log(boost::str(boost::format("【登录】失败，result[%1%]") % data[0].asInt()), hwnd);
         return 3;
     }
     player_id = data[1].asInt();
-    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id));
+    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id), hwnd);
 
     // 5. player infomation
     data = this->Mod_Player_Base_get_player_info();
     std::string nickname = data[0].asString();
     int town_map_id = data[9].asInt();
-    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3]));
+    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]，体力[%6%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3] % data[6]), hwnd);
 
     // 6. player contrast infomation
     data = this->Mod_Player_Base_player_info_contrast(player_id);
-    common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]));
+    common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]), hwnd);
 
     // 7. enter_town
     data = this->Mod_Town_Base_enter_town(town_map_id);
     if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]));
+        common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]), hwnd);
         return 4;
     }
-    common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]));
+    common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]), hwnd);
 
     // 8. chat
     Json::Value config;
-    std::istringstream(db.get_config(user_id.c_str(), "Chat")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "TownChat")) >> config;
     std::string message = config[rand() % config.size()].asString();
     this->Mod_Chat_Base_chat_with_players(1, common::gbk2utf(message));
-    common::log(boost::str(boost::format("【世界聊天】%1%") % message));
+    common::log(boost::str(boost::format("【世界聊天】%1%") % message), 0);
 
     return 0;
 }
@@ -118,12 +117,14 @@ Json::Value sxd_client::Mod_Player_Base_login(const std::string& player_name, co
 }
 
 //============================================================================
-// R170 玩家基本信息
+// R179 玩家基本信息
 // {module:0, action:2,
 // request:[],
 // response:[Utils.StringUtil, Utils.IntUtil, Utils.IntUtil, Utils.LongUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.LongUtil, Utils.LongUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.ByteUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.ByteUtil, Utils.IntUtil, Utils.IntUtil, Utils.ByteUtil, Utils.IntUtil, Utils.IntUtil, Utils.IntUtil, Utils.ByteUtil, Utils.StringUtil, Utils.StringUtil]}
 // PlayerData.as 799:
-//     oObject.list(param1, this, ["nickname", "level", "ingot", "coins", "health", "maxHealth", "power", "experience", "maxExperience", "townMapId", "bossMapId", "jihuisuoId", "mounts", "mountsCD", "vipLevel", "avatar", "avatarCD", "mainPlayerRoleId", "mainRoleId", "campId", "townKey", "fame", "fameLevel", "extraPower", "maxExtraPower", "netBarPower", "maxNetBarPower", "tester", "lastPlayVersion", "missionKey", "startAccount", "stLevel", "daoYuan", "exploit", "isHaveTangYuan", "stageName", "full_server_name"]);
+//     oObject.list(param1,this,["nickname","level","ingot","coins","health","maxHealth","power","experience","maxExperience","townMapId","bossMapId","jihuisuoId","mounts","mountsCD","vipLevel","avatar","avatarCD","mainPlayerRoleId","mainRoleId","campId","townKey","fame","fameLevel","extraPower","maxExtraPower","netBarPower","maxNetBarPower","tester","lastPlayVersion","missionKey","startAccount","stLevel","daoYuan","exploit","isHaveTangYuan","stageName","full_server_name","headPortraitId"]);
+// Example
+//     [ "\u5e84\u606d\u6625.s1", 183, 12010, 3122425122, 530086, 530086, 50, 3516069655, 6582800000, 3, 0, 0, 32, 0, 0, 0, 0, 803448, 5, 3, 21, 2212570, 42, 30, 50, 0, 50, 0, 2018060801, 63090, 0, 5, 657, 74, 0, "verycd", "s04", 1 ]
 //============================================================================
 Json::Value sxd_client::Mod_Player_Base_get_player_info() {
     Json::Value data;
@@ -155,6 +156,22 @@ Json::Value sxd_client::Mod_Player_Base_player_info_contrast(int player_id) {
 }
 
 //============================================================================
+// R179 以用户名搜索(暂未用)
+// "module":0,"action":51,"request":[Utils.StringUtil],"response":[Utils.UByteUtil,Utils.IntUtil,Utils.StringUtil]
+// PlayerData.as:
+//     _loc3_.result = _loc2_[0];
+//     _loc3_.playerId = _loc2_[1];
+//     _loc3_.nickName = _loc2_[2];
+// Example
+//     [ "35571761.s1" ] --> [ 80, 355527, "\u5e84\u606d\u6625.s1" ]
+//============================================================================
+Json::Value sxd_client::Mod_Player_Base_get_player_info_by_username(std::string username) {
+    Json::Value data;
+    data.append(username);
+    return this->send_and_receive(data, 0, 51);
+}
+
+//============================================================================
 // R170 玩家已开启功能
 // {module:0, action:6,
 // request:[],
@@ -175,6 +192,8 @@ Json::Value sxd_client::Mod_Player_Base_player_info_contrast(int player_id) {
 //         }
 //         return _loc_2;
 //     }// end function
+// Example
+//     [ [ [ 89, 1 ], [ 13, 1 ], [ 127, 1 ], [ 160, 1 ], [ 105, 1 ], [ 90, 1 ], [ 50, 1 ], [ 64, 1 ], [ 126, 1 ], [ 3, 1 ], [ 112, 1 ], [ 32, 1 ], [ 132, 1 ], [ 183, 1 ], [ 116, 1 ], [ 30, 1 ], [ 104, 1 ], [ 69, 1 ], [ 18, 1 ], [ 129, 1 ], [ 46, 1 ], [ 53, 1 ], [ 40, 1 ], [ 84, 1 ], [ 171, 1 ], [ 186, 1 ], [ 125, 1 ], [ 45, 1 ], [ 130, 1 ], [ 23, 1 ], [ 71, 1 ], [ 88, 1 ], [ 198, 1 ], [ 166, 1 ], [ 113, 1 ], [ 37, 1 ], [ 54, 1 ], [ 1, 1 ], [ 86, 1 ], [ 98, 1 ], [ 97, 1 ], [ 95, 1 ], [ 140, 1 ], [ 93, 1 ], [ 139, 1 ], [ 100, 1 ], [ 150, 1 ], [ 66, 1 ], [ 120, 1 ], [ 42, 1 ], [ 85, 1 ], [ 26, 1 ], [ 134, 1 ], [ 172, 1 ], [ 107, 1 ], [ 28, 1 ], [ 141, 1 ], [ 2, 1 ], [ 119, 1 ], [ 24, 1 ], [ 55, 1 ], [ 179, 1 ], [ 143, 1 ], [ 151, 1 ], [ 101, 1 ], [ 157, 1 ], [ 117, 1 ], [ 39, 1 ], [ 106, 1 ], [ 83, 1 ], [ 70, 1 ], [ 60, 1 ], [ 34, 1 ], [ 9, 1 ], [ 188, 1 ], [ 8, 1 ], [ 131, 1 ], [ 87, 1 ], [ 128, 1 ], [ 73, 1 ], [ 189, 1 ], [ 67, 1 ], [ 47, 1 ], [ 52, 1 ], [ 48, 1 ], [ 78, 1 ], [ 153, 1 ], [ 184, 1 ], [ 15, 1 ], [ 65, 1 ], [ 103, 1 ], [ 80, 1 ], [ 59, 1 ], [ 56, 1 ], [ 94, 1 ], [ 199, 1 ], [ 174, 1 ], [ 102, 1 ], [ 49, 1 ], [ 142, 1 ], [ 111, 1 ], [ 68, 1 ], [ 11, 1 ], [ 5, 1 ], [ 38, 1 ], [ 58, 1 ], [ 135, 1 ], [ 161, 1 ], [ 51, 1 ], [ 181, 1 ], [ 123, 1 ], [ 118, 1 ], [ 43, 1 ], [ 133, 1 ], [ 91, 1 ], [ 159, 1 ], [ 35, 1 ], [ 33, 1 ], [ 6, 1 ], [ 92, 1 ], [ 19, 1 ], [ 108, 1 ], [ 96, 1 ], [ 180, 1 ], [ 31, 1 ], [ 79, 1 ], [ 178, 1 ], [ 146, 1 ], [ 121, 1 ], [ 193, 1 ], [ 41, 1 ], [ 182, 1 ], [ 149, 1 ], [ 124, 1 ] ] ]
 //============================================================================
 Json::Value sxd_client::Mod_Player_Base_get_player_function() {
     Json::Value data;
@@ -188,7 +207,7 @@ Json::Value sxd_client::Mod_Player_Base_get_player_function() {
 // PlayerData.as 1260:
 //     oObject.list(list, this.getGameAssistantInfo, ["sports_rank", "combat", "fame", "skill", "role_number", "max_role_number", "day_quest_number", "day_quest_finish", "buy_power_chance", "buy_power_value", "buy_power_ingot", "ingot_rune_chance", "camp_salary", "is_get_camp_salary", "free_fate_chance", "incense_chance", "super_sports_chance", "super_sports_cd_time", "takebible_chance", "takebible_arrival_remain", "send_flower_chance", "free_reset_chance", "coin_tree_chance", "buy_coin_tree_count_chance", "achievement_points", "state_point", "roll_cake_count", "worship_mars_times", "buy_fate_npc_times", "peach_times", "is_can_get_stone", "get_stone_state", "pet_animal_times", "back_times_list", "active_degree_list"]);
 //============================================================================
-Json::Value sxd_client::Mod_Player_Base_get_game_assistant_info(){
+Json::Value sxd_client::Mod_Player_Base_get_game_assistant_info() {
     Json::Value data;
     return this->send_and_receive(data, 0, 42);
 }
@@ -197,7 +216,7 @@ Json::Value sxd_client::Mod_Player_Base_get_game_assistant_info(){
 // R172 服务器时间
 // {module:0, action:22, request:[], response:[Utils.IntUtil]};
 //============================================================================
-Json::Value sxd_client::Mod_Player_Base_server_time(){
+Json::Value sxd_client::Mod_Player_Base_server_time() {
     Json::Value data;
     return this->send_and_receive(data, 0, 22);
 }

@@ -18,7 +18,7 @@ public:
 void sxd_client::space_find() {
     Json::Value data = this->Mod_SpaceFind_Base_open_space_find();
     int count = data[0].asInt();
-    common::log(boost::str(boost::format("【混沌虚空】今日还可抓捕 [%1%] 次") % count));
+    common::log(boost::str(boost::format("【混沌虚空】今日还可抓捕 [%1%] 次") % count), 0);
     for (int i = 0; i < count; i++) {
         data = this->Mod_SpaceFind_Base_do_space_find(Mod_SpaceFind_Base::NORMAL);
         if (data[0] != Mod_SpaceFind_Base::SUCCESS) {
@@ -107,6 +107,8 @@ void sxd_client::chaos_equipment() {
         mss scrap_item = db.get_code(version, "Item", scraps[i][0].asInt());
         std::string scrap_comment = scrap_item["comment"];
         std::string scrap_name = scrap_item["text"];
+        if (scrap_name == "战神碎片") // 叫"战神"的物品有多个
+            continue;
         mss monster_item = db.get_code(version, "Item", common::gbk2utf(scrap_name.substr(0, scrap_name.size() - 4))); // 去掉碎片
         int monster_id = boost::lexical_cast<int>(monster_item["value"]);
         std::string monster_name = monster_item["text"];

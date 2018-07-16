@@ -32,11 +32,11 @@ void sxd_client::st_daoyuan_shop() {
 
         data = this->Mod_StDaoyuanShop_Base_buy_daoyuan_shop_item(id, (*item_select)[1].asInt());
         if (data[0].asInt() == Mod_StDaoyuanShop_Base::NOT_ENOUGH_DAOYUAN) {
-            common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，道缘不足") % name));
+            common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，道缘不足") % name), 0);
             continue;
         }
         if (data[0].asInt() != Mod_StDaoyuanShop_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，result[%2%]") % name % data[0]));
+            common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，result[%2%]") % name % data[0]), 0);
             continue;
         }
         common::log(boost::str(boost::format("【仙界商店】购买 [%1%×%2%]") % name % count));

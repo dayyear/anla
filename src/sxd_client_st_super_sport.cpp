@@ -173,16 +173,16 @@ void sxd_client::point_race(sxd_client* sxd_client_town) {
     Json::Value data = this->Mod_StSuperSport_Base_get_st_super_sport_status();
     if (data[0].asInt() < Mod_StSuperSport_Base::POINT_RACE_FIRST_DAY || data[0].asInt() > Mod_StSuperSport_Base::POINT_RACE_FOUR_DAY)
         return;
-    common::log("【神魔竞技】今日 [积分赛]");
+    common::log("【神魔竞技】今日 [积分赛]", 0);
 
     // get player information
     data = this->Mod_StSuperSport_Base_get_player_st_super_sport();
-    common::log(boost::str(boost::format("【神魔竞技】排名 [%1%]，今日还可挑战 [%2%] 次") % data[0] % data[2]));
+    common::log(boost::str(boost::format("【神魔竞技】排名 [%1%]，今日还可挑战 [%2%] 次") % data[0] % data[2]), 0);
     if (data[2].asInt() == 0)
         return;
     // cd
     if (data[3].asInt()) {
-        common::log("【神魔竞技】CD中...");
+        common::log("【神魔竞技】CD中...", 0);
         return;
     }
 
@@ -276,12 +276,12 @@ void sxd_client::war_race(sxd_client* sxd_client_town) {
     Json::Value data = this->Mod_StSuperSport_Base_get_st_super_sport_status();
     if (data[0].asInt() != Mod_StSuperSport_Base::WAR_RACE)
         return;
-    common::log("【神魔竞技】今日 [神魔大战]");
+    common::log("【神魔竞技】今日 [神魔大战]", 0);
 
     // get race step
     data = this->Mod_StSuperSport_Base_get_race_step();
     if (data[10].asInt()) {
-        common::log("【神魔竞技】已下注");
+        common::log("【神魔竞技】已下注", 0);
         return;
     }
     int race_step = data[0].asInt();
@@ -322,7 +322,7 @@ void sxd_client::war_race(sxd_client* sxd_client_town) {
         int player_id = player[0].asInt();
         players_top2.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
     }
-    {
+    if (data[7].asInt()) {
         int player_id = data[7].asInt();
         players_top1.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
     }
@@ -354,7 +354,7 @@ void sxd_client::war_race(sxd_client* sxd_client_town) {
         int player_id = player[0].asInt();
         players_top2.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
     }
-    {
+    if (data[7].asInt()) {
         int player_id = data[7].asInt();
         players_top1.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
     }

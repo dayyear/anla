@@ -7,13 +7,14 @@ public:
     static const int SUCCESS = 11;
 };
 
+static std::string protectors[] = { "", "白龙马", "沙悟净", "猪八戒", "孙悟空", "唐僧" };
+
 void sxd_client::sa_take_bible() {
-    std::string protectors[] = { "", "白龙马", "沙悟净", "猪八戒", "孙悟空", "唐僧" };
     // first get
     Json::Value data = this->Mod_SaTakeBible_Base_get_take_bible_info();
     Json::Value bible_info = data;
     if (bible_info[2].asInt() == bible_info[3].asInt()) {
-        common::log("【圣域取经】次数已用完");
+        common::log("【圣域取经】次数已用完", 0);
         return;
     }
     if (bible_info[6].asInt() == 0) {

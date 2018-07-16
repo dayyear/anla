@@ -5,19 +5,27 @@
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/format.hpp>
 #include <boost/asio.hpp>
+#define BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN
+#include <boost/thread.hpp>
 
 #include "protocol.h"
 #include "common.h"
 #include "sxd_client.h"
 
-sxd_client::sxd_client(const std::string& version, const std::string& user_id) :
+sxd_client::sxd_client(const std::string& version, const int hwnd) :
         resolver(ios), sock(ios), player_id(0), pre_module(0), pre_action(0) {
     this->version = version;
-    this->user_id = user_id;
+    this->hwnd = hwnd;
 }
 
 sxd_client::~sxd_client() {
-    sock.close();
+    common::log("before sock.close", 0);
+    try {
+        sock.close();
+    } catch (const std::exception& ex) {
+        common::log(boost::str(boost::format("发现错误(~sxd_client)：%1%") % ex.what()));
+    }
+    common::log("after sock.close", 0);
 }
 
 void sxd_client::connect(const std::string& host, const std::string& port) {
@@ -60,7 +68,7 @@ void sxd_client::send_frame(const Json::Value& data, short module, short action)
     pre_action = action;
     // log
     common::log(boost::str(boost::format("     Send method:  %1%.%2%(%3%,%4%)") % protocol["class"] % protocol["method"] % protocol["module"] % protocol["action"]), false);
-    common::log(boost::str(boost::format("     Send pattern: %1%") % protocol["request"]), false);
+    //common::log(boost::str(boost::format("     Send pattern: %1%") % protocol["request"]), false);
     common::log(boost::str(boost::format("     Send data:    %1%") % std::regex_replace(data.toStyledString(), std::regex("[\n\t]+"), " ")), false);
 } //send_frame
 
@@ -69,7 +77,21 @@ void sxd_client::receive_frame(Json::Value& data, short& module, short& action) 
     boost::asio::streambuf response;
     std::istream response_stream(&response);
     // read frame size
-    boost::asio::read(sock, response, boost::asio::transfer_exactly(4));
+
+    // 1. timed out
+    boost::thread t([this, &response]() {
+        try {
+            boost::asio::read(sock, response, boost::asio::transfer_exactly(4));
+        } catch (const std::exception& ex) {
+            common::log(boost::str(boost::format("发现错误(receive_frame)：%1%") % ex.what()));
+        }
+    });
+    if (!t.try_join_for(boost::chrono::seconds(60)))
+        throw std::runtime_error("Request timed out");
+
+    // 2. no timed out
+    //boost::asio::read(sock, response, boost::asio::transfer_exactly(4));
+
     int frame_size = common::read_int32(response_stream);
     // read module and action
     boost::asio::read(sock, response, boost::asio::transfer_exactly(frame_size));
@@ -108,7 +130,7 @@ void sxd_client::receive_frame(Json::Value& data, short& module, short& action) 
     }
     // log
     common::log(boost::str(boost::format("  Receive method:  %1%.%2%(%3%,%4%)") % protocol["class"] % protocol["method"] % protocol["module"] % protocol["action"]), false);
-    common::log(boost::str(boost::format("  Receive pattern: %1%") % protocol["response"]), false);
+    //common::log(boost::str(boost::format("  Receive pattern: %1%") % protocol["response"]), false);
     common::log(boost::str(boost::format("  Receive data:    %1%") % std::regex_replace(data.toStyledString(), std::regex("[\n\t]+"), " ")), false);
 } //receive_frame
 
@@ -122,7 +144,24 @@ Json::Value sxd_client::send_and_receive(const Json::Value& data_s, short module
         if (module_s == module_r && action_s == action_r)
             return data_r;
         auto end = std::time(NULL);
-        if (end - start > 10) {
+        if (end - start > 60) {
+            throw std::runtime_error("Request timed out");
+        }
+    }
+    throw std::runtime_error("Impossible");
+}
+
+Json::Value sxd_client::send_and_receive(const Json::Value& data_s, short module_s, short action_s, short module_r0, short action_r0) {
+    short module_r, action_r;
+    Json::Value data_r;
+    this->send_frame(data_s, module_s, action_s);
+    auto start = std::time(NULL);
+    for (;;) {
+        this->receive_frame(data_r, module_r, action_r);
+        if (module_r0 == module_r && action_r0 == action_r)
+            return data_r;
+        auto end = std::time(NULL);
+        if (end - start > 60) {
             throw std::runtime_error("Request timed out");
         }
     }

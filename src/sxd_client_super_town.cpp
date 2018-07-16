@@ -1,4 +1,6 @@
 #include <boost/format.hpp>
+#include <thread>
+
 #include "common.h"
 #include "sxd_client.h"
 
@@ -25,6 +27,7 @@ int sxd_client::login_super_town(sxd_client* sxd_client_town) {
         common::log(boost::str(boost::format("【仙界】入口未开启，status[%1%]") % data[0]));
         return 1;
     }
+    this->user_id = sxd_client_town->user_id;
 
     // 2. get login information: host, port, server_name, time, passCode
     data = sxd_client_town->Mod_StcLogin_Base_get_login_info();
@@ -60,10 +63,10 @@ int sxd_client::login_super_town(sxd_client* sxd_client_town) {
 
     // 6. chat
     Json::Value config;
-    std::istringstream(db.get_config(user_id.c_str(), "Chat")) >> config;
+    std::istringstream(db.get_config(user_id.c_str(), "StChat")) >> config;
     std::string message = config[rand() % config.size()].asString();
     this->Mod_Chat_Base_chat_with_players(4, common::gbk2utf(message));
-    common::log(boost::str(boost::format("【仙界聊天】%1%") % message));
+    common::log(boost::str(boost::format("【仙界聊天】%1%") % message), 0);
 
     return 0;
 }
@@ -174,7 +177,7 @@ Json::Value sxd_client::Mod_StTown_Base_enter_town() {
 //     for each (_loc_3 in param1)
 //         oObject.list(_loc_3, _loc_4, ["player_id", "role_id", "nickname", "position_x", "position_y", "equip_item_id", "stage_name", "server_name", "is_world_war_top", "is_star", "transport", "avatar", "st_union_name", "immortal_flag", "saint_flag", "mount_rune_type_id", "children_role_id", "children_nickname", "children_suit_id", "orange_equipment_fllow_id", "follow_pet_list"]);
 //============================================================================
-Json::Value sxd_client::Mod_StTown_Base_get_players(){
+Json::Value sxd_client::Mod_StTown_Base_get_players() {
     Json::Value data;
     return this->send_and_receive(data, 95, 6);
 }

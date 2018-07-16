@@ -21,6 +21,7 @@ int sxd_client::login_saint_area(sxd_client* sxd_client_town) {
         common::log(boost::str(boost::format("¡¾Ê¥Óò¡¿Èë¿ÚÎ´¿ªÆô£¬status[%1%]") % data[0]));
         return 1;
     }
+    this->user_id = sxd_client_town->user_id;
 
     // 2. get login information: host, port, server_name, time, passCode
     data = sxd_client_town->Mod_SaintAreaLogin_Base_get_login_info();

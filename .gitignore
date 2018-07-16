@@ -1,2 +1,6 @@
-Release/
+Release/	
+Release_Gui/
 Debug/
+Debug_Gui/
+browser.ini
+user.ini

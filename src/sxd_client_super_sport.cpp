@@ -11,7 +11,7 @@ void sxd_client::super_sport() {
     for (;;) {
         Json::Value data = this->Mod_SuperSport_Base_open_super_sport();
         if (data[4].asInt() == 0) {
-            common::log("【竞技场】挑战次数已用完");
+            common::log("【竞技场】挑战次数已用完", 0);
             return;
         }
         if (data[11].asInt()) {
