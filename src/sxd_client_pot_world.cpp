@@ -4,6 +4,7 @@
 
 class Mod_PotWorld_Base {
 public:
+    static const int UNLOCK = 1;
     static const int YES = 3;
     static const int NO = 4;
     static const int SUCCESS = 5;
@@ -35,7 +36,7 @@ void sxd_client::pot_world() {
 
     // 1:²ÝÒ©ÉÌµê, 2:¾«ÆÇÉÌµê
     for (int building_id = 1; building_id <= 2; building_id++) {
-        if (building_list[building_id][4].asInt()) {
+        if (building_list[building_id][4].asInt() == Mod_PotWorld_Base::UNLOCK) {
             data = this->Mod_PotWorld_Base_get_store_info(building_id);
             int building_level = data[1].asInt();
             auto goods_list = data[3];
@@ -45,7 +46,7 @@ void sxd_client::pot_world() {
                 int cd_time = good[4].asInt();
                 int is_lock = good[5].asInt();
                 // lock
-                if (!is_lock)
+                if (is_lock != Mod_PotWorld_Base::UNLOCK)
                     continue;
                 // count_my
                 int count_my = 0;
@@ -84,7 +85,7 @@ void sxd_client::pot_world() {
             int cost_time = x[2].asInt();
             int is_lock = x[3].asInt();
             int forever_flag = x[5].asInt();
-            if (!is_lock || forever_flag == Mod_PotWorld_Base::YES || server_time < cost_time) return 0;
+            if (is_lock != Mod_PotWorld_Base::UNLOCK || forever_flag == Mod_PotWorld_Base::YES || server_time < cost_time) return 0;
             auto merge_item_list = x[4];
             for (const auto& merge_item : merge_item_list) {
                 int awrad_num = merge_item[1].asInt();
