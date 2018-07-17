@@ -90,7 +90,7 @@ void sxd_client::courtyard_pet_quest() {
         if (!usable_count || !usablePetCount)
             return;
 
-        int quest_running_count = std::count_if(data[2].begin(), data[2].end(), [](const Json::Value& x) {return x[2].asInt() == Mod_CourtyardPet_Base::RUNNING;});
+        int quest_running_count = std::count_if(data[2].begin(), data[2].end(), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::RUNNING;});
         std::vector<Json::Value> quest_list_valueable;
         if (quest_running_count)
             // (x-1)*(x-13) <= 0, qtype = 15(INIT), victory_rate >= 10
