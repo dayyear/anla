@@ -424,3 +424,63 @@ Json::Value sxd_client::Mod_StUnion_Base_deal_join_request(int id) {
     return this->send_and_receive(data, 178, 7);
 }
 
+class Mod_StUnionAnimal_Base {
+public:
+    static const int CALL = 0;
+    static const int FIGHT = 1;
+    static const int KILLED = 2;
+    static const int END = 3;
+    static const int SUCCESS = 4;
+    static const int COIN = 10;
+    static const int INGOT = 11;
+};
+
+//============================================================================
+// ÏÉÃËÉñÊÞ
+//============================================================================
+void sxd_client::st_union_nimal() {
+    auto data = this->Mod_StUnionAnimal_Base_get_animal_info();
+    int status = data[0].asInt();
+    int coin_attack_times = data[6].asInt();
+    int coin_attack_max_times = data[7].asInt();
+    if (status == Mod_StUnionAnimal_Base::FIGHT) {
+        while (coin_attack_times < coin_attack_max_times) {
+            data = this->Mod_StUnionAnimal_Base_fight(Mod_StUnionAnimal_Base::COIN);
+            if (data[0].asInt() != Mod_StUnionAnimal_Base::SUCCESS) {
+                common::log(boost::str(boost::format("¡¾ÏÉÃËÉñÊÞ¡¿ÆÕÍ¨¹¥»÷Ê§°Ü£¬result[%1%]") % data[0]));
+                return;
+            }
+            common::log(boost::str(boost::format("¡¾ÏÉÃËÉñÊÞ¡¿ÆÕÍ¨¹¥»÷£¬¶ÔÉñÊÞÔì³É [ÉËº¦¡Á%1%]") % data[2]));
+            coin_attack_times++;
+        }
+    }
+}
+
+//============================================================================
+// R181 Ãæ°å
+// "module":386,"action":0,"request":[],"response":[Utils.UByteUtil,[Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil],Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil,Utils.IntUtil]
+// StUnionAnimalData.as:
+//     oObject.list(param1,this.animalInfo,["status","call_list","voted_id","call_deadline_timestamp","called_id","coin_attack_cost","coin_attack_times","coin_attack_max_times","ingot_attack_cost","ingot_attack_times","ingot_attack_max_times"]);
+// Example
+//     [ 1, [ [ 1, 1, 0, 0, 1809 ], [ 2, 1, 0, 0, 5000 ], [ 3, 1, 0, 0, 5000 ] ], 0, 0, 1, 1000000, 0, 5, 30, 0, 10 ]
+//     [ 1, [ [ 1, 1, 0, 0, 1728 ], [ 2, 1, 0, 0, 5000 ], [ 3, 1, 0, 0, 5000 ] ], 0, 0, 1, 1000000, 1, 5, 30, 0, 10 ]
+//============================================================================
+Json::Value sxd_client::Mod_StUnionAnimal_Base_get_animal_info() {
+    Json::Value data;
+    return this->send_and_receive(data, 386, 0);
+}
+
+//============================================================================
+// R181 ¹¥»÷
+// "module":386,"action":3,"request":[Utils.UByteUtil],"response":[Utils.UByteUtil,[Utils.IntUtil,Utils.IntUtil],Utils.IntUtil,Utils.IntUtil]
+// StUnionAnimalData.as:
+//     oObject.list(param1,this.fightResult,["result","award_list","hurt","left_health"]);
+// Example
+//     [ 10 ] --> [ 4, [ [ 1743, 7 ] ], 61, 1667 ]
+//============================================================================
+Json::Value sxd_client::Mod_StUnionAnimal_Base_fight(int type) {
+    Json::Value data;
+    data.append(type);
+    return this->send_and_receive(data, 386, 3);
+}
+

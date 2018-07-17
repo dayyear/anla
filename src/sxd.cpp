@@ -634,6 +634,7 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
                     sxd_client_super_town.st_union_activity();          // œ…√À÷Æ ˜
                     sxd_client_super_town.st_union_task();              // ƒß…ÒÃÙ’Ω
                     sxd_client_super_town.st_union_approve();           // œ…√À…Û∫À
+                    sxd_client_super_town.st_union_nimal();             // œ…√À…Ò ﬁ
                 }
             }
 

@@ -505,6 +505,9 @@ public:
     void st_union_approve();
     Json::Value Mod_StUnion_Base_get_request_join_info();
     Json::Value Mod_StUnion_Base_deal_join_request(int id);
+    void st_union_nimal();
+    Json::Value Mod_StUnionAnimal_Base_get_animal_info();
+    Json::Value Mod_StUnionAnimal_Base_fight(int type);
 
     //============================================================================
     // - sxd_client_wish_pool.cpp
