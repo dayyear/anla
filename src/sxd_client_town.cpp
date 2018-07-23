@@ -64,10 +64,10 @@ int sxd_client::login_town(const std::string& web_page) {
 
     // 7. enter_town
     data = this->Mod_Town_Base_enter_town(town_map_id);
-    if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
+    /*if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
         common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]), hwnd);
         return 4;
-    }
+    }*/
     common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]), hwnd);
 
     // 8. chat
