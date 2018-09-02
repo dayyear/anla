@@ -34,26 +34,26 @@ void sxd_client::nine_regions() {
                 return;
             data = this->Mod_NineRegions_Base_call(cur_jie);
             if (data[0].asInt() != Mod_NineRegions_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【九空无界】召唤仙葫失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【九空无界】召唤仙葫失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
             calabash = data[1].asInt();
             switch (calabash) {
             case Mod_NineRegions_Base::TONG:
                 // 铜仙葫
-                common::log(boost::str(boost::format("【九空无界】召唤仙葫，获得 [铜仙葫]，[灵气×%1%]") % data[3]));
+                common::log(boost::str(boost::format("【九空无界】召唤仙葫，获得 [铜仙葫]，[灵气×%1%]") % data[3]), iEdit);
                 break;
             case Mod_NineRegions_Base::YIN:
                 // 银仙葫
-                common::log(boost::str(boost::format("【九空无界】召唤仙葫，获得 [银仙葫]，[灵气×%1%]") % data[3]));
+                common::log(boost::str(boost::format("【九空无界】召唤仙葫，获得 [银仙葫]，[灵气×%1%]") % data[3]), iEdit);
                 break;
             case Mod_NineRegions_Base::JIN:
                 // 金仙葫
-                common::log(boost::str(boost::format("【九空无界】召唤仙葫，获得 [金仙葫]，[灵气×%1%]") % data[3]));
+                common::log(boost::str(boost::format("【九空无界】召唤仙葫，获得 [金仙葫]，[灵气×%1%]") % data[3]), iEdit);
                 break;
             default:
                 // error
-                common::log(boost::str(boost::format("【九空无界】未知仙葫品质，[calabash=%1%]") % calabash));
+                common::log(boost::str(boost::format("【九空无界】未知仙葫品质，[calabash=%1%]") % calabash), iEdit);
                 return;
             }
             break;
@@ -63,27 +63,27 @@ void sxd_client::nine_regions() {
                 // 收取
                 data = this->Mod_NineRegions_Base_collect(cur_jie);
                 if (data[0].asInt() != Mod_NineRegions_Base::SUCCESS) {
-                    common::log(boost::str(boost::format("【九空无界】收取失败，result[%1%]") % data[0]));
+                    common::log(boost::str(boost::format("【九空无界】收取失败，result[%1%]") % data[0]), iEdit);
                     return;
                 }
                 std::vector<std::string> items;
                 std::transform(data[1].begin(), data[1].end(), std::back_inserter(items), [this](const Json::Value& x) {
                     return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
                 });
-                common::log(boost::str(boost::format("【九空无界】收取，获得 %1%") % boost::algorithm::join(items, "，")));
+                common::log(boost::str(boost::format("【九空无界】收取，获得 %1%") % boost::algorithm::join(items, "，")), iEdit);
             } else {
                 // 聚气
                 data = this->Mod_NineRegions_Base_gathering(cur_jie);
                 if (data[0].asInt() != Mod_NineRegions_Base::SUCCESS) {
-                    common::log(boost::str(boost::format("【九空无界】聚气失败，result[%1%]") % data[0]));
+                    common::log(boost::str(boost::format("【九空无界】聚气失败，result[%1%]") % data[0]), iEdit);
                     return;
                 }
-                common::log(boost::str(boost::format("【九空无界】聚气，当前 [灵气×%1%]") % data[2]));
+                common::log(boost::str(boost::format("【九空无界】聚气，当前 [灵气×%1%]") % data[2]), iEdit);
             }
             break;
         default:
             // error
-            common::log(boost::str(boost::format("【九空无界】未知状态，[state=%1%]") % state));
+            common::log(boost::str(boost::format("【九空无界】未知状态，[state=%1%]") % state), iEdit);
             return;
         }
     }

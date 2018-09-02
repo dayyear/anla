@@ -29,9 +29,9 @@ void sxd_client::item_reel() {
         for (int i = 0; i < item_count; i++) {
             data = this->Mod_Item_Base_player_use_grid_reel(player_item_id);
             if (data[0].asInt() == Mod_Item_Base::ACTION_SUCCESS)
-                common::log(boost::str(boost::format("【背包】合成 [%1%]") % item_name));
+                common::log(boost::str(boost::format("【背包】合成 [%1%]") % item_name), iEdit);
             else if (data[0].asInt() == Mod_Item_Base::MATERIAL_NOT_ENOUGH) {
-                //common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，材料不足") % item_name));
+                //common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，材料不足") % item_name), iEdit);
                 break;
             } else {
                 common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，result[%2%]") % item_name % data[0]), 0);
@@ -62,12 +62,12 @@ void sxd_client::item_use() {
         for (int i = 0; i < item_count; i++) {
             data = this->Mod_Item_Base_player_use_grid_item(box_id);
             if (data[0].asInt() == Mod_Item_Base::ACTION_SUCCESS)
-                common::log(boost::str(boost::format("【背包】使用 [%1%]") % item_name));
+                common::log(boost::str(boost::format("【背包】使用 [%1%]") % item_name), iEdit);
             else if (data[0].asInt() == Mod_Item_Base::NOT_ENOUGH_FATE_GRID) {
-                common::log(boost::str(boost::format("【背包】使用 [%1%] 失败，命格背包满") % item_name));
+                common::log(boost::str(boost::format("【背包】使用 [%1%] 失败，命格背包满") % item_name), iEdit);
                 break;
             } else {
-                common::log(boost::str(boost::format("【背包】使用 [%1%]失败，result[%2%]") % item_name % data[0]));
+                common::log(boost::str(boost::format("【背包】使用 [%1%]失败，result[%2%]") % item_name % data[0]), iEdit);
                 break;
             }
         }
@@ -92,9 +92,9 @@ void sxd_client::item_sell() {
             continue;
         data = this->Mod_Item_Base_player_sell_item(box_id);
         if (data[0].asInt() != Mod_Item_Base::ACTION_SUCCESS)
-            common::log(boost::str(boost::format("【背包】出售 [%1%]失败，result[%2%]") % item_name % data[0]));
+            common::log(boost::str(boost::format("【背包】出售 [%1%]失败，result[%2%]") % item_name % data[0]), iEdit);
         else
-            common::log(boost::str(boost::format("【背包】出售 [%1%]") % item_name));
+            common::log(boost::str(boost::format("【背包】出售 [%1%]") % item_name), iEdit);
     }
 }
 

@@ -27,10 +27,10 @@ void sxd_client::dragonball() {
         // 普通上供
         data = this->Mod_Dragonball_Base_sacrifice(Mod_Dragonball_Base::NORMAL, Mod_Dragonball_Base::NOT_AUTO);
         if (data[0].asInt() != Mod_Dragonball_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【神龙上供】普通上供失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【神龙上供】普通上供失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【神龙上供】普通上供，获得 [%1%]") % dragonball_names[data[1][0][1].asInt()]));
+        common::log(boost::str(boost::format("【神龙上供】普通上供，获得 [%1%]") % dragonball_names[data[1][0][1].asInt()]), iEdit);
 
         // 卖出或拾取
         data = this->Mod_Dragonball_Base_get_tmp_dragonball_basic_info();
@@ -40,17 +40,17 @@ void sxd_client::dragonball() {
             if (tmp_grid_d_b[1].asInt() >= 27 && tmp_grid_d_b[1].asInt() <= 34) {
                 data = this->Mod_Dragonball_Base_sell_dragonball(&id, 1);
                 if (data[0].asInt() != Mod_Dragonball_Base::SUCCESS) {
-                    common::log(boost::str(boost::format("【神龙上供】卖出 [%1%] 失败，result[%2%]") % dragonball_names[tmp_grid_d_b[1].asInt()] % data[0]));
+                    common::log(boost::str(boost::format("【神龙上供】卖出 [%1%] 失败，result[%2%]") % dragonball_names[tmp_grid_d_b[1].asInt()] % data[0]), iEdit);
                     return;
                 }
-                common::log(boost::str(boost::format("【神龙上供】卖出 [%1%]") % dragonball_names[tmp_grid_d_b[1].asInt()]));
+                common::log(boost::str(boost::format("【神龙上供】卖出 [%1%]") % dragonball_names[tmp_grid_d_b[1].asInt()]), iEdit);
             } else {
                 data = this->Mod_Dragonball_Base_collect_dragonball(&id, 1);
                 if (data[0].asInt() != Mod_Dragonball_Base::SUCCESS) {
-                    common::log(boost::str(boost::format("【神龙上供】拾取 [%1%] 失败，result[%2%]") % dragonball_names[tmp_grid_d_b[1].asInt()] % data[0]));
+                    common::log(boost::str(boost::format("【神龙上供】拾取 [%1%] 失败，result[%2%]") % dragonball_names[tmp_grid_d_b[1].asInt()] % data[0]), iEdit);
                     return;
                 }
-                common::log(boost::str(boost::format("【神龙上供】拾取 [%1%]") % dragonball_names[tmp_grid_d_b[1].asInt()]));
+                common::log(boost::str(boost::format("【神龙上供】拾取 [%1%]") % dragonball_names[tmp_grid_d_b[1].asInt()]), iEdit);
             }
         }
     }

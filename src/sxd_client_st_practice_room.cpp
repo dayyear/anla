@@ -28,12 +28,12 @@ void sxd_client::st_practice_room() {
     // enter_room
     data = this->Mod_StPracticeRoom_Base_enter_room();
     if (data[0].asInt() != Mod_StPracticeRoom_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【仙界练功房】进入练功房失败，result[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【仙界练功房】进入练功房失败，result[%1%]") % data[0]), iEdit);
         return;
     }
     data = this->Mod_StPracticeRoom_Base_get_room_practice_exp();
     if (data[0].asInt() == Mod_StPracticeRoom_Base::SUCCESS)
-        common::log(boost::str(boost::format("【仙界练功房】领取 [经验值×%1%]") % data[1]));
+        common::log(boost::str(boost::format("【仙界练功房】领取 [经验值×%1%]") % data[1]), iEdit);
 
     if (!valid_rooms.size()) {
         // no valid rooms
@@ -42,10 +42,10 @@ void sxd_client::st_practice_room() {
         // sit down free room
         data = this->Mod_StPracticeRoom_Base_sit_down(100, 0);
         if (data[0].asInt() != Mod_StPracticeRoom_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙界练功房】进入 [普通练功房] 练功失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【仙界练功房】进入 [普通练功房] 练功失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【仙界练功房】进入 [普通练功房] 练功");
+        common::log("【仙界练功房】进入 [普通练功房] 练功", iEdit);
     } else {
         // have valid rooms
         int room_id = valid_rooms[0][0].asInt();
@@ -55,7 +55,7 @@ void sxd_client::st_practice_room() {
         data = this->Mod_StPracticeRoom_Base_get_room_info(room_id);
         auto seat_list = data[0];
         if ((int)seat_list.size() == room_capcity[room_id]) {
-            common::log(boost::str(boost::format("【仙界练功房】[%1%星练功房] 已满") % room_id));
+            common::log(boost::str(boost::format("【仙界练功房】[%1%星练功房] 已满") % room_id), iEdit);
             return;
         }
         for (int seat_id = 0; seat_id < room_capcity[room_id]; seat_id++) {
@@ -64,10 +64,10 @@ void sxd_client::st_practice_room() {
             this->Mod_StPracticeRoom_Base_player_leave_seat();
             data = this->Mod_StPracticeRoom_Base_sit_down(room_id, seat_id);
             if (data[0].asInt() != Mod_StPracticeRoom_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【仙界练功房】进入 [%1%星练功房] 练功失败，result[%2%]") % room_id % data[0]));
+                common::log(boost::str(boost::format("【仙界练功房】进入 [%1%星练功房] 练功失败，result[%2%]") % room_id % data[0]), iEdit);
                 return;
             }
-            common::log(boost::str(boost::format("【仙界练功房】进入 [%1%星练功房] 练功") % room_id));
+            common::log(boost::str(boost::format("【仙界练功房】进入 [%1%星练功房] 练功") % room_id), iEdit);
             break;
         }
     }

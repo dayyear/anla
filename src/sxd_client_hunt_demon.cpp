@@ -16,7 +16,7 @@ void sxd_client::hunt_demon() {
         data = this->Mod_HuntDemon_Base_hunt_demon(0);
         free_times = data[3].asInt();
         if (data[0].asInt() != Mod_HuntDemon_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Ãâ·ÑÁÔÑýÊ§°Ü£¬result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Ãâ·ÑÁÔÑýÊ§°Ü£¬result[%1%]") % data[0]), iEdit);
             return;
         }
         std::vector<std::string> items;
@@ -30,13 +30,13 @@ void sxd_client::hunt_demon() {
             else
                 return boost::str(boost::format("[Î´ÖªÎïÆ·¡Á%1%]") % x[2]);
         });
-        common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Ãâ·ÑÁÔÑý£¬»ñµÃ£º%1%") % boost::algorithm::join(items, "£¬")));
+        common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Ãâ·ÑÁÔÑý£¬»ñµÃ£º%1%") % boost::algorithm::join(items, "£¬")), iEdit);
     }
     while (coin_times) {
         data = this->Mod_HuntDemon_Base_hunt_demon(1);
         coin_times = data[4].asInt();
         if (data[0].asInt() != Mod_HuntDemon_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Í­Ç®ÁÔÑýÊ§°Ü£¬result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Í­Ç®ÁÔÑýÊ§°Ü£¬result[%1%]") % data[0]), iEdit);
             return;
         }
         std::vector<std::string> items;
@@ -50,7 +50,7 @@ void sxd_client::hunt_demon() {
             else
                 return boost::str(boost::format("[Î´ÖªÎïÆ·¡Á%1%]") % x[2]);
         });
-        common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Í­Ç®ÁÔÑý£¬»ñµÃ£º%1%") % boost::algorithm::join(items, "£¬")));
+        common::log(boost::str(boost::format("¡¾ÁÔÑý¡¿Í­Ç®ÁÔÑý£¬»ñµÃ£º%1%") % boost::algorithm::join(items, "£¬")), iEdit);
     }
 }
 

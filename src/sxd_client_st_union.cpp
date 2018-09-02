@@ -43,7 +43,7 @@ Json::Value sxd_client::Mod_StUnion_Base_get_player_st_union_info() {
 void sxd_client::st_union_god_incense() {
     Json::Value data = this->Mod_StUnionActivity_Base_st_union_god_incense(1);
     if (data[0].asInt() == Mod_StUnionActivity_Base::SUCCESS)
-        common::log("【仙盟上香】给仙盟神像上 [白檀香]");
+        common::log("【仙盟上香】给仙盟神像上 [白檀香]", iEdit);
 }
 
 //============================================================================
@@ -73,20 +73,20 @@ void sxd_client::st_union_activity() {
     if (tree_info[6].asInt()) {
         data = this->Mod_StUnionActivity_Base_player_get_tree_gift();
         if (data[0].asInt() != Mod_StUnionActivity_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙盟之树】领取失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【仙盟之树】领取失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【仙盟之树】领取 [%1%×%2%]") % db.get_code(version, "Gift", tree_info[5][0][1].asInt())["text"] % tree_info[5][0][3]));
+        common::log(boost::str(boost::format("【仙盟之树】领取 [%1%×%2%]") % db.get_code(version, "Gift", tree_info[5][0][1].asInt())["text"] % tree_info[5][0][3]), iEdit);
     } else if (tree_info[2].asInt() == tree_info[3].asInt()) {
         common::log("【仙盟之树】今日许愿成功", 0);
     } else if (tree_info[5].size() == 3) {
         int index = rand() % 3;
         data = this->Mod_StUnionActivity_Base_choose_wish_item(tree_info[5][index][0].asInt());
         if (data[0].asInt() != Mod_StUnionActivity_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙盟之树】许愿选择失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【仙盟之树】许愿选择失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【仙盟之树】许愿选择第 [%1%] 个物品 [%2%]") % (index + 1) % db.get_code(version, "Gift", tree_info[5][index][1].asInt())["text"]));
+        common::log(boost::str(boost::format("【仙盟之树】许愿选择第 [%1%] 个物品 [%2%]") % (index + 1) % db.get_code(version, "Gift", tree_info[5][index][1].asInt())["text"]), iEdit);
     }
     // players
     data = this->Mod_StUnionActivity_Base_need_bless_player();
@@ -98,10 +98,10 @@ void sxd_client::st_union_activity() {
             continue;
         data = this->Mod_StUnionActivity_Base_bless_st_union_player(player[0].asInt());
         if (data[0].asInt() != Mod_StUnionActivity_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙盟之树】祝福 [%1%] 失败，result[%2%]") % common::utf2gbk(player[1].asString()) % data[0]));
+            common::log(boost::str(boost::format("【仙盟之树】祝福 [%1%] 失败，result[%2%]") % common::utf2gbk(player[1].asString()) % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【仙盟之树】祝福 [%1%]") % common::utf2gbk(player[1].asString())));
+        common::log(boost::str(boost::format("【仙盟之树】祝福 [%1%]") % common::utf2gbk(player[1].asString())), iEdit);
     }
 }
 
@@ -238,10 +238,10 @@ void sxd_client::st_union_task() {
             common::log("【魔神挑战】未加仙盟", 0);
             return;
         } else if (data[0].asInt() != Mod_StUnionTask_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【魔神挑战】挑战失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【魔神挑战】挑战失败，result[%1%]") % data[0]), iEdit);
             return;
         } else
-            common::log("【魔神挑战】挑战");
+            common::log("【魔神挑战】挑战", iEdit);
     }
 }
 
@@ -391,7 +391,7 @@ void sxd_client::st_union_approve() {
         int id = request[0].asInt();
         data = this->Mod_StUnion_Base_deal_join_request(id);
         if (data[0].asInt() == Mod_StUnion_Base::SUCCESS)
-            common::log(boost::str(boost::format("【仙盟】审核通过 [%1%(%2%级)] 加入") % common::utf2gbk(request[1].asString()) % request[4]));
+            common::log(boost::str(boost::format("【仙盟】审核通过 [%1%(%2%级)] 加入") % common::utf2gbk(request[1].asString()) % request[4]), iEdit);
     }
 }
 
@@ -447,10 +447,10 @@ void sxd_client::st_union_nimal() {
         while (coin_attack_times < coin_attack_max_times) {
             data = this->Mod_StUnionAnimal_Base_fight(Mod_StUnionAnimal_Base::COIN);
             if (data[0].asInt() != Mod_StUnionAnimal_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【仙盟神兽】普通攻击失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【仙盟神兽】普通攻击失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log(boost::str(boost::format("【仙盟神兽】普通攻击，对神兽造成 [伤害×%1%]") % data[2]));
+            common::log(boost::str(boost::format("【仙盟神兽】普通攻击，对神兽造成 [伤害×%1%]") % data[2]), iEdit);
             coin_attack_times++;
         }
     }

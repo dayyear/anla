@@ -5,7 +5,7 @@
 void sxd_client::furniture_effect() {
     Json::Value data = this->Mod_MarryHome_Base_batch_get_furniture_effect();
     if (data[0].size())
-        common::log("【家园】每日领取家园奖励");
+        common::log("【家园】每日领取家园奖励", iEdit);
 }
 
 //============================================================================

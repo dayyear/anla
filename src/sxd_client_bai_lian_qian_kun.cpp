@@ -21,7 +21,7 @@ void sxd_client::bai_lian_qian_kun() {
             std::transform(award[1].begin(), award[1].end(), std::back_inserter(items), [this](const Json::Value& x) {
                 return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
             });
-            common::log(boost::str(boost::format("【百炼乾坤】扫荡第%1%关，获得：%2%") % award[0] % boost::algorithm::join(items, "，")));
+            common::log(boost::str(boost::format("【百炼乾坤】扫荡第%1%关，获得：%2%") % award[0] % boost::algorithm::join(items, "，")), iEdit);
         }
     }
 
@@ -35,12 +35,12 @@ void sxd_client::bai_lian_qian_kun() {
             std::transform(data[9].begin(), data[9].end(), std::back_inserter(items), [this](const Json::Value& x) {
                 return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
             });
-            common::log(boost::str(boost::format("【百炼乾坤】挑战第%1%关，战胜！获得：%2%") % level % boost::algorithm::join(items, "，")));
+            common::log(boost::str(boost::format("【百炼乾坤】挑战第%1%关，战胜！获得：%2%") % level % boost::algorithm::join(items, "，")), iEdit);
         } else if (data[0].asInt() == Mod_BaiLianQianKun_Base::LOSE) {
-            common::log(boost::str(boost::format("【百炼乾坤】挑战第%1%关，战败！") % level));
+            common::log(boost::str(boost::format("【百炼乾坤】挑战第%1%关，战败！") % level), 0);
             return;
         } else {
-            common::log(boost::str(boost::format("【百炼乾坤】挑战第%1%关失败，result[%2%]") % level % data[0]));
+            common::log(boost::str(boost::format("【百炼乾坤】挑战第%1%关失败，result[%2%]") % level % data[0]), iEdit);
             return;
         }
     }

@@ -20,24 +20,24 @@ void sxd_client::sa_take_bible() {
     if (bible_info[6].asInt() == 0) {
         data = this->Mod_SaTakeBible_Base_refresh();
         if (data[0].asInt() != Mod_SaTakeBible_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【圣域取经】刷新取经使者失败，msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【圣域取经】刷新取经使者失败，msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【圣域取经】刷新取经使者，获得 [%1%]") % protectors[data[1].asInt()]));
+        common::log(boost::str(boost::format("【圣域取经】刷新取经使者，获得 [%1%]") % protectors[data[1].asInt()]), iEdit);
     }
     // second get
     bible_info = this->Mod_SaTakeBible_Base_get_take_bible_info();
     if (bible_info[6].asInt() == 0) {
-        common::log(boost::str(boost::format("【圣域取经】数据异常，can_protection[%1%]") % bible_info[6]));
+        common::log(boost::str(boost::format("【圣域取经】数据异常，can_protection[%1%]") % bible_info[6]), iEdit);
         return;
     }
     if (bible_info[5].asInt() == 0) {
         data = this->Mod_SaTakeBible_Base_start_take_bible();
         if (data[0].asInt() != Mod_SaTakeBible_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【圣域取经】护送失败，msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【圣域取经】护送失败，msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【圣域取经】开始护送，取经使者 [%1%]") % protectors[bible_info[6].asInt()]));
+        common::log(boost::str(boost::format("【圣域取经】开始护送，取经使者 [%1%]") % protectors[bible_info[6].asInt()]), iEdit);
     }
 }
 

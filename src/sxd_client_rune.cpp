@@ -17,10 +17,10 @@ void sxd_client::rune() {
     if (count && ingot == 2) {
         data = this->Mod_Rune_Base_rune_use();
         if (data[0].asInt() != Mod_Rune_Base::SUCCEED) {
-            common::log(boost::str(boost::format("【招财神符】使用失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【招财神符】使用失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【招财神符】消费 [元宝×%1%]，获得 [铜钱×%2%]") % ingot % data[1]));
+        common::log(boost::str(boost::format("【招财神符】消费 [元宝×%1%]，获得 [铜钱×%2%]") % ingot % data[1]), iEdit);
     }
 }
 

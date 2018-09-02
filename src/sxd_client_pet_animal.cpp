@@ -27,17 +27,17 @@ void sxd_client::pet_animal() {
             feed_num = data[6].asInt();
             int hit = data[7].asInt();
             if (hit)
-                common::log(boost::str(boost::format("【叶公好龙】普通培养，暴击！获得 [经验值×%1%]") % data[4]));
+                common::log(boost::str(boost::format("【叶公好龙】普通培养，暴击！获得 [经验值×%1%]") % data[4]), iEdit);
             else
-                common::log(boost::str(boost::format("【叶公好龙】普通培养，获得 [经验值×%1%]") % data[4]));
+                common::log(boost::str(boost::format("【叶公好龙】普通培养，获得 [经验值×%1%]") % data[4]), iEdit);
 
         } else if (result == Mod_PetAnimal_Base::TOO_MUCH_EXP) {
             // up
             this->Mod_PetAnimal_Base_up_pet_animal();
-            common::log("【叶公好龙】进化");
+            common::log("【叶公好龙】进化", iEdit);
 
         } else {
-            common::log(boost::str(boost::format("【叶公好龙】培养失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【叶公好龙】培养失败，result[%1%]") % data[0]), iEdit);
             return;
         }
     }

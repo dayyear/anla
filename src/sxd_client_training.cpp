@@ -32,7 +32,7 @@ void sxd_client::training() {
             int base_data2 = data[8][0][2].asInt();
             int training_upper = level * 4 + 20 + elixir_soul_upper;
             if (training_upper == base_data0 && training_upper == base_data1 && training_upper == base_data2) {
-                common::log(boost::str(boost::format("【培养】[%1%] 已达到培养上限[%2%]") % role_name % training_upper));
+                common::log(boost::str(boost::format("【培养】[%1%] 已达到培养上限[%2%]") % role_name % training_upper), iEdit);
                 return;
             }
 
@@ -40,16 +40,16 @@ void sxd_client::training() {
                 data = this->Mod_Training_Base_training(player_role_id, Mod_Training_Base::FAVORITEM);
                 if (data[0].asInt() == Mod_Training_Base::SUCCEED) {
                     this->Mod_Training_Base_modify_role_data(player_role_id);
-                    common::log(boost::str(boost::format("【培养】[%1%] 喜好品培养，武力[%2%]，绝技[%3%]，法力[%4%]") % role_name % data[1] % data[2] % data[3]));
+                    common::log(boost::str(boost::format("【培养】[%1%] 喜好品培养，武力[%2%]，绝技[%3%]，法力[%4%]") % role_name % data[1] % data[2] % data[3]), iEdit);
                     if (training_upper == data[1].asInt() && training_upper == data[2].asInt() && training_upper == data[3].asInt()) {
-                        common::log(boost::str(boost::format("【培养】[%1%] 已达到培养上限[%2%]") % role_name % training_upper));
+                        common::log(boost::str(boost::format("【培养】[%1%] 已达到培养上限[%2%]") % role_name % training_upper), iEdit);
                         return;
                     }
                 } else if (data[0].asInt() == Mod_Training_Base::NOENOUGHITEM) {
                     common::log(boost::str(boost::format("【培养】[%1%] 喜好品培养失败，女娲石碎片数量不足") % role_name), 0);
                     return;
                 } else {
-                    common::log(boost::str(boost::format("【培养】[%1%] 喜好品培养失败，result[%2%]") % role_name % data[0]));
+                    common::log(boost::str(boost::format("【培养】[%1%] 喜好品培养失败，result[%2%]") % role_name % data[0]), iEdit);
                     return;
                 }
             }

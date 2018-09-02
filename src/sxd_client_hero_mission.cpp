@@ -13,16 +13,21 @@ public:
 // R177 ”¢–€…®µ¥
 //============================================================================
 void sxd_client::hero_mission() {
+    // √ª”–ÃÂ¡¶¡À
+    Json::Value data = this->Mod_Player_Base_get_player_info();
+    if (!data[6].asInt())
+        return;
+
     // 55:ÃÏ∫”’Ú, 14:—Ô÷›≥«
     int town_ids[] = { 55, 54, 43, 40, 39, 35, 33, 29, 27, 26, 24, 23, 22, 21, 15, 14 };
     for (int town_id : town_ids) {
-        Json::Value data = this->Mod_HeroMission_Base_get_hero_mission_list(town_id);
+        data = this->Mod_HeroMission_Base_get_hero_mission_list(town_id);
         Json::Value missions = data[0];
         if (std::none_of(missions.begin(), missions.end(), [](const Json::Value& x) {return x[1].asInt()==1 && x[3].asInt()==1;}))
             continue;
         data = this->Mod_HeroMission_Base_start_practice(town_id, 1, 0);
         if (data[0].asInt() != Mod_HeroMission_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ”¢–€…®µ¥°ø…®µ¥ ß∞‹£¨msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("°æ”¢–€…®µ¥°ø…®µ¥ ß∞‹£¨msg[%1%]") % data[0]), iEdit);
             return;
         }
         for (;;) {
@@ -30,7 +35,7 @@ void sxd_client::hero_mission() {
             if (data[0].asInt() != Mod_HeroMission_Base::NEW_WAR_REPORT)
                 break;
         }
-        common::log(boost::str(boost::format("°æ”¢–€…®µ¥°ø…®µ¥”¢–€∏±±æ[%1%]") % db.get_code(version, "Town", town_id)["text"]));
+        common::log(boost::str(boost::format("°æ”¢–€…®µ¥°ø…®µ¥”¢–€∏±±æ[%1%]") % db.get_code(version, "Town", town_id)["text"]), iEdit);
         if (data[0].asInt() != Mod_HeroMission_Base::FINISH)
             return;
     }

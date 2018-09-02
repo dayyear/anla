@@ -66,9 +66,9 @@ void sxd::run(std::string arg, bool auto_exit) {
                 std::string user_id = (*it)["user_id"];
                 std::string url = (*it)["url"];
                 std::string cookie = oss.str();
-                //sxd::batch_fate("R180", user_id, url, cookie);
-                sxd::auto_play("R180", user_id, url, cookie);
-                //std::thread thread([url, cookie]() {sxd::play("R180", url, cookie);});
+                //sxd::batch_fate("R184", user_id, url, cookie);
+                sxd::auto_play("R184", user_id, url, cookie);
+                //std::thread thread([url, cookie]() {sxd::play("R184", url, cookie);});
             } catch (const std::exception& ex) {
                 common::log(boost::str(boost::format("发现错误(run)：%1%") % ex.what()));
             }
@@ -87,8 +87,6 @@ void sxd::login() {
 
     auto users = db.get_all_users();
     for (auto& user : users) {
-        //if (user["name"] != "平平啦.s152")
-        //    continue;
         try {
             common::log(boost::str(boost::format("%1% [%2%]") % user["name"] % user["id"]));
             std::string id = user["id"];
@@ -214,13 +212,13 @@ void sxd::analyze() {
                 action = common::read_int16(fis);
 
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R180", module, action);
+                protocol = db.get_protocol("R184", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(fis, data, pattern);
             } else {
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R180", module, action);
+                protocol = db.get_protocol("R184", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(ss, data, pattern);
@@ -233,10 +231,6 @@ void sxd::analyze() {
             common::log(boost::str(boost::format("  %1% data:    %2%") % (i % 2 ? "   Send" : "Receive") % boost::regex_replace(data.toStyledString(), boost::regex("[\n\t]+"), " ")));
         }
     } // for items
-}
-
-bool contain(const std::vector<std::string>& v, const std::string& s) {
-    return std::find(v.begin(), v.end(), s) != v.end();
 }
 
 void sxd::batch_fate(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie) {
@@ -322,7 +316,7 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     sxd_client_town.item_use();
 
     // lucky shop
-    if (!contain(function_names, "神秘商人"))
+    if (!common::contain(function_names, "神秘商人"))
         common::log("【神秘商人】未开启", 0);
     else {
         sxd_client_town.item_sell();                            // 物品出售
@@ -337,25 +331,25 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     sxd_client_town.item_use();
 
     // rune
-    if (!contain(function_names, "招财神符"))
+    if (!common::contain(function_names, "招财神符"))
         common::log("【招财神符】未开启", 0);
     else {
         sxd_client_town.rune();
     }
 
     // get peach
-    if (!contain(function_names, "摘仙桃"))
+    if (!common::contain(function_names, "摘仙桃"))
         common::log("【摘仙桃】未开启", 0);
     else {
         sxd_client_town.get_peach();
     }
 
     // farm
-    if (!contain(function_names, "药园"))
+    if (!common::contain(function_names, "药园"))
         common::log("【药园】未开启", 0);
     else {
         sxd_client_town.harvest();
-        if (!contain(function_names, "发财树"))
+        if (!common::contain(function_names, "发财树"))
             common::log("【药园】未开启 [发财树]", 0);
         else {
             sxd_client_town.plant();
@@ -364,7 +358,7 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // 周年活动
-    if (!contain(function_names, "周年活动"))
+    if (!common::contain(function_names, "周年活动"))
         common::log("【周年活动】未开启", 0);
     else {
         // sign in，签到
@@ -380,21 +374,21 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // link fate
-    if (!contain(function_names, "结缘"))
+    if (!common::contain(function_names, "结缘"))
         common::log("【结缘】未开启", 0);
     else {
         sxd_client_town.link_fate();
     }
 
     // training
-    if (!contain(function_names, "培养"))
+    if (!common::contain(function_names, "培养"))
         common::log("【培养】未开启", 0);
     else {
         sxd_client_town.training();
     }
 
     // chaos equipment
-    if (!contain(function_names, "混沌虚空"))
+    if (!common::contain(function_names, "混沌虚空"))
         common::log("【混沌虚空】未开启", 0);
     else {
         sxd_client_town.space_find();           // 混沌虚空
@@ -402,21 +396,14 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // email
-    if (!contain(function_names, "邮箱"))
+    if (!common::contain(function_names, "邮箱"))
         common::log("【邮箱】未开启", 0);
     else {
         sxd_client_town.email();
     }
 
-    // super sport
-    if (!contain(function_names, "竞技场"))
-        common::log("【竞技场】未开启", 0);
-    else {
-        sxd_client_town.super_sport();
-    }
-
     // courtyard pet
-    if (!contain(function_names, "宠物"))
+    if (!common::contain(function_names, "宠物"))
         common::log("【宠物】未开启", 0);
     else {
         sxd_client_town.courtyard_pet();        // 宠物房
@@ -424,84 +411,84 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // pot world
-    if (!contain(function_names, "壶中界"))
+    if (!common::contain(function_names, "壶中界"))
         common::log("【壶中界】未开启", 0);
     else {
         sxd_client_town.pot_world();
     }
 
     // beelzebub trials
-    if (!contain(function_names, "魔王试炼"))
+    if (!common::contain(function_names, "魔王试炼"))
         common::log("【魔王试炼】未开启", 0);
     else {
         sxd_client_town.beelzebub_trials();
     }
 
     // pet animal
-    if (!contain(function_names, "叶公好龙"))
+    if (!common::contain(function_names, "叶公好龙"))
         common::log("【叶公好龙】未开启", 0);
     else {
         sxd_client_town.pet_animal();
     }
 
     // travel event
-    if (!contain(function_names, "仙旅奇缘"))
+    if (!common::contain(function_names, "仙旅奇缘"))
         common::log("【仙旅奇缘】未开启", 0);
     else {
         sxd_client_town.travel_event();
     }
 
     // hunt demon
-    if (!contain(function_names, "猎妖"))
+    if (!common::contain(function_names, "猎妖"))
         common::log("【猎妖】未开启", 0);
     else {
         sxd_client_town.hunt_demon();
     }
 
     // awake
-    if (!contain(function_names, "觉醒"))
+    if (!common::contain(function_names, "觉醒"))
         common::log("【觉醒】未开启", 0);
     else {
         sxd_client_town.awake();
     }
 
     // bai lian qian kun
-    if (!contain(function_names, "百炼乾坤"))
+    if (!common::contain(function_names, "百炼乾坤"))
         common::log("【百炼乾坤】未开启", 0);
     else {
         sxd_client_town.bai_lian_qian_kun();
     }
 
     // five elements laba
-    if (!contain(function_names, "五行天仪"))
+    if (!common::contain(function_names, "五行天仪"))
         common::log("【五行天仪】未开启", 0);
     else {
         sxd_client_town.five_elements_laba();
     }
 
     // roll cake
-    if (!contain(function_names, "吉星高照"))
+    if (!common::contain(function_names, "吉星高照"))
         common::log("【吉星高照】未开启", 0);
     else {
         sxd_client_town.roll_cake();
     }
 
     // send flower
-    if (!contain(function_names, "送花"))
+    if (!common::contain(function_names, "送花"))
         common::log("【送花】未开启", 0);
     else {
         sxd_client_town.send_flower();
     }
 
     // fate
-    if (!contain(function_names, "猎命"))
+    if (!common::contain(function_names, "猎命"))
         common::log("【猎命】未开启", 0);
     else {
         sxd_client_town.fate();
     }
 
     // find immortal
-    if (!contain(function_names, "喜从天降"))
+    if (!common::contain(function_names, "喜从天降"))
         common::log("【喜从天降】未开启", 0);
     else {
         sxd_client_town.find_immortal();      // 喜从天降
@@ -509,7 +496,7 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // rob money
-    if (!contain(function_names, "劫镖"))
+    if (!common::contain(function_names, "劫镖"))
         common::log("【劫镖】未开启", 0);
     else {
         sxd_client_town.rob_money();
@@ -519,45 +506,35 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     sxd_client_town.nine_regions();
 
     // nimbus
-    if (!contain(function_names, "灵脉"))
+    if (!common::contain(function_names, "灵脉"))
         common::log("【灵脉】未开启", 0);
     else {
         //sxd_client_town.nimbus();
     }
 
-    // rob money
-    if (!contain(function_names, "劫镖"))
-        common::log("【劫镖】未开启", 0);
-    else {
-        //sxd_client_town.rob_money();
-    }
-
-    // ju ling，聚灵
-    // sxd_client_town.ju_ling();
-
     // dance
-    if (!contain(function_names, "舞蹈动作"))
+    if (!common::contain(function_names, "舞蹈动作"))
         common::log("【群仙乱舞】未开启", 0);
     else {
         sxd_client_town.dance();
     }
 
     // marry
-    if (!contain(function_names, "结婚"))
+    if (!common::contain(function_names, "结婚"))
         common::log("【结婚】未开启", 0);
     else {
         sxd_client_town.marry();
     }
 
     // coin mission
-    if (!contain(function_names, "铜钱副本"))
+    if (!common::contain(function_names, "铜钱副本"))
         common::log("【铜钱副本】未开启", 0);
     else {
-        sxd_client_town.coin_mission(&sxd_client_town);
+        sxd_client_town.coin_mission();
     }
 
     // hero mission
-    if (!contain(function_names, "英雄扫荡"))
+    if (!common::contain(function_names, "英雄扫荡"))
         common::log("【英雄扫荡】未开启", 0);
     else {
         sxd_client_town.hero_mission();
@@ -570,21 +547,21 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     sxd_client_town.sunday_fruit();
 
     // partner link
-    if (!contain(function_names, "天缘系统"))
+    if (!common::contain(function_names, "天缘系统"))
         common::log("【天缘系统】未开启", 0);
     else {
         sxd_client_town.partner_link();     // 缘魂宝箱
     }
 
     // dragonball
-    if (!contain(function_names, "神龙上供"))
+    if (!common::contain(function_names, "神龙上供"))
         common::log("【神龙上供】未开启", 0);
     else {
         sxd_client_town.dragonball();
     }
 
     // faction
-    if (!contain(function_names, "帮派"))
+    if (!common::contain(function_names, "帮派"))
         common::log("【帮派】未开启", 0);
     else {
         std::string faction_name = sxd_client_town.get_faction_name();
@@ -602,14 +579,14 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // assistant
-    if (!contain(function_names, "活跃度"))
+    if (!common::contain(function_names, "活跃度"))
         common::log("【活跃度】未开启", 0);
     else {
         sxd_client_town.assistant();
     }
 
     // fish
-    if (!contain(function_names, "钓鱼"))
+    if (!common::contain(function_names, "钓鱼"))
         common::log("【钓鱼】未开启", 0);
     else {
         sxd_client_town.fish();
@@ -617,12 +594,12 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
     // super town
     try {
-        if (!contain(function_names, "仙界"))
+        if (!common::contain(function_names, "仙界"))
             common::log("【仙界】未开启", 0);
         else if (!sxd_client_super_town.login_super_town(&sxd_client_town)) {
 
             // st_union
-            if (!contain(function_names, "仙盟"))
+            if (!common::contain(function_names, "仙盟"))
                 common::log("【仙盟】未开启", 0);
             else {
                 std::string st_union_name = sxd_client_super_town.get_st_union_name();
@@ -639,66 +616,52 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
             }
 
             // wish pool
-            if (!contain(function_names, "许愿池"))
+            if (!common::contain(function_names, "许愿池"))
                 common::log("【许愿池】未开启", 0);
             else {
                 sxd_client_super_town.wish_pool();
             }
 
             // furniture effect
-            if (!contain(function_names, "家园"))
+            if (!common::contain(function_names, "家园"))
                 common::log("【家园】未开启", 0);
             else {
                 sxd_client_super_town.furniture_effect();
             }
 
-            // st super sport
-            if (!contain(function_ids, "93"))
-                common::log("【神魔竞技】未开启", 0);
-            else {
-                if (contain(function_names, "主角飞升"))
-                    common::log("【神魔竞技】主角已成圣，升级为 [圣域竞技场]", 0);
-                else {
-                    sxd_client_super_town.get_rank_award(&sxd_client_town);     // 排名奖励
-                    sxd_client_super_town.get_score_award();                    // 神魔大礼
-                    sxd_client_super_town.point_race(&sxd_client_town);         // 积分赛
-                    sxd_client_super_town.war_race(&sxd_client_town);           // 神魔大战
-                }
-            }
-
             // st arena
-            if (!contain(function_names, "仙界商店"))
+            if (!common::contain(function_names, "仙界商店"))
                 common::log("【仙界商店】未开启", 0);
             else {
                 sxd_client_super_town.st_daoyuan_shop();
             }
 
             // st big turntable
-            if (!contain(function_names, "周年活动"))
+            if (!common::contain(function_names, "周年活动"))
                 common::log("【周年活动】未开启", 0);
             else {
                 sxd_client_super_town.st_big_turntable();           // 游乐城大转盘
             }
 
             // st altar
-            if (!contain(function_names, "仙界神坛"))
+            if (!common::contain(function_names, "仙界神坛"))
                 common::log("【仙界神坛】未开启", 0);
             else {
                 sxd_client_super_town.st_altar();
             }
 
             // st mine
-            if (!contain(function_names, "矿山系统"))
+            if (!common::contain(function_names, "矿山系统"))
                 common::log("【矿山系统】未开启", 0);
             else {
                 sxd_client_super_town.st_mine();
             }
 
             // st practice room
-            if (!contain(function_names, "仙界练功房"))
+            if (!common::contain(function_names, "仙界练功房"))
                 common::log("【仙界练功房】未开启", 0);
             else {
-                if (contain(function_names, "主角飞升"))
+                if (common::contain(function_names, "主角飞升"))
                     common::log("【仙界练功房】主角已成圣，升级为 [圣域练功房]", 0);
                 else {
                     sxd_client_super_town.st_practice_room();
@@ -706,10 +669,10 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
             }
 
             // st take bible
-            if (!contain(function_names, "跨服取经"))
+            if (!common::contain(function_names, "跨服取经"))
                 common::log("【仙界取经】未开启", 0);
             else {
-                if (contain(function_names, "主角飞升"))
+                if (common::contain(function_names, "主角飞升"))
                     common::log("【仙界取经】主角已成圣，升级为 [圣域取经]", 0);
                 else {
                     sxd_client_super_town.st_take_bible();                      // 护送取经
@@ -718,11 +681,25 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
             }
 
             // st arena
-            if (!contain(function_ids, "132"))
+            if (!common::contain(function_ids, "132"))
                 common::log("【仙界竞技场】未开启", 0);
             else {
                 sxd_client_super_town.st_arena();           // 挑战
                 sxd_client_town.exploit_shop();             // 荣誉商店买内丹
+            }
+
+            // st super sport
+            if (!common::contain(function_ids, "93"))
+                common::log("【神魔竞技】未开启", 0);
+            else {
+                if (common::contain(function_names, "主角飞升"))
+                    common::log("【神魔竞技】主角已成圣，升级为 [圣域竞技场]", 0);
+                else {
+                    sxd_client_super_town.get_rank_award(&sxd_client_town);     // 排名奖励
+                    sxd_client_super_town.get_score_award();                    // 神魔大礼
+                    sxd_client_super_town.point_race(&sxd_client_town);         // 积分赛
+                    sxd_client_super_town.war_race(&sxd_client_town);           // 神魔大战
+                }
             }
         }
     } catch (const std::exception& ex) {
@@ -731,7 +708,7 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
     // saint area
     try {
-        if (!contain(function_names, "圣域"))
+        if (!common::contain(function_names, "圣域"))
             common::log("【圣域】未开启", 0);
         else if (!sxd_client_saint_area.login_saint_area(&sxd_client_town)) {
             sxd_client_saint_area.sa_take_bible();                  // 圣域取经
@@ -743,7 +720,7 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
     // server chat room
     try {
-        if (!contain(function_names, "聊天室"))
+        if (!common::contain(function_names, "聊天室"))
             common::log("【全网聊天】未开启", 0);
         else if (!sxd_client_chat_room.login_server_chat(&sxd_client_town)) {
             sxd_client_chat_room.pet_escort(&sxd_client_town);
@@ -751,18 +728,26 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     } catch (const std::exception& ex) {
         common::log(boost::str(boost::format("发现错误(server chat room)：%1%") % ex.what()));
     }
+
+    // super sport
+    if (!common::contain(function_names, "竞技场"))
+        common::log("【竞技场】未开启", 0);
+    else {
+        sxd_client_town.super_sport();
+    }
+
 }
 
 void sxd::collect() {
     try {
-        sxd::collect_protocol("R180", "H:\\神仙道\\基础数据准备\\R180\\Main\\com\\protocols");
-        sxd::collect_end_function_gift("R180", "H:\\神仙道\\基础数据准备\\R180\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_function("R180", "H:\\神仙道\\基础数据准备\\R180\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
-        sxd::collect_gift("R180", "H:\\神仙道\\基础数据准备\\R180\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_item("R180", "H:\\神仙道\\基础数据准备\\R180\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_lucky_shop_item("R180", "H:\\神仙道\\基础数据准备\\R180\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_role("R180", "H:\\神仙道\\基础数据准备\\R180\\Main\\com\\assist\\server\\RoleType.as");
-        sxd::collect_town("R180", "H:\\神仙道\\基础数据准备\\R180\\templet\\com\\assist\\server\\source\\TownTypeData.as");
+        sxd::collect_protocol("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\protocols");
+        sxd::collect_end_function_gift("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_function("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
+        sxd::collect_gift("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_item("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_lucky_shop_item("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_role("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\assist\\server\\RoleType.as");
+        sxd::collect_town("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\TownTypeData.as");
     } catch (const std::exception& ex) {
         std::cerr << boost::str(boost::format("发现错误(collect)：%1%") % ex.what()) << std::endl;
     }

@@ -11,34 +11,38 @@ static std::string protectors[] = { "", "白龙马", "沙悟净", "猪八戒", "孙悟空", 
 
 // 参考圣域取经
 void sxd_client::st_take_bible() {
-    // first get
-    Json::Value data = this->Mod_StTakeBible_Base_get_take_bible_info();
-    Json::Value bible_info = data;
-    if (bible_info[2].asInt() == bible_info[3].asInt()) {
-        common::log("【仙界取经】次数已用完", 0);
-        return;
-    }
-    if (bible_info[6].asInt() == 0) {
-        data = this->Mod_StTakeBible_Base_refresh();
-        if (data[0].asInt() != Mod_StTakeBible_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙界取经】刷新取经使者失败，msg[%1%]") % data[0]));
+    try {
+        // first get
+        Json::Value data = this->Mod_StTakeBible_Base_get_take_bible_info();
+        Json::Value bible_info = data;
+        if (bible_info[2].asInt() == bible_info[3].asInt()) {
+            common::log("【仙界取经】次数已用完", 0);
             return;
         }
-        common::log(boost::str(boost::format("【仙界取经】刷新取经使者，获得 [%1%]") % protectors[data[1].asInt()]));
-    }
-    // second get
-    bible_info = this->Mod_StTakeBible_Base_get_take_bible_info();
-    if (bible_info[6].asInt() == 0) {
-        common::log(boost::str(boost::format("【仙界取经】数据异常，can_protection[%1%]") % bible_info[6]));
-        return;
-    }
-    if (bible_info[5].asInt() == 0) {
-        data = this->Mod_StTakeBible_Base_start_take_bible();
-        if (data[0].asInt() != Mod_StTakeBible_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【仙界取经】护送失败，msg[%1%]") % data[0]));
+        if (bible_info[6].asInt() == 0) {
+            data = this->Mod_StTakeBible_Base_refresh();
+            if (data[0].asInt() != Mod_StTakeBible_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【仙界取经】刷新取经使者失败，msg[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log(boost::str(boost::format("【仙界取经】刷新取经使者，获得 [%1%]") % protectors[data[1].asInt()]), iEdit);
+        }
+        // second get
+        bible_info = this->Mod_StTakeBible_Base_get_take_bible_info();
+        if (bible_info[6].asInt() == 0) {
+            common::log(boost::str(boost::format("【仙界取经】数据异常，can_protection[%1%]") % bible_info[6]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【仙界取经】开始护送，取经使者 [%1%]") % protectors[bible_info[6].asInt()]));
+        if (bible_info[5].asInt() == 0) {
+            data = this->Mod_StTakeBible_Base_start_take_bible();
+            if (data[0].asInt() != Mod_StTakeBible_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【仙界取经】护送失败，msg[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log(boost::str(boost::format("【仙界取经】开始护送，取经使者 [%1%]") % protectors[bible_info[6].asInt()]), iEdit);
+        }
+    } catch (const std::exception& ex) {
+        common::log(boost::str(boost::format("发现错误(st take bible)：%1%") % ex.what()));
     }
 }
 
@@ -79,97 +83,101 @@ Json::Value sxd_client::Mod_StTakeBible_Base_start_take_bible() {
 // R179 拦截使者
 //============================================================================
 void sxd_client::st_rob_bible(sxd_client* sxd_client_town) {
-    // read config
-    int config;
-    std::istringstream(db.get_config(user_id.c_str(), "StRobMinFame")) >> config;
+    try {
+        // read config
+        int config;
+        std::istringstream(db.get_config(user_id.c_str(), "StRobMinFame")) >> config;
 
-    // get my_level, my_fame and function_names
-    auto data = sxd_client_town->Mod_Player_Base_get_player_info();
-    int my_level = data[1].asInt();
-    int my_fame = data[21].asInt();
-    data = sxd_client_town->Mod_Player_Base_get_player_function();
-    std::vector<std::string> function_names;
-    for (const auto& item : data[0])
-        try {
-            function_names.push_back(db.get_code(version, "Function", item[0].asInt())["text"]);
-        } catch (const std::exception& ex) {
-            common::log(boost::str(boost::format("发现错误(function)：%1%") % ex.what()));
+        // get my_level, my_fame and function_names
+        auto data = sxd_client_town->Mod_Player_Base_get_player_info();
+        int my_level = data[1].asInt();
+        int my_fame = data[21].asInt();
+        data = sxd_client_town->Mod_Player_Base_get_player_function();
+        std::vector<std::string> function_names;
+        for (const auto& item : data[0])
+            try {
+                function_names.push_back(db.get_code(version, "Function", item[0].asInt())["text"]);
+            } catch (const std::exception& ex) {
+                common::log(boost::str(boost::format("发现错误(function)：%1%") % ex.what()), iEdit);
+            }
+
+        // get cd_time
+        data = this->Mod_StTakeBible_Base_get_rob_take_bible_cd_time();
+        int cd_time = data[0].asInt();
+        if (cd_time)
+            return;
+
+        // get can_rob_times and bibles
+        data = this->Mod_StTakeBible_Base_open_take_bible();
+        int can_rob_times = data[2].asInt();
+        if (!can_rob_times)
+            return;
+        auto bibles = data[0];
+
+        // get all members with st union
+        auto all_members = this->get_all_st_union_members();
+
+        // get server_time
+        data = sxd_client_town->Mod_Player_Base_server_time();
+        int server_time = data[0].asInt();
+
+        // filter arrive soon and myself
+        std::vector<Json::Value> bibles_valid;
+        std::copy_if(bibles.begin(), bibles.end(), std::back_inserter(bibles_valid), [server_time, this](const Json::Value& x) {return x[3].asInt() > server_time + 30 && x[0].asInt() != this->player_id;});
+
+        for (auto& bible : bibles_valid) {
+            int player_id = bible[0].asInt();
+            int protect_player_id = bible[5].asInt();
+            int sequence_id = bible[6].asInt();
+            int loc3 = (my_fame >= 1200000 && std::find(function_names.begin(), function_names.end(), "仙界等级") != function_names.end()) ? 1 : 0;
+            data = this->Mod_StTakeBible_Base_get_player_take_bible(player_id, my_level, loc3, sequence_id);
+            // 8 + 20 = 28
+            for (const auto& item : data)
+                bible.append(item);
+            // 28 + 1 = 29
+            int id = protect_player_id ? protect_player_id : player_id;
+            auto temp = std::find_if(all_members.begin(), all_members.end(), [id](const Json::Value& x) {return x[0].asInt()==id;});
+            if (temp == all_members.end())
+                bible.append(INT_MAX);
+            else
+                bible.append((*temp)[7].asInt());
         }
 
-    // get cd_time
-    data = this->Mod_StTakeBible_Base_get_rob_take_bible_cd_time();
-    int cd_time = data[0].asInt();
-    if (cd_time)
-        return;
+        // rob_fame >= {config} && !is_robbed && be_rob_times < total_can_rob_times && !protect_time
+        std::vector<Json::Value> bibles_opt;
+        std::copy_if(bibles_valid.begin(), bibles_valid.end(), std::back_inserter(bibles_opt), [&config](const Json::Value& x) {return x[8+9].asInt() >= config && !x[8+14].asInt() && x[8+5].asInt() < x[8+6].asInt() && !x[8+15].asInt();});
+        if (!bibles_opt.size())
+            return;
 
-    // get can_rob_times and bibles
-    data = this->Mod_StTakeBible_Base_open_take_bible();
-    int can_rob_times = data[2].asInt();
-    if (!can_rob_times)
-        return;
-    auto bibles = data[0];
+        // min power
+        auto bible_opt = *std::min_element(bibles_opt.begin(), bibles_opt.end(), [](const Json::Value& x,const Json::Value& y) {return x[8+20+0].asInt() < y[8+20+0].asInt();});
 
-    // get all members with st union
-    auto all_members = this->get_all_st_union_members();
+        int player_id = bible_opt[0].asInt();
+        int protection = bible_opt[1].asInt();
+        int sequence_id = bible_opt[6].asInt();
+        std::string nick_name = common::utf2gbk(bible_opt[8 + 1].asString());
+        //int level = bible_opt[8 + 4].asInt();
+        //int power = bible_opt[8 + 20 + 0].asInt();
+        //int be_rob_times = bible_opt[8 + 5].asInt();
+        //int total_can_rob_times = bible_opt[8 + 6].asInt();
+        //int is_robbed = bible_opt[8 + 14].asInt();
+        //common::log(boost::str(boost::format("【仙界取经】取经使者 [%1%]，取经玩家 [%2%(%3%)]，[%4%]级，战力[%5%]，[%6%/%7%]，is_robbed[%8%]") % protectors[protection] % nick_name % player_id % level % power % be_rob_times % total_can_rob_times % is_robbed), 0);
 
-    // get server_time
-    data = sxd_client_town->Mod_Player_Base_server_time();
-    int server_time = data[0].asInt();
-
-    // filter arrive soon and myself
-    std::vector<Json::Value> bibles_valid;
-    std::copy_if(bibles.begin(), bibles.end(), std::back_inserter(bibles_valid), [server_time, this](const Json::Value& x) {return x[3].asInt() > server_time + 30 && x[0].asInt() != this->player_id;});
-
-    for (auto& bible : bibles_valid) {
-        int player_id = bible[0].asInt();
-        int protect_player_id = bible[5].asInt();
-        int sequence_id = bible[6].asInt();
-        int loc3 = (my_fame >= 1200000 && std::find(function_names.begin(), function_names.end(), "仙界等级") != function_names.end()) ? 1 : 0;
-        data = this->Mod_StTakeBible_Base_get_player_take_bible(player_id, my_level, loc3, sequence_id);
-        // 8 + 20 = 28
-        for (const auto& item : data)
-            bible.append(item);
-        // 28 + 1 = 29
-        int id = protect_player_id ? protect_player_id : player_id;
-        auto temp = std::find_if(all_members.begin(), all_members.end(), [id](const Json::Value& x) {return x[0].asInt()==id;});
-        if (temp == all_members.end())
-            bible.append(INT_MAX);
+        data = this->Mod_StTakeBible_Base_rob(player_id, sequence_id);
+        if (data[0].asInt() != Mod_StTakeBible_Base::SUCCESS) {
+            common::log(boost::str(boost::format("【仙界取经】拦截失败，result[%1%]") % data[0]), iEdit);
+            return;
+        }
+        int rob_coin = data[2].asInt();
+        int rob_fame = data[3].asInt();
+        int rob_st_exp = data[4].asInt();
+        if (rob_fame)
+            common::log(boost::str(boost::format("【仙界取经】拦截 [%1%(%2%)] 的 [%3%]，战胜，获得 [铜钱×%4%]，[声望×%5%]，[道缘×%6%]") % nick_name % player_id % protectors[protection] % rob_coin % rob_fame % rob_st_exp), iEdit);
         else
-            bible.append((*temp)[7].asInt());
+            common::log(boost::str(boost::format("【仙界取经】拦截 [%1%(%2%)] 的 [%3%]，战败") % nick_name % player_id % protectors[protection]), iEdit);
+    } catch (const std::exception& ex) {
+        common::log(boost::str(boost::format("发现错误(st rob bible)：%1%") % ex.what()));
     }
-
-    // rob_fame >= {config} && !is_robbed && be_rob_times < total_can_rob_times && !protect_time
-    std::vector<Json::Value> bibles_opt;
-    std::copy_if(bibles_valid.begin(), bibles_valid.end(), std::back_inserter(bibles_opt), [&config](const Json::Value& x) {return x[8+9].asInt() >= config && !x[8+14].asInt() && x[8+5].asInt() < x[8+6].asInt() && !x[8+15].asInt();});
-    if (!bibles_opt.size())
-        return;
-
-    // min power
-    auto bible_opt = *std::min_element(bibles_opt.begin(), bibles_opt.end(), [](const Json::Value& x,const Json::Value& y) {return x[8+20+0].asInt() < y[8+20+0].asInt();});
-
-    int player_id = bible_opt[0].asInt();
-    int protection = bible_opt[1].asInt();
-    int sequence_id = bible_opt[6].asInt();
-    std::string nick_name = common::utf2gbk(bible_opt[8 + 1].asString());
-    //int level = bible_opt[8 + 4].asInt();
-    //int power = bible_opt[8 + 20 + 0].asInt();
-    //int be_rob_times = bible_opt[8 + 5].asInt();
-    //int total_can_rob_times = bible_opt[8 + 6].asInt();
-    //int is_robbed = bible_opt[8 + 14].asInt();
-    //common::log(boost::str(boost::format("【仙界取经】取经使者 [%1%]，取经玩家 [%2%(%3%)]，[%4%]级，战力[%5%]，[%6%/%7%]，is_robbed[%8%]") % protectors[protection] % nick_name % player_id % level % power % be_rob_times % total_can_rob_times % is_robbed), 0);
-
-    data = this->Mod_StTakeBible_Base_rob(player_id, sequence_id);
-    if (data[0].asInt() != Mod_StTakeBible_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【仙界取经】拦截失败，result[%1%]") % data[0]));
-        return;
-    }
-    int rob_coin = data[2].asInt();
-    int rob_fame = data[3].asInt();
-    int rob_st_exp = data[4].asInt();
-    if (rob_fame)
-        common::log(boost::str(boost::format("【仙界取经】拦截 [%1%(%2%)] 的 [%3%]，战胜，获得 [铜钱×%4%]，[声望×%5%]，[道缘×%6%]") % nick_name % player_id % protectors[protection] % rob_coin % rob_fame % rob_st_exp));
-    else
-        common::log(boost::str(boost::format("【仙界取经】拦截 [%1%(%2%)] 的 [%3%]，战败") % nick_name % player_id % protectors[protection]));
 }
 
 //============================================================================

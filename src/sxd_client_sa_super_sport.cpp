@@ -23,7 +23,7 @@ void sxd_client::sa_super_sport() {
         // challage
         data = this->Mod_SaSuperSport_Base_challage(player_list[0][1].asInt(), player_list[0][8].asInt());
         if (data[0].asInt() != Mod_SaSuperSport_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【圣域竞技场】挑战失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【圣域竞技场】挑战失败，result[%1%]") % data[0]), iEdit);
             return;
         }
         std::vector<std::string> items;
@@ -32,9 +32,9 @@ void sxd_client::sa_super_sport() {
             return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
         });
         if (data[3].asInt() > 0)
-            common::log(boost::str(boost::format("【圣域竞技场】挑战 [%1%(%2%)]，战胜！获得：%3%") % common::utf2gbk(player_list[0][4].asString()) % player_list[0][5] % boost::algorithm::join(items, "，")));
+            common::log(boost::str(boost::format("【圣域竞技场】挑战 [%1%(%2%)]，战胜！获得：%3%") % common::utf2gbk(player_list[0][4].asString()) % player_list[0][5] % boost::algorithm::join(items, "，")), iEdit);
         else
-            common::log(boost::str(boost::format("【圣域竞技场】挑战 [%1%(%2%)]，战败！获得：%3%") % common::utf2gbk(player_list[0][4].asString()) % player_list[0][5] % boost::algorithm::join(items, "，")));
+            common::log(boost::str(boost::format("【圣域竞技场】挑战 [%1%(%2%)]，战败！获得：%3%") % common::utf2gbk(player_list[0][4].asString()) % player_list[0][5] % boost::algorithm::join(items, "，")), iEdit);
     }
 
 }

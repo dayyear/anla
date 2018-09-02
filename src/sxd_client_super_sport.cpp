@@ -8,27 +8,31 @@ public:
 };
 
 void sxd_client::super_sport() {
-    for (;;) {
-        Json::Value data = this->Mod_SuperSport_Base_open_super_sport();
-        if (data[4].asInt() == 0) {
-            common::log("【竞技场】挑战次数已用完", 0);
-            return;
+    try {
+        for (;;) {
+            Json::Value data = this->Mod_SuperSport_Base_open_super_sport();
+            if (data[4].asInt() == 0) {
+                common::log("【竞技场】挑战次数已用完", 0);
+                return;
+            }
+            if (data[11].asInt()) {
+                common::log("【竞技场】CD中...", iEdit);
+                return;
+            }
+            Json::Value person = data[12][0];
+            data = this->Mod_SuperSport_Base_start_challenge(person[0].asInt());
+            if (data[0].asInt() != Mod_SuperSport_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【竞技场】挑战失败，result[%1%]") % data[0]), iEdit);
+                return;
+            }
+            if (data[2].asInt()) {
+                common::log(boost::str(boost::format("【竞技场】挑战 [%1%]，战败") % common::utf2gbk(person[4].asString())), iEdit);
+                return;
+            }
+            common::log(boost::str(boost::format("【竞技场】挑战 [%1%]，战胜") % common::utf2gbk(person[4].asString())), iEdit);
         }
-        if (data[11].asInt()) {
-            common::log("【竞技场】CD中...");
-            return;
-        }
-        Json::Value person = data[12][0];
-        data = this->Mod_SuperSport_Base_start_challenge(person[0].asInt());
-        if (data[0].asInt() != Mod_SuperSport_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【竞技场】挑战失败，result[%1%]") % data[0]));
-            return;
-        }
-        if (data[2].asInt()) {
-            common::log(boost::str(boost::format("【竞技场】挑战 [%1%]，战败") % common::utf2gbk(person[4].asString())));
-            return;
-        }
-        common::log(boost::str(boost::format("【竞技场】挑战 [%1%]，战胜") % common::utf2gbk(person[4].asString())));
+    } catch (const std::exception& ex) {
+        common::log(boost::str(boost::format("发现错误(super sport)：%1%") % ex.what()));
     }
 }
 

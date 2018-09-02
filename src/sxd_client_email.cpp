@@ -17,20 +17,20 @@ void sxd_client::email() {
         if (email[8].asInt() == Mod_Email_Base::UNGET && email[7].size()) {
             data = this->Mod_Email_Base_get_attachment_award(email[0].asInt());
             if (data[0].asInt() != Mod_Email_Base::SUCCESS) {
-                common::log(boost::str(boost::format("°æ” œ‰°ø ’»°∏Ωº˛ ß∞‹£¨result[%1%]") % data[0]));
-                return;
+                common::log(boost::str(boost::format("°æ” œ‰°ø ’»°∏Ωº˛ ß∞‹£¨result[%1%]") % data[0]), iEdit);
+                continue;
             }
             std::ostringstream oss;
             for (const auto& item : email[7])
                 oss << "[" << db.get_code(version, "Item", item[0].asInt())["text"] << "°¡" << item[1] << "]£¨";
-            common::log(boost::str(boost::format("°æ” œ‰°ø ’»°∏Ωº˛ %1%") % oss.str().substr(0, oss.str().size() - 2)));
+            common::log(boost::str(boost::format("°æ” œ‰°ø ’»°∏Ωº˛ %1%") % oss.str().substr(0, oss.str().size() - 2)), iEdit);
         }
         data = this->Mod_Email_Base_delete_email(Mod_Email_Base::ONE, email[0].asInt());
         if (data[0].asInt() != Mod_Email_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ” œ‰°ø…æ≥˝” º˛ [%1%]  ß∞‹£¨result[%2%]") % common::utf2gbk(email[1].asString()) % data[0]));
+            common::log(boost::str(boost::format("°æ” œ‰°ø…æ≥˝” º˛ [%1%]  ß∞‹£¨result[%2%]") % common::utf2gbk(email[1].asString()) % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("°æ” œ‰°ø…æ≥˝” º˛ [%1%]") % common::utf2gbk(email[1].asString())));
+        common::log(boost::str(boost::format("°æ” œ‰°ø…æ≥˝” º˛ [%1%]") % common::utf2gbk(email[1].asString())), iEdit);
     }
 
 }

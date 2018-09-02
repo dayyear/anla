@@ -10,13 +10,13 @@ public:
 //============================================================================
 // 铜钱副本
 //============================================================================
-void sxd_client::coin_mission(sxd_client* sxd_client_town) {
+void sxd_client::coin_mission() {
     std::string mission_names[] = { "", "黄金屋", "藏宝阁", "财神殿" };
     int mission_coins[] = { 0, 30, 60, 100 };
     int mission_levels[] = { 0, 100, 160, 220 };
 
     // get my level
-    auto data = sxd_client_town->Mod_Player_Base_get_player_info();
+    auto data = this->Mod_Player_Base_get_player_info();
     int my_level = data[1].asInt();
 
     data = this->Mod_CoinMission_Base_get_coin_mission_info();
@@ -34,7 +34,7 @@ void sxd_client::coin_mission(sxd_client* sxd_client_town) {
             continue;
         data = this->Mod_CoinMission_Base_fight(mission_id);
         if (data[0].asInt() == Mod_CoinMission_Base::SUCCESS)
-            common::log(boost::str(boost::format("【铜钱副本】挑战 [%1%]，击杀 [%2%]只铜钱小妖，获得 [铜钱×%3%万]") % mission_names[mission_id] % data[1] % (data[1].asInt() * mission_coins[mission_id])));
+            common::log(boost::str(boost::format("【铜钱副本】挑战 [%1%]，击杀 [%2%]只铜钱小妖，获得 [铜钱×%3%万]") % mission_names[mission_id] % data[1] % (data[1].asInt() * mission_coins[mission_id])), iEdit);
     }
 }
 

@@ -19,7 +19,7 @@ void sxd_client::wager_shop() {
             common::log(boost::str(boost::format("【游乐城赌坊】大转盘抽奖失败，result[%1%]") % data[0]), 0);
             return;
         }
-        common::log(boost::str(boost::format("【游乐城赌坊】大转盘抽奖，获得[金币×%1%]") % data[2]));
+        common::log(boost::str(boost::format("【游乐城赌坊】大转盘抽奖，获得[金币×%1%]") % data[2]), iEdit);
         left_times = data[3].asInt();
     }
 }

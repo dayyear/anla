@@ -26,10 +26,10 @@ void sxd_client::lucky_super_number() {
 
             data = this->Mod_StLuckySuperNumber_Base_draw(position);
             if (data[0].asInt() != Mod_StLuckySuperNumber_Base::SUCCESS) {
-                //common::log(boost::str(boost::format("【幸运大比拼】抽取失败，result[%1%]") % data[0]));
+                //common::log(boost::str(boost::format("【幸运大比拼】抽取失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log(boost::str(boost::format("【幸运大比拼】抽取第%1%个数字 [%2%]") % data[1] % data[2]));
+            common::log(boost::str(boost::format("【幸运大比拼】抽取第%1%个数字 [%2%]") % data[1] % data[2]), iEdit);
             break;
         }
     }

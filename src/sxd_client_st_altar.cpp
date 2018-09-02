@@ -18,7 +18,7 @@ void sxd_client::st_altar() {
         data = this->Mod_StAltar_Base_get_end_award();
         if (data[0].asInt() != Mod_StAltar_Base::SUCCESS)
             return;
-        common::log("【仙界神坛】领取奖励");
+        common::log("【仙界神坛】领取奖励", iEdit);
     }
 }
 

@@ -16,18 +16,22 @@ public:
 };
 
 void sxd_client::courtyard_pet() {
-    Json::Value data = this->Mod_CourtyardPet_Base_get_player_info();
-    int count = data[0].asInt();
-    while (count) {
-        data = this->Mod_CourtyardPet_Base_call(Mod_CourtyardPet_Base::NORMAL);
-        if (data[0].asInt() != Mod_CourtyardPet_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【宠物】灵符召唤失败，result[%1%]") % data[0]));
-            return;
+    //try {
+        Json::Value data = this->Mod_CourtyardPet_Base_get_player_info();
+        int count = data[0].asInt();
+        while (count) {
+            data = this->Mod_CourtyardPet_Base_call(Mod_CourtyardPet_Base::NORMAL);
+            if (data[0].asInt() != Mod_CourtyardPet_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【宠物】灵符召唤失败，result[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log("【宠物】灵符召唤", iEdit);
+            count--;
         }
-        common::log("【宠物】灵符召唤");
-        count--;
-    }
-    common::log("【宠物】灵符已用完", 0);
+        common::log("【宠物】灵符已用完", 0);
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(courtyard pet)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================
@@ -69,50 +73,55 @@ Json::Value sxd_client::Mod_CourtyardPet_Base_call(int type) {
 // 宠物任务
 //============================================================================
 void sxd_client::courtyard_pet_quest() {
-    auto data = this->Mod_CourtyardPet_Base_get_quest_list();
-    std::vector<Json::Value> quest_list_can_award;
-    // award_flag == Mod_CourtyardPet_Base::YES(10)
-    std::copy_if(data[2].begin(), data[2].end(), std::back_inserter(quest_list_can_award), [](const Json::Value& x) {return x[10].asInt() == Mod_CourtyardPet_Base::YES;});
-    for (const auto& quest : quest_list_can_award) {
-        int quest_id = quest[0].asInt();
-        data = this->Mod_CourtyardPet_Base_get_award(quest_id);
-        if (data[0].asInt() != Mod_CourtyardPet_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【宠物任务】领取奖励失败，result[%1%]") % data[0]));
-            return;
+    //try {
+        auto data = this->Mod_CourtyardPet_Base_get_quest_list();
+        std::vector<Json::Value> quest_list_can_award;
+        // award_flag == Mod_CourtyardPet_Base::YES(10)
+        std::copy_if(data[2].begin(), data[2].end(), std::back_inserter(quest_list_can_award), [](const Json::Value& x) {return x[10].asInt() == Mod_CourtyardPet_Base::YES;});
+        for (const auto& quest : quest_list_can_award) {
+            int quest_id = quest[0].asInt();
+            data = this->Mod_CourtyardPet_Base_get_award(quest_id);
+            if (data[0].asInt() != Mod_CourtyardPet_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【宠物任务】领取奖励失败，result[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log("【宠物任务】领取奖励", iEdit);
         }
-        common::log("【宠物任务】领取奖励");
-    }
 
-    for (;;) {
-        data = this->Mod_CourtyardPet_Base_get_quest_list();
-        int usable_count = data[1].asInt();
-        int usablePetCount = data[3].asInt();
-        if (!usable_count || !usablePetCount)
-            return;
+        for (;;) {
+            data = this->Mod_CourtyardPet_Base_get_quest_list();
+            int usable_count = data[1].asInt();
+            int usablePetCount = data[3].asInt();
+            if (!usable_count || !usablePetCount)
+                return;
 
-        int quest_running_count = std::count_if(data[2].begin(), data[2].end(), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::RUNNING;});
-        std::vector<Json::Value> quest_list_valueable;
-        if (quest_running_count)
-            // (x-1)*(x-13) <= 0, qtype = 15(INIT), victory_rate >= 10
-            std::copy_if(data[2].begin(), data[2].end(), std::back_inserter(quest_list_valueable), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::INIT && x[12].asInt() >= 10;});
-        else
-            // (x-1)*(x-13)*(x-23)*(x-25)*(x-29)*(x-45) <= 0, qtype = 15(INIT), victory_rate >= 10
+            //int quest_running_count = std::count_if(data[2].begin(), data[2].end(), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::RUNNING;});
+            std::vector<Json::Value> quest_list_valueable;
+            /*if (quest_running_count)
+                // (x-1)*(x-13) <= 0, qtype = 15(INIT), victory_rate >= 10
+                std::copy_if(data[2].begin(), data[2].end(), std::back_inserter(quest_list_valueable), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::INIT && x[12].asInt() >= 10;});
+            else
+                // (x-1)*(x-13)*(x-23)*(x-25)*(x-29)*(x-45) <= 0, qtype = 15(INIT), victory_rate >= 10
+                std::copy_if(data[2].begin(), data[2].end(), std::back_inserter(quest_list_valueable), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13)*(x[0].asInt()-23)*(x[0].asInt()-25)*(x[0].asInt()-29)*(x[0].asInt()-45) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::INIT && x[12].asInt() >= 10;});*/
             std::copy_if(data[2].begin(), data[2].end(), std::back_inserter(quest_list_valueable), [](const Json::Value& x) {return (x[0].asInt()-1)*(x[0].asInt()-13)*(x[0].asInt()-23)*(x[0].asInt()-25)*(x[0].asInt()-29)*(x[0].asInt()-45) <= 0 && x[2].asInt() == Mod_CourtyardPet_Base::INIT && x[12].asInt() >= 10;});
-        if (!quest_list_valueable.size())
-            return;
-        std::sort(quest_list_valueable.begin(), quest_list_valueable.end(), [](const Json::Value& x, const Json::Value& y) {return x[0].asInt() < y[0].asInt();});
-        auto quest = quest_list_valueable[0];
-        int quest_id = quest[0].asInt();
-        //int pet_list[3];
-        std::vector<int> pet_list;
-        std::transform(quest[7].begin(), quest[7].end(), std::back_inserter(pet_list), [](const Json::Value& x) {return x[0].asInt();});
-        data = this->Mod_CourtyardPet_Base_accept_quest(quest_id, pet_list.data(), pet_list.size());
-        if (data[0].asInt() != Mod_CourtyardPet_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【宠物任务】开始任务失败，result[%1%]") % data[0]));
-            return;
+            if (!quest_list_valueable.size())
+                return;
+            std::sort(quest_list_valueable.begin(), quest_list_valueable.end(), [](const Json::Value& x, const Json::Value& y) {return x[0].asInt() < y[0].asInt();});
+            auto quest = quest_list_valueable[0];
+            int quest_id = quest[0].asInt();
+            //int pet_list[3];
+            std::vector<int> pet_list;
+            std::transform(quest[7].begin(), quest[7].end(), std::back_inserter(pet_list), [](const Json::Value& x) {return x[0].asInt();});
+            data = this->Mod_CourtyardPet_Base_accept_quest(quest_id, pet_list.data(), pet_list.size());
+            if (data[0].asInt() != Mod_CourtyardPet_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【宠物任务】开始任务失败，result[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log("【宠物任务】开始任务", iEdit);
         }
-        common::log("【宠物任务】开始任务");
-    }
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(courtyard pet quest)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================

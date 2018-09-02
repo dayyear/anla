@@ -37,10 +37,10 @@ void sxd_client::faction_god() {
 
         data = this->Mod_Faction_Base_incense();
         if (data[0].asInt() != Mod_Faction_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【帮派】给帮派神像上 [白檀香] 失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【帮派】给帮派神像上 [白檀香] 失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【帮派】给帮派神像上 [白檀香]");
+        common::log("【帮派】给帮派神像上 [白檀香]", iEdit);
     }
 }
 
@@ -84,10 +84,10 @@ void sxd_client::faction_roll_cake() {
 
         data = this->Mod_Faction_Base_roll_cake();
         if (data[0].asInt() != Mod_Faction_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【帮派】吉星高照失败，msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【帮派】吉星高照失败，msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【帮派】吉星高照，获得 [积分×%1%]，今日累计 [积分×%2%]") % data[2] % data[3]));
+        common::log(boost::str(boost::format("【帮派】吉星高照，获得 [积分×%1%]，今日累计 [积分×%2%]") % data[2] % data[3]), iEdit);
     }
 }
 
@@ -133,7 +133,7 @@ void sxd_client::seal_satan() {
     this->Mod_Faction_Base_seal_satan_member_list();
     auto data = this->Mod_Faction_Base_join_seal_satan();
     if (data[0].asInt() == Mod_Faction_Base::JOIN_SUCCESS)
-        common::log("【帮派】加入 [七星封魔]");
+        common::log("【帮派】加入 [七星封魔]", iEdit);
 }
 
 //============================================================================
@@ -167,14 +167,14 @@ void sxd_client::faction_lucky_wheel() {
     while (rosefinch_number) {
         data = this->Mod_LuckyWheel_Base_start_lucky_wheel();
         if (data[0].asInt() != Mod_LuckyWheel_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【帮派】转盘抽奖失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【帮派】转盘抽奖失败，result[%1%]") % data[0]), iEdit);
             return;
         }
         //int type = data[1].asInt();
         rosefinch_number = data[2].asInt();
         //int item_id = data[3].asInt();
-        common::log("【帮派】转盘抽奖");
-        //common::log(boost::str(boost::format("【帮派】转盘抽奖，获得 [%1%]") % db.get_code(version, "item", item_id)["text"]));
+        common::log("【帮派】转盘抽奖", iEdit);
+        //common::log(boost::str(boost::format("【帮派】转盘抽奖，获得 [%1%]") % db.get_code(version, "item", item_id)["text"]), iEdit);
     }
 }
 
@@ -219,7 +219,7 @@ void sxd_client::faction_join_feast() {
         std::transform(data[1].begin(), data[1].end(), std::back_inserter(items), [this](const Json::Value& x) {
             return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
         });
-        common::log(boost::str(boost::format("【帮派】吃仙宴获得：%1%") % boost::algorithm::join(items, "，")));
+        common::log(boost::str(boost::format("【帮派】吃仙宴获得：%1%") % boost::algorithm::join(items, "，")), iEdit);
     }
 }
 
@@ -252,7 +252,7 @@ void sxd_client::faction_approve() {
         int id = request[0].asInt();
         data = this->Mod_Faction_Base_accept_request(id);
         if (data[0].asInt() == Mod_Faction_Base::ACTION_SUCCESS)
-            common::log(boost::str(boost::format("【帮派】审核通过 [%1%(%2%级)] 加入") % common::utf2gbk(request[2].asString()) % request[4]));
+            common::log(boost::str(boost::format("【帮派】审核通过 [%1%(%2%级)] 加入") % common::utf2gbk(request[2].asString()) % request[4]), iEdit);
     }
 
 }
@@ -342,10 +342,10 @@ void sxd_client::faction_war() {
     if (can_ignup && !is_signup) {
         data = this->Mod_FactionWar_Base_sign_up();
         if (data[0].asInt() != Mod_FactionWar_Base::ACTION_SUCCESS) {
-            common::log(boost::str(boost::format("【帮派】帮派战报名失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【帮派】帮派战报名失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【帮派】帮派战报名");
+        common::log("【帮派】帮派战报名", iEdit);
     }
 }
 

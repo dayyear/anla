@@ -32,7 +32,7 @@ void sxd_client::pot_world() {
     }
     // show
     //for (const auto& item : items_my)
-    //    common::log(boost::str(boost::format("【壶中界】[%1%×%2%]") % db.get_code(version, "Item", item.first)["text"] % item.second));
+    //    common::log(boost::str(boost::format("【壶中界】[%1%×%2%]") % db.get_code(version, "Item", item.first)["text"] % item.second), iEdit);
 
     // 1:草药商店, 2:精魄商店
     for (int building_id = 1; building_id <= 2; building_id++) {
@@ -62,10 +62,10 @@ void sxd_client::pot_world() {
                     // buy
                     data = this->Mod_PotWorld_Base_buy_item(item_id);
                     if (data[0].asInt() != Mod_PotWorld_Base::SUCCESS) {
-                        common::log(boost::str(boost::format("【壶中界】购买 [%1%] 失败，result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]));
+                        common::log(boost::str(boost::format("【壶中界】购买 [%1%] 失败，result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]), iEdit);
                         return;
                     }
-                    common::log(boost::str(boost::format("【壶中界】购买 [%1%]") % db.get_code(version, "Item", item_id)["text"]));
+                    common::log(boost::str(boost::format("【壶中界】购买 [%1%]") % db.get_code(version, "Item", item_id)["text"]), iEdit);
                     buy_num++;
                     count_my++;
                 }
@@ -100,10 +100,10 @@ void sxd_client::pot_world() {
         int item_id = fu_valid[rand() % fu_valid.size()][0].asInt();
         data = this->Mod_PotWorld_Base_merge_item(item_id);
         if (data[0].asInt() != Mod_PotWorld_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【壶中界】祝福炼化 [%1%] 失败，result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]));
+            common::log(boost::str(boost::format("【壶中界】祝福炼化 [%1%] 失败，result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【壶中界】祝福炼化 [%1%]") % db.get_code(version, "Item", item_id)["text"]));
+        common::log(boost::str(boost::format("【壶中界】祝福炼化 [%1%]") % db.get_code(version, "Item", item_id)["text"]), iEdit);
     }
 }
 

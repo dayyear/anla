@@ -21,10 +21,10 @@ void sxd_client::partner_link() {
             break;
         data = this->Mod_PartnerLink_Base_buy_item(Mod_PartnerLink_Base::GENERAL);
         if (data[0].asInt() != Mod_PartnerLink_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【天缘系统】开启普通缘魂宝箱失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【天缘系统】开启普通缘魂宝箱失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【天缘系统】开启普通缘魂宝箱");
+        common::log("【天缘系统】开启普通缘魂宝箱", iEdit);
     }
 }
 

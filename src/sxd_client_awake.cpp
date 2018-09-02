@@ -21,9 +21,9 @@ void sxd_client::awake() {
         if (item[1].asInt() == Mod_Awake_Base::ONCE && item[2].asInt() == 0 && item[3].asInt() == 0) {
             data = this->Mod_Awake_Base_explore_forbidden_book(item[0].asInt(), Mod_Awake_Base::ONCE);
             if (data[0].asInt() == Mod_Awake_Base::SUCCESS)
-                common::log(boost::str(boost::format("【觉醒】探索 [%1%] 禁地之书") % forbidden_map[item[0].asInt()]));
+                common::log(boost::str(boost::format("【觉醒】探索 [%1%] 禁地之书") % forbidden_map[item[0].asInt()]), iEdit);
             else
-                common::log(boost::str(boost::format("【觉醒】探索 [%1%] 禁地之书失败，result[%2%]") % forbidden_map[item[0].asInt()] % data[0]));
+                common::log(boost::str(boost::format("【觉醒】探索 [%1%] 禁地之书失败，result[%2%]") % forbidden_map[item[0].asInt()] % data[0]), iEdit);
         }
     }
 }

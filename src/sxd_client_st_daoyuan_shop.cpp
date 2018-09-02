@@ -39,7 +39,7 @@ void sxd_client::st_daoyuan_shop() {
             common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，result[%2%]") % name % data[0]), 0);
             continue;
         }
-        common::log(boost::str(boost::format("【仙界商店】购买 [%1%×%2%]") % name % count));
+        common::log(boost::str(boost::format("【仙界商店】购买 [%1%×%2%]") % name % count), iEdit);
     }
 }
 

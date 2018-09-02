@@ -64,7 +64,7 @@ void sxd_client::lucky_shop() {
             items_my[item_id] = item_count;
     }
     //for (const auto& item : items_my)
-    //    common::log(boost::str(boost::format("°æŒÔ∆∑°ø[%1%(%2%)°¡%3%]") % db.get_code(version, "Item", item.first)["text"] % item.first % item.second));
+    //    common::log(boost::str(boost::format("°æŒÔ∆∑°ø[%1%(%2%)°¡%3%]") % db.get_code(version, "Item", item.first)["text"] % item.first % item.second), iEdit);
 
     // lucky store
     data = this->Mod_LuckyStore_Base_get_lucky_store_item_list();
@@ -111,14 +111,14 @@ void sxd_client::lucky_shop() {
         // buy
         // buy_lucky_store_item»›“◊ø®
         /*this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, lucky_store_id);
-        common::log(boost::str(boost::format("°æ…Ò√ÿ…Ã»À°øπ∫¬Ú [%1%]") % db.get_code(version, "Item", item_id)["text"]));
+        common::log(boost::str(boost::format("°æ…Ò√ÿ…Ã»À°øπ∫¬Ú [%1%]") % db.get_code(version, "Item", item_id)["text"]), iEdit);
         std::this_thread::sleep_for(std::chrono::seconds(3));*/
         data = this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, lucky_store_id);
         if (data[0].asInt() != Mod_LuckyStore_Base::LUCKY_SUCCESS) {
-            common::log(boost::str(boost::format("°æ…Ò√ÿ…Ã»À°øπ∫¬Ú [%1%]  ß∞‹£¨result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]));
+            common::log(boost::str(boost::format("°æ…Ò√ÿ…Ã»À°øπ∫¬Ú [%1%]  ß∞‹£¨result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("°æ…Ò√ÿ…Ã»À°øπ∫¬Ú [%1%]") % db.get_code(version, "Item", item_id)["text"]));
+        common::log(boost::str(boost::format("°æ…Ò√ÿ…Ã»À°øπ∫¬Ú [%1%]") % db.get_code(version, "Item", item_id)["text"]), iEdit);
     }
 }
 
@@ -185,10 +185,10 @@ void sxd_client::black_shop() {
         // buy
         data = this->Mod_LuckyStore_Base_buy_black_shop_item(blcak_shop_id);
         if (data[0].asInt() != Mod_LuckyStore_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]  ß∞‹£¨result[%2%]") % item_name % data[0]));
+            common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]  ß∞‹£¨result[%2%]") % item_name % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]") % item_name));
+        common::log(boost::str(boost::format("°æ’‰∆Ê“Ï±¶°øπ∫¬Ú [%1%]") % item_name), iEdit);
     }
 }
 

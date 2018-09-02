@@ -21,23 +21,23 @@ void sxd_client::rob_money() {
         if (rob_status == Mod_RobMoney_Base::SEARCHED) {
             data = this->Mod_RobMoney_Base_rob();
             if (data[0].asInt() != Mod_RobMoney_Base::SUCCESS) {
-                common::log(boost::str(boost::format("¡¾½ÙïÚ¡¿½ÙïÚÊ§°Ü£¬result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("¡¾½ÙïÚ¡¿½ÙïÚÊ§°Ü£¬result[%1%]") % data[0]), iEdit);
                 return;
             }
             std::vector<std::string> items;
             std::transform(data[1].begin(), data[1].end(), std::back_inserter(items), [this](const Json::Value& x) {
                 return boost::str(boost::format("[%1%¡Á%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
             });
-            common::log(boost::str(boost::format("¡¾½ÙïÚ¡¿½ÙïÚ»ñµÃ£º%1%") % boost::algorithm::join(items, "£¬")));
+            common::log(boost::str(boost::format("¡¾½ÙïÚ¡¿½ÙïÚ»ñµÃ£º%1%") % boost::algorithm::join(items, "£¬")), iEdit);
         } else {
             if (free_rob_times == 0)
                 break;
             data = this->Mod_RobMoney_Base_search();
             if (data[1].asInt() != Mod_RobMoney_Base::SUCCESS) {
-                common::log(boost::str(boost::format("¡¾½ÙïÚ¡¿¿±²ìÊ§°Ü£¬result[%1%]") % data[1]));
+                common::log(boost::str(boost::format("¡¾½ÙïÚ¡¿¿±²ìÊ§°Ü£¬result[%1%]") % data[1]), iEdit);
                 return;
             }
-            common::log("¡¾½ÙïÚ¡¿¿±²ì");
+            common::log("¡¾½ÙïÚ¡¿¿±²ì", iEdit);
         }
     }
 }

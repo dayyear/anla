@@ -28,18 +28,18 @@ void sxd_client::dance() {
             this->Mod_Town_Base_enter_town(1);
             data = this->Mod_Dance_Base_start_dance();
             if (data[0].asInt() != Mod_Dance_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【群仙乱舞】跳舞失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【群仙乱舞】跳舞失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log("【群仙乱舞】跳舞");
+            common::log("【群仙乱舞】跳舞", iEdit);
         } else if (dan_state == 2) {
             this->Mod_Town_Base_enter_town(1);
             data = this->Mod_Dance_Base_receive_award();
             if (data[0].asInt() != Mod_Dance_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【群仙乱舞】领取奖励失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【群仙乱舞】领取奖励失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log("【群仙乱舞】领取奖励");
+            common::log("【群仙乱舞】领取奖励", iEdit);
         }
     }
 }

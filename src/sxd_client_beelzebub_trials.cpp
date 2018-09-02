@@ -17,7 +17,7 @@ void sxd_client::beelzebub_trials() {
     std::transform(data[1].begin(), data[1].end(), std::back_inserter(items), [this](const Json::Value& x) {
         return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[0].asInt())["text"] % x[1]);
     });
-    common::log(boost::str(boost::format("【魔王试炼】领取道行奖励：%1%") % boost::algorithm::join(items, "，")));
+    common::log(boost::str(boost::format("【魔王试炼】领取道行奖励：%1%") % boost::algorithm::join(items, "，")), iEdit);
 }
 
 //============================================================================

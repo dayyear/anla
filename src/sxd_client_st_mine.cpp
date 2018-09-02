@@ -13,7 +13,7 @@ public:
 void sxd_client::st_mine() {
     auto data = this->Mod_StMine_Base_get_mine_mountain_info();
     if (data[0].asInt() != Mod_StMine_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【矿山系统】打开矿山系统失败，result[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【矿山系统】打开矿山系统失败，result[%1%]") % data[0]), iEdit);
         return;
     }
     int cur_mountain = data[3].asInt();
@@ -28,7 +28,7 @@ void sxd_client::st_mine() {
         return;
     data = this->Mod_StMine_Base_enter_mine_mountain(mountains[0][0].asInt());
     if (data[0].asInt() != Mod_StMine_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【矿山系统】进入 [%1%] 星矿山失败，result[%2%]") % mountains[0][0] % data[0]));
+        common::log(boost::str(boost::format("【矿山系统】进入 [%1%] 星矿山失败，result[%2%]") % mountains[0][0] % data[0]), iEdit);
         return;
     }
 
@@ -41,10 +41,10 @@ void sxd_client::st_mine() {
     this->Mod_StMine_Base_receive_award();
     data = this->Mod_StMine_Base_rob_mine_hole(holes[0][0].asInt(), holes[0][4].asInt());
     if (data[0].asInt() != Mod_StMine_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【矿山系统】占领 [%1%] 星矿山失败，result[%2%]") % mountains[0][0] % data[0]));
+        common::log(boost::str(boost::format("【矿山系统】占领 [%1%] 星矿山失败，result[%2%]") % mountains[0][0] % data[0]), iEdit);
         return;
     }
-    common::log(boost::str(boost::format("【矿山系统】占领 [%1%] 星矿山") % mountains[0][0]));
+    common::log(boost::str(boost::format("【矿山系统】占领 [%1%] 星矿山") % mountains[0][0]), iEdit);
 }
 
 //============================================================================

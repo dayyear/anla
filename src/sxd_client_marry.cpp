@@ -13,7 +13,7 @@ public:
 void sxd_client::marry() {
     auto data = this->Mod_Marry_Base_get_marry_box();
     if(data[0].asInt()==Mod_Marry_Base::SUCCESS)
-        common::log("°æΩ·ªÈ°ø¡Ï»°∑Ú∆ﬁ±¶œ‰");
+        common::log("°æΩ·ªÈ°ø¡Ï»°∑Ú∆ﬁ±¶œ‰", iEdit);
 }
 
 //============================================================================

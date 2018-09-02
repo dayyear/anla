@@ -22,19 +22,19 @@ void sxd_client::space_find() {
     for (int i = 0; i < count; i++) {
         data = this->Mod_SpaceFind_Base_do_space_find(Mod_SpaceFind_Base::NORMAL);
         if (data[0] != Mod_SpaceFind_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø—∞’““Ï ﬁ ß∞‹£¨result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø—∞’““Ï ﬁ ß∞‹£¨result[%1%]") % data[0]), iEdit);
             break;
         }
-        common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø—∞’““Ï ﬁ£¨∑¢œ÷ [%1%]") % db.get_code(version, "Item", data[1].asInt())["text"]));
+        common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø—∞’““Ï ﬁ£¨∑¢œ÷ [%1%]") % db.get_code(version, "Item", data[1].asInt())["text"]), iEdit);
         data = this->Mod_SpaceFind_Base_get_space_find();
         if (data[0] != Mod_SpaceFind_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø◊•≤∂“Ï ﬁ ß∞‹£¨result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø◊•≤∂“Ï ﬁ ß∞‹£¨result[%1%]") % data[0]), iEdit);
             break;
         }
         std::ostringstream oss;
         for (const auto& item : data[1])
             oss << "[" << item[1] << "] ∏ˆ [" << db.get_code(version, "Item", item[0].asInt())["text"] << "]£¨";
-        common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø◊•≤∂“Ï ﬁ£¨ªÒµ√ %1%") % oss.str().substr(0, oss.str().size() - 2)));
+        common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø◊•≤∂“Ï ﬁ£¨ªÒµ√ %1%") % oss.str().substr(0, oss.str().size() - 2)), iEdit);
     }
 }
 
@@ -117,17 +117,17 @@ void sxd_client::chaos_equipment() {
             // ∫œ≥…
             data = this->Mod_ChaosEquipment_Base_make_chaos_monster(monster_id);
             if (data[0].asInt() != Mod_ChaosEquipment_Base::SUCCESS) {
-                common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∫œ≥… [%1%]  ß∞‹") % monster_name));
+                common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∫œ≥… [%1%]  ß∞‹") % monster_name), iEdit);
                 break;
             }
-            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∫œ≥… [%1%]") % monster_name));
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∫œ≥… [%1%]") % monster_name), iEdit);
             // ∑÷Ω‚
             data = this->Mod_ChaosEquipment_Base_resolve_player_chaos_monster(data[1][0][0].asInt());
             if (data[0].asInt() != Mod_ChaosEquipment_Base::SUCCESS) {
-                common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∑÷Ω‚ [%1%]  ß∞‹") % monster_name));
+                common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∑÷Ω‚ [%1%]  ß∞‹") % monster_name), iEdit);
                 break;
             }
-            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∑÷Ω‚ [%1%]") % monster_name));
+            common::log(boost::str(boost::format("°æªÏ„Á–Èø’°ø∑÷Ω‚ [%1%]") % monster_name), iEdit);
             // update scraps
             data = this->Mod_ChaosEquipment_Base_get_pack_chaos_monster_list();
             scraps = data[3];

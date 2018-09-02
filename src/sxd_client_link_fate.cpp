@@ -21,16 +21,16 @@ void sxd_client::link_fate() {
             int id = items[i][0].asInt();
             data = this->Mod_LinkFate_Base_one_key_open_box(id);
             if (data[0].asInt() != Mod_LinkFate_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【结缘】十连开失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【结缘】十连开失败，result[%1%]") % data[0]), iEdit);
                 break;
             }
-            common::log(boost::str(boost::format("【结缘】十连开 [%1%]") % db.get_code(version, "Item", id)["text"]));
+            common::log(boost::str(boost::format("【结缘】十连开 [%1%]") % db.get_code(version, "Item", id)["text"]), iEdit);
             data = this->Mod_LinkFate_Base_auto_merge_link_fate_stone();
             if (data[0].asInt() != Mod_LinkFate_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【结缘】一键吞噬失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【结缘】一键吞噬失败，result[%1%]") % data[0]), iEdit);
                 break;
             }
-            common::log("【结缘】一键吞噬");
+            common::log("【结缘】一键吞噬", iEdit);
             // update items
             data = this->Mod_LinkFate_Base_get_link_fate_box();
             items = data[0];

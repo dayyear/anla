@@ -18,7 +18,7 @@ void sxd_client::assistant() {
             continue;
         data = this->Mod_Assistant_Base_get_award(sn);
         if (data[0].asInt() == Mod_Assistant_Base::SUCCESS)
-            common::log(boost::str(boost::format("【活跃度】领取第 [%1%] 个活跃度奖励") % sn));
+            common::log(boost::str(boost::format("【活跃度】领取第 [%1%] 个活跃度奖励") % sn), iEdit);
         else
             break;
     }

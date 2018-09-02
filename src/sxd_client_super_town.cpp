@@ -24,7 +24,7 @@ int sxd_client::login_super_town(sxd_client* sxd_client_town) {
     // 1. get status
     Json::Value data = sxd_client_town->Mod_StcLogin_Base_get_status();
     if (data[0].asInt() != Mod_StcLogin_Base::OPEN) {
-        common::log(boost::str(boost::format("【仙界】入口未开启，status[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【仙界】入口未开启，status[%1%]") % data[0]), iEdit);
         return 1;
     }
     this->user_id = sxd_client_town->user_id;
@@ -42,32 +42,32 @@ int sxd_client::login_super_town(sxd_client* sxd_client_town) {
 
     // 3. connect
     this->connect(host, port);
-    common::log(boost::str(boost::format("【仙界】连接服务器 [%1%:%2%] 成功") % host % port));
+    common::log(boost::str(boost::format("【仙界】连接服务器 [%1%:%2%] 成功") % host % port), iEdit);
 
     // 4. login
     data = this->Mod_StLogin_Base_login(server_name, sxd_client_town->player_id, nickname, time, pass_code);
     if (data[0].asInt() != Mod_StLogin_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【仙界】登录失败，result[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【仙界】登录失败，result[%1%]") % data[0]), iEdit);
         return 2;
     }
     player_id = data[1].asInt();
-    common::log(boost::str(boost::format("【仙界】登录成功，player_id[%1%]") % player_id));
+    common::log(boost::str(boost::format("【仙界】登录成功，player_id[%1%]") % player_id), iEdit);
 
     // 5. enter town
     data = this->Mod_StTown_Base_enter_town();
-    if (data[0].asInt() != Mod_StTown_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【仙界】玩家进入 [仙界] 失败，result[%1%]") % data[0]));
-        return 3;
-    }
-    common::log("【仙界】玩家进入 [仙界]");
+    /*if (data[0].asInt() != Mod_StTown_Base::SUCCESS) {
+     common::log(boost::str(boost::format("【仙界】玩家进入 [仙界] 失败，result[%1%]") % data[0]), iEdit);
+     return 3;
+     }*/
+    common::log("【仙界】玩家进入 [仙界]", iEdit);
 
     // 6. chat
     Json::Value config;
     std::istringstream(db.get_config(user_id.c_str(), "StChat")) >> config;
     std::string message = config[rand() % config.size()].asString();
     this->Mod_Chat_Base_chat_with_players(4, common::gbk2utf(message));
-    common::log(boost::str(boost::format("【仙界聊天】%1%") % message), 0);
 
+    bLogin = 1;
     return 0;
 }
 
@@ -166,7 +166,10 @@ Json::Value sxd_client::Mod_StLogin_Base_login(const std::string& server_name, i
 Json::Value sxd_client::Mod_StTown_Base_enter_town() {
     Json::Value data;
     data.append(41);
-    return this->send_and_receive(data, 95, 0);
+    Json::Value result = this->send_and_receive(data, 95, 0, 95, 1);
+    this->x = result[3].asInt();
+    this->y = result[4].asInt();
+    return result;
 }
 
 //============================================================================
@@ -182,3 +185,18 @@ Json::Value sxd_client::Mod_StTown_Base_get_players() {
     return this->send_and_receive(data, 95, 6);
 }
 
+void sxd_client::st_town_move_to(int x, int y) {
+    this->Mod_StTown_Base_move_to(this->x, this->y, x, y);
+    this->Mod_StTown_Base_move_to(x, y, x, y);
+    this->x = x;
+    this->y = y;
+}
+
+Json::Value sxd_client::Mod_StTown_Base_move_to(int x1, int y1, int x2, int y2) {
+    Json::Value data;
+    data.append(x1);
+    data.append(y1);
+    data.append(x2);
+    data.append(y2);
+    return this->send_and_receive(data, 95, 4, 95, 5, [this](const Json::Value& x){return x[0].asInt() == this->player_id;});
+}

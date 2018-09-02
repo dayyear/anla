@@ -1,7 +1,7 @@
 #ifndef RESOURCE_H_
 #define RESOURCE_H_
 
-// IDC
+// IDC_STATIC
 #define IDC_STATIC          -1
 
 // ICON
@@ -16,6 +16,8 @@
 // MAIN EDIT
 #define IDC_MAIN_EDIT       2001
 
+//
+#define IDC_MAIN_STATUS     3001
 // DIALOG
 
 #endif /* RESOURCE_H_ */

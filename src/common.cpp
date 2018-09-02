@@ -258,18 +258,22 @@ void common::log(const std::string& message, int hwnd, bool file, bool time) {
             ofile << to_string(now, "%H:%M:%S") << " ";
         }
         if (hwnd < 0)
-            std::cout << message << std::endl;
+            std::cout << message << "\r\n";
         else {
             SendMessage((HWND) hwnd, EM_SETSEL, SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0), SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0));
             SendMessage((HWND) hwnd, EM_REPLACESEL, 0, (LPARAM) (message + "\r\n").c_str());
         }
-        ofile << message << std::endl;
+        ofile << message << "\r\n";
     }
     if (file) {
         std::ofstream ofile(path + "\\" + to_string(now, "%Y-%m-%d.log"), std::ios::binary | std::ios::out | std::ios::app);
         if (time)
             ofile << to_string(now, "%H:%M:%S") << " ";
-        ofile << message << std::endl;
+        ofile << message << "\r\n";
         ofile.close();
     }
+}
+
+bool common::contain(const std::vector<std::string>& v, const std::string& s){
+    return std::find(v.begin(), v.end(), s) != v.end();
 }

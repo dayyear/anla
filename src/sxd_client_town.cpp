@@ -21,7 +21,7 @@ int sxd_client::login_town(const std::string& web_page) {
     // 1. validation
     boost::smatch match;
     if (!regex_search(web_page, match, boost::regex("\"&player_name=(.*?)\"[\\s\\S]*\"&hash_code=(.*?)\"[\\s\\S]*\"&time=(.*?)\"[\\s\\S]*\"&ip=(.*?)\"[\\s\\S]*\"&port=(.*?)\"[\\s\\S]*\"&server_id=(.*?)\"[\\s\\S]*\"&source=(.*?)\"[\\s\\S]*\"&regdate=(.*?)\"[\\s\\S]*\"&id_card=(.*?)\"[\\s\\S]*\"&open_time=(.*?)\"[\\s\\S]*\"&is_newst=(.*?)\"[\\s\\S]*\"&stage=(.*?)\"[\\s\\S]*\"&client=(.*?)\""))) {
-        common::log("请使用登录器重新登录", hwnd);
+        common::log("请使用登录器重新登录", iEdit);
         return 1;
     }
     this->user_id = match[1].str();
@@ -41,42 +41,42 @@ int sxd_client::login_town(const std::string& web_page) {
 
     // 3. connect
     this->connect(host, port);
-    common::log(boost::str(boost::format("【登录】连接服务器 [%1%:%2%] 成功") % host % port), hwnd);
+    common::log(boost::str(boost::format("【登录】连接服务器 [%1%:%2%] 成功") % host % port), iEdit);
 
     // 4. login
     Json::Value data = this->Mod_Player_Base_login(user_id, hash_code, time, source, regdate, id_card, open_time, is_newst, stage, client);
     if (data[0].asInt() != Mod_Player_Base::SUCCEED) {
-        common::log(boost::str(boost::format("【登录】失败，result[%1%]") % data[0].asInt()), hwnd);
+        common::log(boost::str(boost::format("【登录】失败，result[%1%]") % data[0].asInt()), iEdit);
         return 3;
     }
     player_id = data[1].asInt();
-    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id), hwnd);
+    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id), iEdit);
 
     // 5. player infomation
     data = this->Mod_Player_Base_get_player_info();
     std::string nickname = data[0].asString();
     int town_map_id = data[9].asInt();
-    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]，体力[%6%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3] % data[6]), hwnd);
+    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]，体力[%6%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3] % data[6]), iEdit);
 
     // 6. player contrast infomation
     data = this->Mod_Player_Base_player_info_contrast(player_id);
-    common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]), hwnd);
+    common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]), iEdit);
 
     // 7. enter_town
     data = this->Mod_Town_Base_enter_town(town_map_id);
     /*if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]), hwnd);
-        return 4;
-    }*/
-    common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]), hwnd);
+     common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]), iEdit);
+     return 4;
+     }*/
+    common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]), iEdit);
 
     // 8. chat
     Json::Value config;
     std::istringstream(db.get_config(user_id.c_str(), "TownChat")) >> config;
     std::string message = config[rand() % config.size()].asString();
     this->Mod_Chat_Base_chat_with_players(1, common::gbk2utf(message));
-    common::log(boost::str(boost::format("【世界聊天】%1%") % message), 0);
 
+    bLogin = 1;
     return 0;
 }
 
@@ -260,6 +260,24 @@ Json::Value sxd_client::Mod_Role_Base_get_role_list(int player_id) {
 Json::Value sxd_client::Mod_Town_Base_enter_town(int town_map_id) {
     Json::Value data;
     data.append(town_map_id);
-    return this->send_and_receive(data, 1, 0);
+    Json::Value result = this->send_and_receive(data, 1, 0);
+    this->x = result[6].asInt();
+    this->y = result[7].asInt();
+    return result;
 }
 
+void sxd_client::town_move_to(int x, int y) {
+    this->Mod_Town_Base_move_to(this->x, this->y, x, y);
+    this->Mod_Town_Base_move_to(x, y, x, y);
+    this->x = x;
+    this->y = y;
+}
+
+Json::Value sxd_client::Mod_Town_Base_move_to(int x1, int y1, int x2, int y2) {
+    Json::Value data;
+    data.append(x1);
+    data.append(y1);
+    data.append(x2);
+    data.append(y2);
+    return this->send_and_receive(data, 1, 2, [this](const Json::Value& x){return x[0].asInt() == this->player_id;});
+}

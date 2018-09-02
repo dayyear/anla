@@ -22,9 +22,9 @@ void sxd_client::sign_in() {
             else {
                 data = this->Mod_ThreeAnniversarySignIn_Base_player_sign_in();
                 if (data[0].asInt() == Mod_ThreeAnniversarySignIn_Base::SUCCESS)
-                    common::log("【新年签到】今日签到成功");
+                    common::log("【新年签到】今日签到成功", iEdit);
                 else
-                    common::log(boost::str(boost::format("【新年签到】今日签到失败，result[%1%]") % data[0]));
+                    common::log(boost::str(boost::format("【新年签到】今日签到失败，result[%1%]") % data[0]), iEdit);
             }
         }
     }

@@ -20,26 +20,26 @@ void sxd_client::gift3() {
     if (game_assistant_info[30].asInt() == Mod_Player_Base::SUCCEED) {
         data = this->Mod_SealSoul_Base_get_day_stone();
         if (data[0].asInt() == 1)
-            common::log(boost::str(boost::format("【礼包】领取 [灵石×%1%]") % data[1]));
+            common::log(boost::str(boost::format("【礼包】领取 [灵石×%1%]") % data[1]), iEdit);
         else
-            common::log(boost::str(boost::format("【礼包】领取灵石失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【礼包】领取灵石失败，result[%1%]") % data[0]), iEdit);
     }
     // 俸禄 is_get_camp_salary[13]
     if (game_assistant_info[13].asInt() == Mod_Player_Base::SUCCEED) {
         data = this->Mod_Player_Base_get_player_camp_salary();
         if (data[0].asInt() == Mod_Player_Base::ACTION_SUCCESS)
-            common::log(boost::str(boost::format("【礼包】领取俸禄 [铜钱×%1%]") % data[1]));
+            common::log(boost::str(boost::format("【礼包】领取俸禄 [铜钱×%1%]") % data[1]), iEdit);
         else
-            common::log(boost::str(boost::format("【礼包】领取俸禄失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【礼包】领取俸禄失败，result[%1%]") % data[0]), iEdit);
     }
     // 仙令
     data = this->Mod_Farm_Base_player_is_player_get_xian_ling_gift();
     if (data[0].asInt()) {
         data = this->Mod_Farm_Base_player_get_xian_ling_gift();
         if (data[0].asInt() == Mod_Farm_Base::SUCCESS)
-            common::log(boost::str(boost::format("【礼包】领取 [仙令×%1%]") % data[1]));
+            common::log(boost::str(boost::format("【礼包】领取 [仙令×%1%]") % data[1]), iEdit);
         else
-            common::log(boost::str(boost::format("【礼包】领取仙令失败，[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【礼包】领取仙令失败，[%1%]") % data[0]), iEdit);
     }
 }
 
@@ -120,9 +120,9 @@ void sxd_client::function_end() {
             this->Mod_FunctionEnd_Base_random_award(id);
         data = this->Mod_FunctionEnd_Base_get_game_function_end_gift(id);
         if (data[0].asInt() != Mod_FunctionEnd_Base::SUCCESS)
-            common::log(boost::str(boost::format("【礼包】领取失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【礼包】领取失败，result[%1%]") % data[0]), iEdit);
         else
-            common::log(boost::str(boost::format("【礼包】领取 [%1%]") % db.get_code(version, "EndFunctionGift", id)["text"]));
+            common::log(boost::str(boost::format("【礼包】领取 [%1%]") % db.get_code(version, "EndFunctionGift", id)["text"]), iEdit);
     }
 }
 
@@ -204,9 +204,9 @@ void sxd_client::gift() {
         std::string message = gift[2].asString();
         data = this->Mod_Item_Base_player_get_super_gift(id);
         if (data[0].asInt() != Mod_Item_Base::ACTION_SUCCESS)
-            common::log(boost::str(boost::format("【礼包】领取失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【礼包】领取失败，result[%1%]") % data[0]), iEdit);
         else
-            common::log(boost::str(boost::format("【礼包】%1%") % common::utf2gbk(message)));
+            common::log(boost::str(boost::format("【礼包】%1%") % common::utf2gbk(message)), iEdit);
     }
 }
 

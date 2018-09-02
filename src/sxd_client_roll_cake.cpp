@@ -23,19 +23,19 @@ void sxd_client::roll_cake() {
             if (count == 0)
                 return;
             data = this->Mod_RollCake_Base_roll();
-            common::log(boost::str(boost::format("【吉星高照】掷骰子，[%1%]") % cakes[data[1].asInt()]));
+            common::log(boost::str(boost::format("【吉星高照】掷骰子，[%1%]") % cakes[data[1].asInt()]), iEdit);
         } else if (type == 11 || freeRobeNum == 0) {
             // 11:吉星高照
             data = this->Mod_RollCake_Base_get_award();
             if (data[0].asInt() != Mod_RollCake_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【吉星高照】收获失败，msg[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【吉星高照】收获失败，msg[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log("【吉星高照】收获");
+            common::log("【吉星高照】收获", iEdit);
         } else {
             // HAVE_RECORD
             data = this->Mod_RollCake_Base_reroll();
-            common::log(boost::str(boost::format("【吉星高照】逆天改运，[%1%]") % cakes[data[1].asInt()]));
+            common::log(boost::str(boost::format("【吉星高照】逆天改运，[%1%]") % cakes[data[1].asInt()]), iEdit);
         }
     }
 }

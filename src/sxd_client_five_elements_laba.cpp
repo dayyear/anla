@@ -16,14 +16,14 @@ void sxd_client::five_elements_laba() {
     while (free_count + coin_count > 0) {
         data = this->Mod_Laba_Base_draw();
         if (data[0].asInt() != Mod_Laba_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【五行天仪】转一次失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【五行天仪】转一次失败，result[%1%]") % data[0]), iEdit);
             return;
         }
         std::vector<std::string> items;
         std::transform(data[1][0][0].begin(), data[1][0][0].end(), std::back_inserter(items), [&scraps](const Json::Value& x) {
             return boost::str(boost::format("[%1%]") % scraps[x[0].asInt()]);
         });
-        common::log(boost::str(boost::format("【五行天仪】转一次，获得：%1%") % boost::algorithm::join(items, "，")));
+        common::log(boost::str(boost::format("【五行天仪】转一次，获得：%1%") % boost::algorithm::join(items, "，")), iEdit);
         free_count = data[3].asInt();
         coin_count = data[4].asInt();
     }

@@ -24,29 +24,29 @@ void sxd_client::wish_pool() {
             choose_id[i] = wish_pool_info[0][choose_index[i]][0].asInt();
         data = this->Mod_WishPool_Base_choose_awards(choose_id, 3);
         if (data[0].asInt() != Mod_WishPool_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø–Ì‘∏ ß∞‹£¨result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø–Ì‘∏ ß∞‹£¨result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("°æ–Ì‘∏≥ÿ°ø–Ì‘∏");
+        common::log("°æ–Ì‘∏≥ÿ°ø–Ì‘∏", iEdit);
     }
 
     if (wish_pool_info[1] < 500) {
         if (wish_pool_info[5] == Mod_WishPool_Base::NO) {
             data = this->Mod_WishPool_Base_wish_self();
             if (data[0].asInt() != Mod_WishPool_Base::SUCCESS) {
-                common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£◊‘º∫ ß∞‹£¨result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£◊‘º∫ ß∞‹£¨result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log("°æ–Ì‘∏≥ÿ°ø◊£∏£◊‘º∫");
+            common::log("°æ–Ì‘∏≥ÿ°ø◊£∏£◊‘º∫", iEdit);
         }
     } else {
         if (wish_pool_info[4] == Mod_WishPool_Base::NO) {
             data = this->Mod_WishPool_Base_get_award(Mod_WishPool_Base::NO);
             if (data[0].asInt() != Mod_WishPool_Base::SUCCESS) {
-                common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø¡Ï»°Ω±¿¯ ß∞‹£¨result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø¡Ï»°Ω±¿¯ ß∞‹£¨result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log("°æ–Ì‘∏≥ÿ°ø¡Ï»°Ω±¿¯");
+            common::log("°æ–Ì‘∏≥ÿ°ø¡Ï»°Ω±¿¯", iEdit);
         } else
             common::log("°æ–Ì‘∏≥ÿ°øΩ±¿¯“—¡Ï»°", 0);
     }
@@ -64,10 +64,10 @@ void sxd_client::wish_pool() {
             continue;
         data = this->Mod_WishPool_Base_wish_other(player[0].asInt());
         if (data[0].asInt() != Mod_WishPool_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]  ß∞‹£¨result[%2%]") % common::utf2gbk(name) % data[0]));
+            common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]  ß∞‹£¨result[%2%]") % common::utf2gbk(name) % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]") % common::utf2gbk(name)));
+        common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]") % common::utf2gbk(name)), iEdit);
         count--;
     }
     // ∏¯ƒ∞…˙»À◊£∏£
@@ -81,10 +81,10 @@ void sxd_client::wish_pool() {
         std::string name = player[1].asString();
         data = this->Mod_WishPool_Base_wish_other(player[0].asInt());
         if (data[0].asInt() != Mod_WishPool_Base::SUCCESS) {
-            common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]  ß∞‹£¨result[%2%]") % common::utf2gbk(name) % data[0]));
+            common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]  ß∞‹£¨result[%2%]") % common::utf2gbk(name) % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]") % common::utf2gbk(name)));
+        common::log(boost::str(boost::format("°æ–Ì‘∏≥ÿ°ø◊£∏£ [%1%]") % common::utf2gbk(name)), iEdit);
         count--;
     }
 }

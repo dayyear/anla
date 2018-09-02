@@ -25,7 +25,7 @@ void sxd_client::batch_fate(int count) {
         data = this->Mod_Fate_Base_appoint_fate_npc(npc_opt[0].asInt());
         auto msg = data[0].asInt();
         if (msg == Mod_Fate_Base::FULL_TEMP_BAG) {
-            common::log("¡¾ÁÔÃü¡¿ÁÔÃü¿Õ¼äÒÑÂú");
+            common::log("¡¾ÁÔÃü¡¿ÁÔÃü¿Õ¼äÒÑÂú", iEdit);
 
             // Ãü¸ñ¿Õ¼ä
             data = this->Mod_Fate_Base_get_temp_fate();
@@ -34,30 +34,30 @@ void sxd_client::batch_fate(int count) {
             // Ò»¼üÂô³ö
             std::vector<Json::Value> temp_fates_bad;
             std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_bad), [](const Json::Value& x) {return x[1].asInt()<=9;});
-            std::vector<int> temp_fate_ids_bad;
-            std::transform(temp_fates_bad.begin(), temp_fates_bad.end(), std::back_inserter(temp_fate_ids_bad), [](const Json::Value& x) {return x[0].asInt();});
+            std::vector<long long> temp_fate_ids_bad;
+            std::transform(temp_fates_bad.begin(), temp_fates_bad.end(), std::back_inserter(temp_fate_ids_bad), [](const Json::Value& x) {return x[0].asInt64();});
             if (temp_fate_ids_bad.size()) {
                 data = this->Mod_Fate_Base_sale_temp_fate(temp_fate_ids_bad);
-                common::log("¡¾ÁÔÃü¡¿Ò»¼üÂô³ö");
+                common::log("¡¾ÁÔÃü¡¿Ò»¼üÂô³ö", iEdit);
             }
 
             // Ò»¼üÊ°È¡
             this->Mod_Fate_Base_merge_all_in_bag();
             std::vector<Json::Value> temp_fates_good;
             std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_good), [](const Json::Value& x) {return x[1].asInt()>9;});
-            std::vector<int> temp_fate_ids_good;
-            std::transform(temp_fates_good.begin(), temp_fates_good.end(), std::back_inserter(temp_fate_ids_good), [](const Json::Value& x) {return x[0].asInt();});
+            std::vector<long long> temp_fate_ids_good;
+            std::transform(temp_fates_good.begin(), temp_fates_good.end(), std::back_inserter(temp_fate_ids_good), [](const Json::Value& x) {return x[0].asInt64();});
             if (temp_fate_ids_good.size()) {
                 data = this->Mod_Fate_Base_pickup_fate(temp_fate_ids_good);
-                common::log("¡¾ÁÔÃü¡¿Ò»¼üÊ°È¡");
+                common::log("¡¾ÁÔÃü¡¿Ò»¼üÊ°È¡", iEdit);
             }
             this->Mod_Fate_Base_merge_all_in_bag();
             continue;
         } else if (msg != Mod_Fate_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃüÊ§°Ü£¬msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃüÊ§°Ü£¬msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃü [%1%]£¬»ñµÃ [%2%]£¬Óö¼û [%3%]") % npc_names[npc_opt[0].asInt()] % fate_names[data[1].asInt()] % npc_names[data[2].asInt()]));
+        common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃü [%1%]£¬»ñµÃ [%2%]£¬Óö¼û [%3%]") % npc_names[npc_opt[0].asInt()] % fate_names[data[1].asInt()] % npc_names[data[2].asInt()]), iEdit);
     }
 }
 
@@ -74,29 +74,31 @@ void sxd_client::fate() {
     // Ò»¼üÂô³ö
     std::vector<Json::Value> temp_fates_bad;
     std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_bad), [](const Json::Value& x) {return x[1].asInt()<=9;});
-    std::vector<int> temp_fate_ids_bad;
-    std::transform(temp_fates_bad.begin(), temp_fates_bad.end(), std::back_inserter(temp_fate_ids_bad), [](const Json::Value& x) {return x[0].asInt();});
+
+    std::vector<long long> temp_fate_ids_bad;
+    std::transform(temp_fates_bad.begin(), temp_fates_bad.end(), std::back_inserter(temp_fate_ids_bad), [](const Json::Value& x) {return x[0].asInt64();});
+
     if (temp_fate_ids_bad.size()) {
         data = this->Mod_Fate_Base_sale_temp_fate(temp_fate_ids_bad);
         if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿Ò»¼üÂô³öÊ§°Ü£¬msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿Ò»¼üÂô³öÊ§°Ü£¬msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("¡¾ÁÔÃü¡¿Ò»¼üÂô³ö");
+        common::log("¡¾ÁÔÃü¡¿Ò»¼üÂô³ö", iEdit);
     }
 
     // Ò»¼üÊ°È¡
     std::vector<Json::Value> temp_fates_good;
     std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_good), [](const Json::Value& x) {return x[1].asInt()>9;});
-    std::vector<int> temp_fate_ids_good;
-    std::transform(temp_fates_good.begin(), temp_fates_good.end(), std::back_inserter(temp_fate_ids_good), [](const Json::Value& x) {return x[0].asInt();});
+    std::vector<long long> temp_fate_ids_good;
+    std::transform(temp_fates_good.begin(), temp_fates_good.end(), std::back_inserter(temp_fate_ids_good), [](const Json::Value& x) {return x[0].asInt64();});
     if (temp_fate_ids_good.size()) {
         data = this->Mod_Fate_Base_pickup_fate(temp_fate_ids_good);
         if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿Ò»¼üÊ°È¡Ê§°Ü£¬msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿Ò»¼üÊ°È¡Ê§°Ü£¬msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("¡¾ÁÔÃü¡¿Ò»¼üÊ°È¡");
+        common::log("¡¾ÁÔÃü¡¿Ò»¼üÊ°È¡", iEdit);
     }
 
     this->Mod_Fate_Base_merge_all_in_bag();
@@ -113,10 +115,10 @@ void sxd_client::fate() {
 
         data = this->Mod_Fate_Base_appoint_fate_npc(npc_opt[0].asInt());
         if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃüÊ§°Ü£¬msg[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃüÊ§°Ü£¬msg[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃü [%1%]£¬»ñµÃ [%2%]£¬Óö¼û [%3%]") % npc_names[npc_opt[0].asInt()] % fate_names[data[1].asInt()] % npc_names[data[2].asInt()]));
+        common::log(boost::str(boost::format("¡¾ÁÔÃü¡¿ÁÔÃü [%1%]£¬»ñµÃ [%2%]£¬Óö¼û [%3%]") % npc_names[npc_opt[0].asInt()] % fate_names[data[1].asInt()] % npc_names[data[2].asInt()]), iEdit);
     }
 }
 
@@ -189,9 +191,9 @@ Json::Value sxd_client::Mod_Fate_Base_get_temp_fate() {
 // Example
 //
 //============================================================================
-Json::Value sxd_client::Mod_Fate_Base_pickup_fate(const std::vector<int> &temp_fate_ids) {
+Json::Value sxd_client::Mod_Fate_Base_pickup_fate(const std::vector<long long> &temp_fate_ids) {
     Json::Value data, data1;
-    for (int id : temp_fate_ids) {
+    for (auto id : temp_fate_ids) {
         Json::Value data2;
         data2.append(id);
         data1.append(data2);
@@ -208,10 +210,10 @@ Json::Value sxd_client::Mod_Fate_Base_pickup_fate(const std::vector<int> &temp_f
 // Example
 //
 //============================================================================
-Json::Value sxd_client::Mod_Fate_Base_sale_temp_fate(const std::vector<int> &temp_fate_ids) {
+Json::Value sxd_client::Mod_Fate_Base_sale_temp_fate(const std::vector<long long> &temp_fate_ids) {
     Json::Value data;
     Json::Value data1;
-    for (int id : temp_fate_ids) {
+    for (auto id : temp_fate_ids) {
         Json::Value data2;
         data2.append(id);
         data1.append(data2);

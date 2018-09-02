@@ -19,10 +19,10 @@ void sxd_client::fish() {
 
         data = this->Mod_Fish_Base_do_fishing();
         if (data[0].asInt() != Mod_Fish_Base::SUCCESS) {
-            common::log(boost::str(boost::format("¡¾µöÓã¡¿µöÓãÊ§°Ü£¬result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾µöÓã¡¿µöÓãÊ§°Ü£¬result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("¡¾µöÓã¡¿µöÓã»ñµÃ£º[%1%¡Á%2%]") % db.get_code(version, "Item", data[1].asInt())["text"] % data[2]));
+        common::log(boost::str(boost::format("¡¾µöÓã¡¿µöÓã»ñµÃ£º[%1%¡Á%2%]") % db.get_code(version, "Item", data[1].asInt())["text"] % data[2]), iEdit);
     }
 }
 

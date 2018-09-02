@@ -50,6 +50,9 @@ public:
 
     // 日志
     static void log(const std::string& message, int hwnd = -1, bool file = true, bool time = true);
+
+    // 其他
+    static bool contain(const std::vector<std::string>& v, const std::string& s);
 };
 
 #endif /* COMMON_H_ */

@@ -26,17 +26,17 @@ void sxd_client::travel_event() {
         if (cur_answer_times == tol_answer_times) {
             data = this->Mod_TravelEvent_Base_lottery_draw();
             if (data[0].asInt() != Mod_TravelEvent_Base::SUCCESS) {
-                common::log(boost::str(boost::format("¡¾ÏÉÂÃÆæÔµ¡¿ÁìÈ¡ [ÏÉÂÃÃØ±¦]Ê§°Ü£¬result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("¡¾ÏÉÂÃÆæÔµ¡¿ÁìÈ¡ [ÏÉÂÃÃØ±¦]Ê§°Ü£¬result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log("¡¾ÏÉÂÃÆæÔµ¡¿ÁìÈ¡ [ÏÉÂÃÃØ±¦]");
+            common::log("¡¾ÏÉÂÃÆæÔµ¡¿ÁìÈ¡ [ÏÉÂÃÃØ±¦]", iEdit);
         }
 
         // answer travel event
-        common::log(boost::str(boost::format("¡¾ÏÉÂÃÆæÔµ¡¿ÎÊ£º%1%") % boost::algorithm::trim_copy(common::utf2gbk(event))));
+        common::log(boost::str(boost::format("¡¾ÏÉÂÃÆæÔµ¡¿ÎÊ£º%1%") % boost::algorithm::trim_copy(common::utf2gbk(event))), iEdit);
         int answer_index = rand() % answers.size();
         data = this->Mod_TravelEvent_Base_answer_travel_event(event_id, answers[answer_index][0].asInt());
-        common::log(boost::str(boost::format("¡¾ÏÉÂÃÆæÔµ¡¿´ð£º%1%. %2%%3%") % boost::algorithm::trim_copy(common::utf2gbk(answers[answer_index][1].asString())) % boost::algorithm::trim_copy(common::utf2gbk(answers[answer_index][2].asString())) % boost::algorithm::trim_copy(common::utf2gbk(data[0].asString()))));
+        common::log(boost::str(boost::format("¡¾ÏÉÂÃÆæÔµ¡¿´ð£º%1%. %2%%3%") % boost::algorithm::trim_copy(common::utf2gbk(answers[answer_index][1].asString())) % boost::algorithm::trim_copy(common::utf2gbk(answers[answer_index][2].asString())) % boost::algorithm::trim_copy(common::utf2gbk(data[0].asString()))), iEdit);
     }
 }
 

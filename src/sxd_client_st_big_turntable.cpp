@@ -21,7 +21,7 @@ void sxd_client::st_big_turntable() {
             common::log(boost::str(boost::format("【游乐城大转盘】抽奖失败，result[%1%]") % data[0]), 0);
             return;
         }
-        common::log(boost::str(boost::format("【游乐城大转盘】抽奖获得 [%1%×%2%]") % db.get_code(version, "Item", data[2].asInt())["text"] % data[3]));
+        common::log(boost::str(boost::format("【游乐城大转盘】抽奖获得 [%1%×%2%]") % db.get_code(version, "Item", data[2].asInt())["text"] % data[3]), iEdit);
     }
 
 }

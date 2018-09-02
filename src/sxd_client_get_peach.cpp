@@ -10,9 +10,9 @@ void sxd_client::get_peach() {
     if (peach_num > 0) {
         data = this->Mod_GetPeach_Base_batch_get_peach();
         if (data[0].asInt() == 0)
-            common::log(boost::str(boost::format("【摘仙桃】一键摘桃成功，获得经验值[%1%]") % data[1]));
+            common::log(boost::str(boost::format("【摘仙桃】一键摘桃成功，获得经验值[%1%]") % data[1]), iEdit);
         else
-            common::log(boost::str(boost::format("【摘仙桃】一键摘桃失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【摘仙桃】一键摘桃失败，result[%1%]") % data[0]), iEdit);
     }
 }
 

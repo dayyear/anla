@@ -19,19 +19,19 @@ void sxd_client::find_immortal() {
         if (state) {
             data = this->Mod_FindImmortal_Base_pickup_award();
             if (data[0].asInt() != Mod_FindImmortal_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【喜从天降】见好就收失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【喜从天降】见好就收失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
-            common::log(boost::str(boost::format("【喜从天降】见好就收，获得 [声望×%1%]，[阅历×%2%]，[仙令×%3%]") % data[1] % data[2] % data[3]));
+            common::log(boost::str(boost::format("【喜从天降】见好就收，获得 [声望×%1%]，[阅历×%2%]，[仙令×%3%]") % data[1] % data[2] % data[3]), iEdit);
         }
         if (!remain_number)
             return;
         data = this->Mod_FindImmortal_Base_start_find_immortal();
         if (data[0].asInt() != Mod_FindImmortal_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【喜从天降】画龙鱼失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【喜从天降】画龙鱼失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【喜从天降】画龙鱼");
+        common::log("【喜从天降】画龙鱼", iEdit);
     }
 }
 
@@ -117,7 +117,7 @@ void sxd_client::find_immortal2() {
         if (stage) {
             data = this->Mod_FindImmortal_Base_end_bless();
             if (data[0].asInt() != Mod_FindImmortal_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【五福临门】见好就收失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【五福临门】见好就收失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
             std::vector<int> awards = { 0, 0, 0, 0 };
@@ -127,16 +127,16 @@ void sxd_client::find_immortal2() {
                 awards[2] += item[3].asInt();
                 awards[3] += item[4].asInt();
             }
-            common::log(boost::str(boost::format("【五福临门】见好就收，获得 [阅历×%1%]，[仙令×%2%]，[星魂×%3%]，[魔石碎片×%4%]") % awards[0] % awards[1] % awards[2] % awards[3]));
+            common::log(boost::str(boost::format("【五福临门】见好就收，获得 [阅历×%1%]，[仙令×%2%]，[星魂×%3%]，[魔石碎片×%4%]") % awards[0] % awards[1] % awards[2] % awards[3]), iEdit);
         }
         if (bless_number == 0)
             break;
         data = this->Mod_FindImmortal_Base_start_bless();
         if (data[0].asInt() != Mod_FindImmortal_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【五福临门】画龙鱼失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【五福临门】画龙鱼失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【五福临门】画龙鱼");
+        common::log("【五福临门】画龙鱼", iEdit);
     }
 }
 

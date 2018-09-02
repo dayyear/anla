@@ -5,7 +5,6 @@
 #include "common.h"
 
 database::database() {
-    //common::log("Open database.");
     if (sqlite3_open_v2(".\\sxd.sqlite", &db, SQLITE_OPEN_READWRITE, NULL) == 0)
         return;
     if (sqlite3_open_v2("..\\sxd.sqlite", &db, SQLITE_OPEN_READWRITE, NULL) == 0)
@@ -15,10 +14,7 @@ database::database() {
 } //database::database
 
 database::~database(void) {
-    //common::log("Close database.");
     sqlite3_close(db);
-    //if (sqlite3_close(db))
-    //    throw std::runtime_error(std::string("Can't close database: ") + sqlite3_errmsg(db));
 } //database::~database
 
 void database::execute(const std::string& sql) {

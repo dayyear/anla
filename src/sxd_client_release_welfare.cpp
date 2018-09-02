@@ -22,10 +22,10 @@ void sxd_client::release_welfare() {
     for (const auto& welfare : welfares) {
         data = this->Mod_ReleaseWelfare_Base_get_welfare(welfare[0].asInt());
         if (data[0].asInt() != Mod_ReleaseWelfare::SUCCESS) {
-            common::log(boost::str(boost::format("【更新福利】领取福利失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【更新福利】领取福利失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【更新福利】领取第 [%1%] 个福利") % welfare[0]));
+        common::log(boost::str(boost::format("【更新福利】领取第 [%1%] 个福利") % welfare[0]), iEdit);
     }
 }
 

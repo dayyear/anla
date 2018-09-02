@@ -20,7 +20,7 @@ void sxd_client::dunhuang_treasure() {
         if (type == Mod_DunhuangTreasure_Base::TONG && !open_times) {
             data = this->Mod_DunhuangTreasure_Base_open_treasure(type);
             if (data[0].asInt() == Mod_DunhuangTreasure_Base::SUCCESS)
-                common::log(boost::str(boost::format("【敦煌秘宝】开启 [玉珠机关]，获得 [积分×%1%]") % data[2]));
+                common::log(boost::str(boost::format("【敦煌秘宝】开启 [玉珠机关]，获得 [积分×%1%]") % data[2]), iEdit);
         }
     }
 }

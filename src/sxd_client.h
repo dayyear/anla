@@ -23,7 +23,9 @@ private:
     short pre_module;
     short pre_action;
 
-    int hwnd;
+    int iEdit;
+    bool bLogin;
+    int x,y;
 
     //============================================================================
     // - sxd_client.cpp
@@ -32,11 +34,15 @@ public:
     sxd_client(const std::string& version, const int hwnd = -1);
     virtual ~sxd_client();
     void connect(const std::string& host, const std::string& port);
+    bool is_login() {
+        return bLogin;
+    }
+
 private:
     void send_frame(const Json::Value& data, short module, short action);
     void receive_frame(Json::Value& data, short& module, short& action);
-    Json::Value send_and_receive(const Json::Value& data_s, short module_s, short action_s);
-    Json::Value send_and_receive(const Json::Value& data_s, short module_s, short action_s, short module_r0, short action_r0);
+    Json::Value send_and_receive(const Json::Value& data_s, short module_s, short action_s, std::function<bool(const Json::Value&)> f = NULL);
+    Json::Value send_and_receive(const Json::Value& data_s, short module_s, short action_s, short module_r0, short action_r0, std::function<bool(const Json::Value&)> f = NULL);
 
 public:
     //============================================================================
@@ -52,6 +58,8 @@ public:
     Json::Value Mod_Player_Base_server_time();
     Json::Value Mod_Role_Base_get_role_list(int player_id);
     Json::Value Mod_Town_Base_enter_town(int town_map_id);
+    void town_move_to(int x, int y);
+    Json::Value Mod_Town_Base_move_to(int x1, int y1, int x2, int y2);
 
     //============================================================================
     // - sxd_client_chat.cpp
@@ -327,8 +335,8 @@ public:
     Json::Value Mod_Fate_Base_get_fate_npc();
     Json::Value Mod_Fate_Base_appoint_fate_npc(int npc_id);
     Json::Value Mod_Fate_Base_get_temp_fate();
-    Json::Value Mod_Fate_Base_pickup_fate(const std::vector<int> &temp_fate_ids);
-    Json::Value Mod_Fate_Base_sale_temp_fate(const std::vector<int> &temp_fate_ids);
+    Json::Value Mod_Fate_Base_pickup_fate(const std::vector<long long> &temp_fate_ids);
+    Json::Value Mod_Fate_Base_sale_temp_fate(const std::vector<long long> &temp_fate_ids);
 
     //============================================================================
     // - sxd_client_find_immortal.cpp
@@ -380,7 +388,7 @@ public:
     //============================================================================
     // - sxd_client_coin_mission.cpp
     //============================================================================
-    void coin_mission(sxd_client* sxd_client_town);
+    void coin_mission();
     Json::Value Mod_CoinMission_Base_get_coin_mission_info();
     Json::Value Mod_CoinMission_Base_get_deploys(int mission_id);
     Json::Value Mod_CoinMission_Base_fight(int mission_id);
@@ -481,6 +489,8 @@ public:
     Json::Value Mod_StLogin_Base_login(const std::string& server_name, int player_id_town, const std::string& nickname, int time, const std::string& pass_code);
     Json::Value Mod_StTown_Base_enter_town();
     Json::Value Mod_StTown_Base_get_players();
+    void st_town_move_to(int x, int y);
+    Json::Value Mod_StTown_Base_move_to(int x1, int y1, int x2, int y2);
 
     //============================================================================
     // - sxd_client_st_union.cpp

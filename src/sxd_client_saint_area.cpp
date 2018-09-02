@@ -18,7 +18,7 @@ int sxd_client::login_saint_area(sxd_client* sxd_client_town) {
     // 1. get status
     Json::Value data = sxd_client_town->Mod_SaintAreaLogin_Base_get_status();
     if (data[0].asInt() != Mod_SaintAreaLogin_Base::OPEN) {
-        common::log(boost::str(boost::format("【圣域】入口未开启，status[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【圣域】入口未开启，status[%1%]") % data[0]), iEdit);
         return 1;
     }
     this->user_id = sxd_client_town->user_id;
@@ -31,7 +31,7 @@ int sxd_client::login_saint_area(sxd_client* sxd_client_town) {
     int time = data[3].asInt();
     std::string pass_code = data[4].asString();
     if (host.size() == 0) {
-        common::log("【圣域】玩家未成圣");
+        common::log("【圣域】玩家未成圣", iEdit);
         return 2;
     }
     // get other information: nickname
@@ -40,25 +40,26 @@ int sxd_client::login_saint_area(sxd_client* sxd_client_town) {
 
     // 3. connect
     this->connect(host, port);
-    common::log(boost::str(boost::format("【圣域】连接服务器 [%1%:%2%] 成功") % host % port));
+    common::log(boost::str(boost::format("【圣域】连接服务器 [%1%:%2%] 成功") % host % port), iEdit);
 
     // 4. login
     data = this->Mod_SaintAreaLogin_Base_login(server_name, sxd_client_town->player_id, nickname, time, pass_code);
     if (data[0].asInt() != Mod_SaintAreaLogin_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【圣域】登录失败，result[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【圣域】登录失败，result[%1%]") % data[0]), iEdit);
         return 3;
     }
     player_id = data[1].asInt();
-    common::log(boost::str(boost::format("【圣域】登录成功，player_id[%1%]") % player_id));
+    common::log(boost::str(boost::format("【圣域】登录成功，player_id[%1%]") % player_id), iEdit);
 
     // 5. enter town
     data = this->Mod_SaintAreaTown_Base_enter_town();
     if (data[0].asInt() != Mod_SaintAreaTown_Base::SUCCESS) {
-        common::log(boost::str(boost::format("【圣域】玩家进入 [圣域] 失败，result[%1%]") % data[0]));
+        common::log(boost::str(boost::format("【圣域】玩家进入 [圣域] 失败，result[%1%]") % data[0]), iEdit);
         return 4;
     }
-    common::log("【圣域】玩家进入 [圣域]");
+    common::log("【圣域】玩家进入 [圣域]", iEdit);
 
+    bLogin = 1;
     return 0;
 }
 

@@ -22,13 +22,13 @@ void sxd_client::harvest() {
         if (land[1].asInt()) {
             // 收获容易卡
             /*this->Mod_Farm_Base_harvest(land[0].asInt());
-             common::log("【药园】收获");
+             common::log("【药园】收获", iEdit);
              std::this_thread::sleep_for(std::chrono::seconds(3));*/
             data = this->Mod_Farm_Base_harvest(land[0].asInt());
             if (data[0].asInt() == Mod_Farm_Base::SUCCESS)
-                common::log(boost::str(boost::format("【药园】[%1%] 收获 [%2%]，获得铜钱[%3%]，经验值[%4%]") % common::utf2gbk(data[1].asString()) % common::utf2gbk(data[2].asString()) % data[5] % data[3]));
+                common::log(boost::str(boost::format("【药园】[%1%] 收获 [%2%]，获得铜钱[%3%]，经验值[%4%]") % common::utf2gbk(data[1].asString()) % common::utf2gbk(data[2].asString()) % data[5] % data[3]), iEdit);
             else
-                common::log(boost::str(boost::format("【药园】收获失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【药园】收获失败，result[%1%]") % data[0]), iEdit);
         }
     }
 }
@@ -63,31 +63,37 @@ void sxd_client::plant() {
         }
         data = this->Mod_Farm_Base_plant_herbs(land_max_id, player_role_max_id, Mod_Farm_Base::COIN_HERBS, 1);
         if (data[0].asInt() == Mod_Farm_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【药园】[%1%] 种植 [普通发财树]") % common::utf2gbk(data[4].asString())));
+            common::log(boost::str(boost::format("【药园】[%1%] 种植 [普通发财树]") % common::utf2gbk(data[4].asString())), iEdit);
             // 收获容易卡
             /*this->Mod_Farm_Base_harvest(land_max_id);
-             common::log("【药园】收获");
+             common::log("【药园】收获", iEdit);
              std::this_thread::sleep_for(std::chrono::seconds(3));*/
             data = this->Mod_Farm_Base_harvest(land_max_id);
             if (data[0].asInt() == Mod_Farm_Base::SUCCESS)
-                common::log(boost::str(boost::format("【药园】[%1%] 收获 [%2%]，获得铜钱[%3%]") % common::utf2gbk(data[1].asString()) % common::utf2gbk(data[2].asString()) % data[5]));
+                common::log(boost::str(boost::format("【药园】[%1%] 收获 [%2%]，获得铜钱[%3%]") % common::utf2gbk(data[1].asString()) % common::utf2gbk(data[2].asString()) % data[5]), iEdit);
             else {
-                common::log(boost::str(boost::format("【药园】收获失败，result[%1%]") % data[0]));
+                common::log(boost::str(boost::format("【药园】收获失败，result[%1%]") % data[0]), iEdit);
                 return;
             }
         } else {
-            common::log(boost::str(boost::format("【药园】种植失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【药园】种植失败，result[%1%]") % data[0]), iEdit);
             return;
         }
     }
 
+    // 伙伴满级则不种植经验树
+    data = this->Mod_Player_Base_get_player_info();
+    int level = data[1].asInt();
+    if (player_role_min[3].asInt() == level)
+        return;
+
     for (const auto& land : lands) {
         data = this->Mod_Farm_Base_plant_herbs(land[0].asInt(), player_role_min_id, Mod_Farm_Base::EXP_HERBS, 1);
         if (data[0].asInt() != Mod_Farm_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【药园】种植失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【药园】种植失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【药园】[%1%] 种植 [普通经验树]") % common::utf2gbk(data[4].asString())));
+        common::log(boost::str(boost::format("【药园】[%1%] 种植 [普通经验树]") % common::utf2gbk(data[4].asString())), iEdit);
     }
 }
 

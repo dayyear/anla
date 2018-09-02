@@ -26,7 +26,7 @@ void sxd_client::hide_treasure_map() {
             common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿¹ºÂò [²Ø±¦Í¼] Ê§°Ü£¬result[%1%]") % data[0]), 0);
             return;
         }
-        common::log("¡¾²Ø±¦Í¼¡¿¹ºÂò [²Ø±¦Í¼¡Á1]");
+        common::log("¡¾²Ø±¦Í¼¡¿¹ºÂò [²Ø±¦Í¼¡Á1]", iEdit);
         this->hide_treasure_map_search();
     }
 
@@ -46,7 +46,7 @@ void sxd_client::hide_treasure_map_search() {
 
         data = this->Mod_HideTreasureMap_Base_player_use_grid_item(box_id);
         if (data[0].asInt() != Mod_HideTreasureMap_Base::SUCCEED) {
-            common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿´ò¿ª [²Ø±¦Í¼] Ê§°Ü£¬result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿´ò¿ª [²Ø±¦Í¼] Ê§°Ü£¬result[%1%]") % data[0]), iEdit);
             return;
         }
         int treasure_map_item_id = data[1].asInt();
@@ -58,8 +58,8 @@ void sxd_client::hide_treasure_map_search() {
             for (int y = 100; y <= 100 && !found; y += 20) {
                 data = this->Mod_HideTreasureMap_Base_start_grub(box_id, town_map_id, x, y);
                 if (data[0].asInt() == Mod_HideTreasureMap_Base::SUCCEED) {
-                    common::log("¡¾²Ø±¦Í¼¡¿ÍÚµ½ [±¦²Ø¡Á1]");
-                    common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿[treasure=%1%]£¬[town=%2%]£¬[x=%3%]£¬[y=%4%]") % treasure_map_item_id % town_map_id % x % y));
+                    common::log("¡¾²Ø±¦Í¼¡¿ÍÚµ½ [±¦²Ø¡Á1]", iEdit);
+                    common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿[treasure=%1%]£¬[town=%2%]£¬[x=%3%]£¬[y=%4%]") % treasure_map_item_id % town_map_id % x % y), iEdit);
                     std::ofstream ofile("²Ø±¦Í¼.txt", std::ios::binary | std::ios::out | std::ios::app);
                     ofile << boost::format("%1%, %2%, %3%, %4%") % treasure_map_item_id % town_map_id % x % y << std::endl;
                     ofile.close();
@@ -68,7 +68,7 @@ void sxd_client::hide_treasure_map_search() {
             }
         }
         if (!found) {
-            common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿ÍÚ±¦²ØÊ§°Ü£¬[treasure_map_item_id=%1%]") % treasure_map_item_id));
+            common::log(boost::str(boost::format("¡¾²Ø±¦Í¼¡¿ÍÚ±¦²ØÊ§°Ü£¬[treasure_map_item_id=%1%]") % treasure_map_item_id), iEdit);
             return;
         }
     }

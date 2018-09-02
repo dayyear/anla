@@ -23,15 +23,15 @@ void sxd_client::sunday_fruit() {
             break;
         data = this->Mod_SundayFruit_Base_draw();
         if (data[0].asInt() != Mod_SundayFruit_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【周末水果机】转一次失败，result[%1%]") % data[0]));
+            common::log(boost::str(boost::format("【周末水果机】转一次失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log("【周末水果机】转一次");
+        common::log("【周末水果机】转一次", iEdit);
         /*std::vector<std::string> items;
         std::transform(data[2].begin(), data[2].end(), std::back_inserter(items), [this](const Json::Value& x) {
             return boost::str(boost::format("[%1%×%2%]") % db.get_code(version, "Item", x[1].asInt())["text"] % x[2]);
         });
-        common::log(boost::str(boost::format("【周末水果机】转一次，获得 %1%") % boost::algorithm::join(items, "，")));*/
+        common::log(boost::str(boost::format("【周末水果机】转一次，获得 %1%") % boost::algorithm::join(items, "，")), iEdit);*/
     }
 
 }
