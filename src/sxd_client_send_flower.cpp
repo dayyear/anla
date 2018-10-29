@@ -19,20 +19,21 @@ public:
 void sxd_client::send_flower() {
     Json::Value data = this->Mod_Friend_Base_get_friend_list();
     Json::Value friends = data[0];
+    if (!friends.size()) {
+        common::log("【送花】失败，没有好友", iEdit);
+        return;
+    }
     auto freind = friends[rand() % friends.size()];
-    //for (const auto& freind : friends) {
-        int id = freind[0].asInt();
-        std::string name = common::utf2gbk(freind[1].asString());
-        data = this->Mod_SendFlower_Base_player_send_flower_info(id);
-        if (data[8].asInt() == Mod_SendFlower_Base::YES) {
-            data = this->Mod_SendFlower_Base_send_player_flower(id);
-            if (data[0].asInt() == Mod_SendFlower_Base::SUCCESS)
-                common::log(boost::str(boost::format("【送花】给好友 [%1%] 赠送一朵鲜花") % name), iEdit);
-            else
-                common::log(boost::str(boost::format("【送花】给好友 [%1%] 送花失败，result[%2%]") % name % data[0]), iEdit);
-        }
-    //    break;
-    //}
+    int id = freind[0].asInt();
+    std::string name = common::utf2gbk(freind[1].asString());
+    data = this->Mod_SendFlower_Base_player_send_flower_info(id);
+    if (data[8].asInt() == Mod_SendFlower_Base::YES) {
+        data = this->Mod_SendFlower_Base_send_player_flower(id);
+        if (data[0].asInt() == Mod_SendFlower_Base::SUCCESS)
+            common::log(boost::str(boost::format("【送花】给好友 [%1%] 赠送一朵鲜花") % name), iEdit);
+        else
+            common::log(boost::str(boost::format("【送花】给好友 [%1%] 送花失败，result[%2%]") % name % data[0]), iEdit);
+    }
 }
 
 //============================================================================

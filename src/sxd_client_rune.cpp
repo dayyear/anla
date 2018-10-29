@@ -11,7 +11,13 @@ public:
 // 招财神符
 //============================================================================
 void sxd_client::rune() {
-    auto data = this->Mod_Rune_Base_rune_list();
+    auto data = this->Mod_Player_Base_get_player_info();
+    int my_ingot = data[2].asInt();
+    if (my_ingot < 2) {
+        common::log("【招财神符】使用失败，元宝不足 [2]", iEdit);
+        return;
+    }
+    data = this->Mod_Rune_Base_rune_list();
     int count = data[0].asInt();
     int ingot = data[1].asInt();
     if (count && ingot == 2) {

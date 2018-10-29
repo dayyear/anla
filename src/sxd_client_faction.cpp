@@ -130,6 +130,8 @@ Json::Value sxd_client::Mod_Faction_Base_roll_cake() {
 // R179 ÆßÐÇ·âÄ§
 //============================================================================
 void sxd_client::seal_satan() {
+    if (rand() % 3)
+        return;
     this->Mod_Faction_Base_seal_satan_member_list();
     auto data = this->Mod_Faction_Base_join_seal_satan();
     if (data[0].asInt() == Mod_Faction_Base::JOIN_SUCCESS)
