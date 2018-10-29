@@ -66,9 +66,9 @@ void sxd::run(std::string arg, bool auto_exit) {
                 std::string user_id = (*it)["user_id"];
                 std::string url = (*it)["url"];
                 std::string cookie = oss.str();
-                //sxd::batch_fate("R184", user_id, url, cookie);
-                sxd::auto_play("R184", user_id, url, cookie);
-                //std::thread thread([url, cookie]() {sxd::play("R184", url, cookie);});
+                //sxd::batch_fate("R186", user_id, url, cookie);
+                sxd::auto_play("R186", user_id, url, cookie);
+                //std::thread thread([url, cookie]() {sxd::play("R186", url, cookie);});
             } catch (const std::exception& ex) {
                 common::log(boost::str(boost::format("发现错误(run)：%1%") % ex.what()));
             }
@@ -94,6 +94,8 @@ void sxd::login() {
             std::string port1 = user["port"];
             std::string url1 = user["url"];
             std::string cookie1 = user["cookie"];
+            //if(id!="10049389.s1")
+            //    continue;
 
             // GET1
             sxd_web web1;
@@ -212,13 +214,13 @@ void sxd::analyze() {
                 action = common::read_int16(fis);
 
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R184", module, action);
+                protocol = db.get_protocol("R186", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(fis, data, pattern);
             } else {
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R184", module, action);
+                protocol = db.get_protocol("R186", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(ss, data, pattern);
@@ -560,6 +562,13 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
         sxd_client_town.dragonball();
     }
 
+    // npc friendship
+    if (!common::contain(function_names, "NPC结交"))
+        common::log("【NPC结交】未开启", 0);
+    else {
+        //sxd_client_town.npc_friendship();
+    }
+
     // faction
     if (!common::contain(function_names, "帮派"))
         common::log("【帮派】未开启", 0);
@@ -668,6 +677,14 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
                 }
             }
 
+            // st arena
+            if (!common::contain(function_ids, "132"))
+                common::log("【仙界竞技场】未开启", 0);
+            else {
+                sxd_client_super_town.st_arena();           // 挑战
+                sxd_client_town.exploit_shop();             // 荣誉商店买内丹
+            }
+
             // st take bible
             if (!common::contain(function_names, "跨服取经"))
                 common::log("【仙界取经】未开启", 0);
@@ -680,14 +697,6 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
                 }
             }
 
-            // st arena
-            if (!common::contain(function_ids, "132"))
-                common::log("【仙界竞技场】未开启", 0);
-            else {
-                sxd_client_super_town.st_arena();           // 挑战
-                sxd_client_town.exploit_shop();             // 荣誉商店买内丹
-            }
-
             // st super sport
             if (!common::contain(function_ids, "93"))
                 common::log("【神魔竞技】未开启", 0);
@@ -695,10 +704,10 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
                 if (common::contain(function_names, "主角飞升"))
                     common::log("【神魔竞技】主角已成圣，升级为 [圣域竞技场]", 0);
                 else {
-                    sxd_client_super_town.get_rank_award(&sxd_client_town);     // 排名奖励
-                    sxd_client_super_town.get_score_award();                    // 神魔大礼
                     sxd_client_super_town.point_race(&sxd_client_town);         // 积分赛
                     sxd_client_super_town.war_race(&sxd_client_town);           // 神魔大战
+                    sxd_client_super_town.get_rank_award(&sxd_client_town);     // 排名奖励
+                    sxd_client_super_town.get_score_award();                    // 神魔大礼
                 }
             }
         }
@@ -740,14 +749,14 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
 void sxd::collect() {
     try {
-        sxd::collect_protocol("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\protocols");
-        sxd::collect_end_function_gift("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_function("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
-        sxd::collect_gift("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_item("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_lucky_shop_item("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_role("R184", "H:\\神仙道\\基础数据准备\\R184\\Main\\com\\assist\\server\\RoleType.as");
-        sxd::collect_town("R184", "H:\\神仙道\\基础数据准备\\R184\\templet\\com\\assist\\server\\source\\TownTypeData.as");
+        sxd::collect_protocol("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\protocols");
+        sxd::collect_end_function_gift("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_function("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
+        sxd::collect_gift("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_item("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_lucky_shop_item("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_role("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\assist\\server\\RoleType.as");
+        sxd::collect_town("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\TownTypeData.as");
     } catch (const std::exception& ex) {
         std::cerr << boost::str(boost::format("发现错误(collect)：%1%") % ex.what()) << std::endl;
     }

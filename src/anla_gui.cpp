@@ -18,7 +18,7 @@
 #define SBARS_SIZEGRIP 0x100
 
 #define g_szClassName "myWindowClass"
-#define version "R184"
+#define version "R186"
 
 int iEdit = 0;
 

@@ -434,6 +434,14 @@ public:
     Json::Value Mod_Dragonball_Base_sell_dragonball(int ids[], int count);
 
     //============================================================================
+    // - npc_friendship.cpp
+    //============================================================================
+    void npc_friendship();
+    Json::Value Mod_NpcFriendship_Base_get_info();
+    Json::Value Mod_NpcFriendship_Base_get_give_present_info();
+    Json::Value Mod_NpcFriendship_Base_give_present(int id, int npc_id);
+
+    //============================================================================
     // - sxd_client_faction.cpp
     //============================================================================
     std::string get_faction_name();
