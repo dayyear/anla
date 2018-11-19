@@ -66,9 +66,9 @@ void sxd::run(std::string arg, bool auto_exit) {
                 std::string user_id = (*it)["user_id"];
                 std::string url = (*it)["url"];
                 std::string cookie = oss.str();
-                //sxd::batch_fate("R186", user_id, url, cookie);
-                sxd::auto_play("R186", user_id, url, cookie);
-                //std::thread thread([url, cookie]() {sxd::play("R186", url, cookie);});
+                //sxd::batch_fate("R190", user_id, url, cookie);
+                sxd::auto_play("R190", user_id, url, cookie);
+                //std::thread thread([url, cookie]() {sxd::play("R190", url, cookie);});
             } catch (const std::exception& ex) {
                 common::log(boost::str(boost::format("发现错误(run)：%1%") % ex.what()));
             }
@@ -214,13 +214,13 @@ void sxd::analyze() {
                 action = common::read_int16(fis);
 
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R186", module, action);
+                protocol = db.get_protocol("R190", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(fis, data, pattern);
             } else {
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R186", module, action);
+                protocol = db.get_protocol("R190", module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(ss, data, pattern);
@@ -749,14 +749,14 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
 void sxd::collect() {
     try {
-        sxd::collect_protocol("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\protocols");
-        sxd::collect_end_function_gift("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_function("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
-        sxd::collect_gift("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_item("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_lucky_shop_item("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_role("R186", "H:\\神仙道\\基础数据准备\\R186\\Main\\com\\assist\\server\\RoleType.as");
-        sxd::collect_town("R186", "H:\\神仙道\\基础数据准备\\R186\\templet\\com\\assist\\server\\source\\TownTypeData.as");
+        sxd::collect_protocol("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\protocols");
+        sxd::collect_end_function_gift("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_function("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
+        sxd::collect_gift("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_item("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_lucky_shop_item("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_role("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\RoleType.as");
+        sxd::collect_town("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\TownTypeData.as");
     } catch (const std::exception& ex) {
         std::cerr << boost::str(boost::format("发现错误(collect)：%1%") % ex.what()) << std::endl;
     }
