@@ -28,9 +28,11 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.dialect.std.1618786717" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1618786717" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.1167706057" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.dialect.flags.936540717" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++11" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.828285721" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.1132573051" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug">
@@ -45,19 +47,19 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.2005482161" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-d-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_date_time-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_filesystem-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_regex-mgw72-mt-d-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_locale-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_iostreams-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_thread-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="ws2_32"/>
 									<listOptionValue builtIn="false" value="ssl.dll"/>
 									<listOptionValue builtIn="false" value="crypto.dll"/>
 									<listOptionValue builtIn="false" value="jsoncpp"/>
+									<listOptionValue builtIn="false" value="iconv"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.238786694" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -100,9 +102,11 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.1333715176" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.506655547" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.506655547" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.flags.555629529" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++11" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.499760149" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.1828011399" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release">
@@ -118,19 +122,19 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.1331930268" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_date_time-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_filesystem-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_regex-mgw72-mt-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_locale-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_iostreams-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_thread-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="ws2_32"/>
 									<listOptionValue builtIn="false" value="ssl"/>
 									<listOptionValue builtIn="false" value="crypto"/>
 									<listOptionValue builtIn="false" value="jsoncpp"/>
+									<listOptionValue builtIn="false" value="iconv"/>
 								</option>
 								<option id="gnu.cpp.link.option.flags.2080479692" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1993388159" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -177,12 +181,14 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.dialect.std.1840732989" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1840732989" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.606882299" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.630015637" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GUI"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.dialect.flags.1345543829" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++11" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.531826534" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.1171731801" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug">
@@ -197,13 +203,12 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.208249069" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-d-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_date_time-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_filesystem-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_regex-mgw72-mt-d-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_locale-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_iostreams-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_thread-mgw72-mt-d-1_65_1"/>
 									<listOptionValue builtIn="false" value="ws2_32"/>
@@ -211,6 +216,7 @@
 									<listOptionValue builtIn="false" value="ssl.dll"/>
 									<listOptionValue builtIn="false" value="crypto.dll"/>
 									<listOptionValue builtIn="false" value="jsoncpp"/>
+									<listOptionValue builtIn="false" value="iconv"/>
 								</option>
 								<option id="gnu.cpp.link.option.flags.1435804462" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-Wl,-subsystem,windows" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.947755996" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -257,12 +263,14 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.428252604" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.1564186775" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1564186775" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.890682668" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GUI"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.dialect.flags.1542926578" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++11" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1070716958" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.319179391" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release">
@@ -278,13 +286,12 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.1102600797" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_date_time-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_filesystem-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_regex-mgw72-mt-1_65_1"/>
-									<listOptionValue builtIn="false" value="boost_locale-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_iostreams-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="boost_thread-mgw72-mt-1_65_1"/>
 									<listOptionValue builtIn="false" value="ws2_32"/>
@@ -292,6 +299,7 @@
 									<listOptionValue builtIn="false" value="ssl"/>
 									<listOptionValue builtIn="false" value="crypto"/>
 									<listOptionValue builtIn="false" value="jsoncpp"/>
+									<listOptionValue builtIn="false" value="iconv"/>
 								</option>
 								<option id="gnu.cpp.link.option.flags.1281125121" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-Wl,-subsystem,windows" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.863995537" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">

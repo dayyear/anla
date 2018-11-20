@@ -2,10 +2,9 @@
 #include <memory>
 #include <sstream>
 #include <regex>
+#include <iconv.h>
 #include <windows.h>
 
-#include <boost/locale/encoding.hpp>
-#include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>
 
 #include "common.h"
@@ -16,8 +15,45 @@ common::common(void) {
 common::~common(void) {
 }
 
+std::string conv_between(const char* text, const std::string &to_encoding, const std::string &from_encoding) {
+    const int BUFFER_SIZE = 1024;
+    /* iconv_open */
+    iconv_t cd = iconv_open(to_encoding.c_str(), from_encoding.c_str());
+    if (cd == (iconv_t) -1) {
+        perror("iconv_open");
+        throw std::runtime_error("iconv_open");
+    }
+    /* buffer */
+    char buffer[BUFFER_SIZE];
+    /* four parameters for iconv */
+    const char* inbuf = text;
+    size_t inbytesleft = strlen(text);
+    char *outbuf;
+    size_t outbytesleft;
+
+    /* If all input from the input buffer is successfully converted and stored in the output buffer, the
+     * function returns the number of non-reversible conversions performed. In all other cases the
+     * return value is (size_t) -1 and errno is set appropriately. In such cases the value pointed to by
+     * inbytesleft is nonzero.
+     * - E2BIG The conversion stopped because it ran out of space in the output buffer. */
+    std::ostringstream oss;
+    while (inbytesleft) {
+        outbuf = buffer;
+        outbytesleft = BUFFER_SIZE;
+        if (iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft) == (size_t) -1 && errno != E2BIG) {
+            iconv_close(cd);
+            perror("iconv");
+            throw std::runtime_error("iconv");
+        }
+        oss.write(buffer, BUFFER_SIZE - outbytesleft);
+    }
+    /* iconv_close */
+    iconv_close(cd);
+    return oss.str();
+}
+
 std::string common::utf2gbk(const char* s) {
-    return boost::locale::conv::between(s, "gbk", "utf-8");
+    return conv_between(s, "gbk", "utf-8");
 }
 
 std::string common::utf2gbk(const std::string& s) {
@@ -25,7 +61,7 @@ std::string common::utf2gbk(const std::string& s) {
 }
 
 std::string common::gbk2utf(const char* s) {
-    return boost::locale::conv::between(s, "utf-8", "gbk");
+    return conv_between(s, "utf-8", "gbk");
 }
 
 std::string common::gbk2utf(const std::string& s) {
@@ -223,27 +259,15 @@ void common::write_string(std::ostream& os, const std::string& str) {
     os.write(str.c_str(), str.size());
 }
 
-std::string common::to_string(const boost::posix_time::ptime& pt, const char* format) {
-    // http://www.boost.org/doc/libs/1_65_1/doc/html/date_time/date_time_io.html#date_time.format_flags
-    //                 012345678901234
-    // microsec_clock: 20180205T200317.430210
-    // second_clock:   20180205T205831
-    std::string str(format);
-    std::string iso_string = boost::posix_time::to_iso_string(pt);
-    str = std::regex_replace(str, std::regex("%Y"), iso_string.substr(0, 4));
-    str = std::regex_replace(str, std::regex("%y"), iso_string.substr(2, 2));
-    str = std::regex_replace(str, std::regex("%m"), iso_string.substr(4, 2));
-    str = std::regex_replace(str, std::regex("%d"), iso_string.substr(6, 2));
-    str = std::regex_replace(str, std::regex("%H"), iso_string.substr(9, 2));
-    str = std::regex_replace(str, std::regex("%M"), iso_string.substr(11, 2));
-    str = std::regex_replace(str, std::regex("%S"), iso_string.substr(13, 2));
-    str = std::regex_replace(str, std::regex("%s"), iso_string.substr(13));
-
+std::string common::to_string(const std::time_t t, const char* format) {
+    char time_buf[100];
+    std::strftime(time_buf, sizeof time_buf, format, std::localtime(&t));
+    std::string str(time_buf);
     return str;
 }
 
 void common::log(const std::string& message, int hwnd, bool file, bool time) {
-    boost::posix_time::ptime now(boost::posix_time::second_clock::local_time());
+    std::time_t now = std::time(0);
     std::string path = "log";
     boost::filesystem::create_directory(path);
     if (hwnd) {

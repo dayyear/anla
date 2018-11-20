@@ -7,7 +7,6 @@ public:
     virtual ~test();
 
     static void protocol_encode_frame();
-    static void chrono_time_point();
     static void zlib();
     static void https();
 };

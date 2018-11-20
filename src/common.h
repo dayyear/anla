@@ -4,10 +4,6 @@
 #include <iostream>
 #include <string>
 
-#include <boost/date_time/posix_time/ptime.hpp>
-
-#include <windef.h>
-
 class common {
 public:
     common(void);
@@ -46,7 +42,7 @@ public:
     static void write_string(std::ostream& os, const std::string& str);
 
     // 时间日期格式化
-    static std::string to_string(const boost::posix_time::ptime& pt, const char* format);
+    static std::string to_string(const std::time_t t, const char* format);
 
     // 日志
     static void log(const std::string& message, int hwnd = -1, bool file = true, bool time = true);

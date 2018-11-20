@@ -299,7 +299,8 @@ Json::Value sxd_client::Mod_StUnionTask_Base_fight() {
 std::vector<Json::Value> sxd_client::get_all_st_union_members() {
     std::vector<Json::Value> all_members;
 
-    boost::posix_time::ptime now(boost::posix_time::second_clock::local_time());
+    //boost::posix_time::ptime now(boost::posix_time::second_clock::local_time());
+    std::time_t now = std::time(0);
     std::string file_name = boost::str(boost::format("log\\%1%-%2%.log") % common::to_string(now, "%Y-%m-%d") % this->player_id);
 
     auto str = common::read_file(file_name);

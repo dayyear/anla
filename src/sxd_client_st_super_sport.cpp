@@ -1,5 +1,4 @@
 #include <boost/format.hpp>
-#include <boost/date_time/posix_time/conversion.hpp>
 #include "common.h"
 #include "sxd_client.h"
 
@@ -201,7 +200,8 @@ void sxd_client::point_race(sxd_client* sxd_client_town) {
         std::sort(challenge_players.begin(), challenge_players.end(), [](const Json::Value& x, const Json::Value& y) {return x[5].asInt()<y[5].asInt();});
         // 2. filter(AM)
         data = sxd_client_town->Mod_Player_Base_server_time();
-        auto server_time = boost::posix_time::from_time_t(data[0].asInt());
+        //auto server_time = boost::posix_time::from_time_t(data[0].asInt());
+        std::time_t server_time = data[0].asInt();
         int hour = (std::stoi(common::to_string(server_time, "%H")) + 8) % 24;
         if (hour < 12) {
             //challenge_players.assign(challenge_players.begin(), challenge_players.begin() + 2);
