@@ -9,12 +9,19 @@ public:
     static const int NOT_ENOUGH_FATE_GRID = 46;
 };
 
+class Mod_LuckyStore_Base {
+public:
+    static const int LUCKY_SUCCESS = 10;
+    static const int ShenMiShangRen = 101;
+};
+
 void sxd_client::item_reel() {
     // read config
     Json::Value config;
     std::istringstream(db.get_config(user_id.c_str(), "ItemReel")) >> config;
-    for (const auto& item : config)
-        common::log(boost::str(boost::format("【ItemReel】[%1%]") % db.get_code(version, "Item", item.asInt())["text"]), 0);
+    // show
+    //for (const auto& item : config)
+    //    common::log(boost::str(boost::format("【ItemReel】[%1%]") % db.get_code(version, "Item", item.asInt())["text"]), 0);
     // pack
     Json::Value data = this->Mod_Item_Base_get_player_pack_item_list();
     Json::Value items = data[2];
@@ -32,6 +39,15 @@ void sxd_client::item_reel() {
                 common::log(boost::str(boost::format("【背包】合成 [%1%]") % item_name), iEdit);
             else if (data[0].asInt() == Mod_Item_Base::MATERIAL_NOT_ENOUGH) {
                 //common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，材料不足") % item_name), iEdit);
+                data = this->Mod_Item_Base_get_facture_reel_data(item_id);
+                std::vector<Json::Value> materials_not_enough;
+                std::copy_if(data[4].begin(), data[4].end(), std::back_inserter(materials_not_enough), [](const Json::Value& x) {return x[1].asInt() != 1 && x[1].asInt() > x[4].asInt();});
+                for (const auto& item : materials_not_enough) {
+                    int item_id = item[0].asInt();
+                    data = this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, 0);
+                    if (data[0].asInt() == Mod_LuckyStore_Base::LUCKY_SUCCESS)
+                        common::log(boost::str(boost::format("【神秘商人】购买装备制作材料 [%1%]") % db.get_code(version, "Item", item_id)["text"]), iEdit);
+                }
                 break;
             } else {
                 common::log(boost::str(boost::format("【背包】合成 [%1%] 失败，result[%2%]") % item_name % data[0]), 0);
