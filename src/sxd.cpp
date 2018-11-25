@@ -757,6 +757,7 @@ void sxd::collect() {
         sxd::collect_lucky_shop_item("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
         sxd::collect_role("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\RoleType.as");
         sxd::collect_town("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\TownTypeData.as");
+        sxd::collect_facture_reel("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\FactureReelType.as");
     } catch (const std::exception& ex) {
         std::cerr << boost::str(boost::format("发现错误(collect)：%1%") % ex.what()) << std::endl;
     }
@@ -911,6 +912,27 @@ void sxd::collect_town(const std::string& version, const std::string& path) {
     while (boost::regex_search(content, match, regex2)) {
         auto sql = boost::format("INSERT INTO code(version, type, value, text, sign, comment) VALUES('%1%', '%2%', '%3%', '%4%', '%5%', '%6%')");
         sql % version % type % match[1] % match[3] % match[2] % "";
+        common::log(common::utf2gbk(sql.str()));
+        db.execute(sql.str().c_str());
+        content = match.suffix();
+    }
+    db.execute("COMMIT");
+}
+
+void sxd::collect_facture_reel(const std::string& version, const std::string& path) {
+    db.execute("BEGIN");
+    db.execute("DELETE FROM facture_reel where version='" + version + "'");
+    std::string content = common::read_file(path);
+    // regex 1
+    boost::smatch match;
+    boost::regex regex1("_factureReelList:Array = .*?;\r\n");
+    boost::regex_search(content, match, regex1);
+    content = match.str();
+    // regex2
+    boost::regex regex2("\\[(\\d*?),(\\d*?),(\\d*?),\"(.*?)\",(\\d*?)\\]");
+    while (boost::regex_search(content, match, regex2)) {
+        auto sql = boost::format("INSERT INTO facture_reel(version, reel_id, item_id, count, position, mission_id) VALUES('%1%', '%2%', '%3%', '%4%', '%5%', '%6%')");
+        sql % version % match[1] % match[2] % match[3] % match[4] % match[5];
         common::log(common::utf2gbk(sql.str()));
         db.execute(sql.str().c_str());
         content = match.suffix();

@@ -32,6 +32,9 @@ public:
     mss get_code(const char* version, const char* type, int value);
     mss get_code(const std::string& version, const std::string& type, const std::string& text);
     mss get_code(const char* version, const char* type, const char* text);
+    // table facture_reel
+    std::list<mss> get_facture_reel(const std::string& version, int item_id);
+    std::list<mss> get_facture_reel(const char* version, int item_id);
 
 
 private:

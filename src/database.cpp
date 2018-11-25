@@ -142,6 +142,22 @@ mss database::get_code(const char* version, const char* type, const char* text) 
     return this->get_record("code", where_clause.str());
 }
 
+std::list<mss> database::get_facture_reel(const std::string& version, int item_id){
+    return this->get_facture_reel(version.c_str(), item_id);
+}
+
+std::list<mss> database::get_facture_reel(const char* version, int item_id){
+    std::ostringstream where_clause;
+    // ÅÅ³ı33¸öÌØÊâ¾íÖá
+    where_clause << "version='" << version << "' and item_id=" << item_id << " and reel_id not in (1550, 1551, 1552, 1553, 1554, 1555, 1556, 1557, 1558, 1559, 1560, 1561, 1562, 1563, 1564, 1565, 1566, 1567, 1568, 1569, 1570, 1571, 1572, 1573, 1574, 1575, 1576, 1577, 1578, 1579, 1580, 1581, 1582)";
+    mss item = this->get_record("facture_reel", where_clause.str());
+    int reel_id = boost::lexical_cast<int>(item["reel_id"]);
+
+    where_clause.str("");
+    where_clause << "version='" << version << "' and reel_id=" << reel_id << " and item_id<>" << item_id;
+    return this->get_records("facture_reel", where_clause.str());
+}
+
 int database::callback(void* p, int argc, char** argv, char** azColName) {
     auto pitems = static_cast<std::list<mss>*>(p);
     mss item;

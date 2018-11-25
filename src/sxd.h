@@ -25,6 +25,7 @@ private:
     static void collect_lucky_shop_item(const std::string& version, const std::string& path);
     static void collect_role(const std::string& version, const std::string& path);
     static void collect_town(const std::string& version, const std::string& path);
+    static void collect_facture_reel(const std::string& version, const std::string& path);
 };
 
 #endif /* SXD_H_ */

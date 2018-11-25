@@ -28,7 +28,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1618786717" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.1167706057" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
@@ -47,7 +46,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.2005482161" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-d-1_65_1"/>
@@ -102,7 +100,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.1333715176" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.506655547" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
@@ -122,7 +119,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.1331930268" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-1_65_1"/>
@@ -181,7 +177,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1840732989" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.606882299" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
@@ -203,7 +198,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.208249069" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-d-1_65_1"/>
@@ -263,7 +257,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1&quot;"/>
 									<listOptionValue builtIn="false" value="E:\CPP\green\mingw32-7.2.0\opt\include"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.428252604" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.1564186775" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
@@ -286,7 +279,6 @@
 									<listOptionValue builtIn="false" value="&quot;C:\CPP\library\boost_1_65_1\stage\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\green\mingw32-7.2.0\opt\lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\jsoncpp-1.8.4\release&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\CPP\library\libiconv-1.9.2-1\lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.1102600797" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="boost_system-mgw72-mt-1_65_1"/>

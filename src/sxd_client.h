@@ -112,6 +112,7 @@ public:
     Json::Value Mod_Item_Base_large_use_grid_item(int player_item_id);
     Json::Value Mod_Item_Base_player_use_grid_item(int box_id);
     Json::Value Mod_Item_Base_player_sell_item(int box_id);
+    Json::Value Mod_Item_Base_get_all_player_item_infos();
 
     //============================================================================
     // - sxd_client_release_welfare.cpp

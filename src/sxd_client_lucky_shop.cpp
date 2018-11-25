@@ -100,19 +100,34 @@ void sxd_client::lucky_shop() {
         int count_config = 0;
         if (lucky_store_id) { // 商品
             if (items_config1.find(lucky_store_id) != items_config1.end())
-                count_config = items_config1[lucky_store_id];
+                count_config += items_config1[lucky_store_id];
         } else {             // 材料
             if (items_config2.find(item_id) != items_config2.end())
-                count_config = items_config2[item_id];
+                count_config += items_config2[item_id];
+
+            // 装备卷轴合成所需材料
+            data = this->Mod_Role_Base_get_role_list(player_id);
+            auto roles = data[14];
+            data = this->Mod_Item_Base_get_all_player_item_infos();
+            std::vector<Json::Value> equips;
+            std::copy_if(data[0].begin(), data[0].end(), std::back_inserter(equips), [](const Json::Value& x) {return x[16].asInt();});
+            for (const auto& equip : equips) {
+                int player_role_id = equip[16].asInt();
+                if (std::find_if(roles.begin(), roles.end(), [player_role_id](const Json::Value& role) {return role[2].asInt() == player_role_id;}) == roles.end())
+                    continue;
+                auto materials = db.get_facture_reel(version, equip[1].asInt());
+                for (auto& material : materials) {
+                    if (atoi(material["item_id"].c_str()) != item_id)
+                        continue;
+                    count_config += atoi(material["count"].c_str());
+                }
+            }
         }
         // enough
         if (count_config <= count_my)
             continue;
         // buy
         // buy_lucky_store_item容易卡
-        /*this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, lucky_store_id);
-        common::log(boost::str(boost::format("【神秘商人】购买 [%1%]") % db.get_code(version, "Item", item_id)["text"]), iEdit);
-        std::this_thread::sleep_for(std::chrono::seconds(3));*/
         data = this->Mod_LuckyStore_Base_buy_lucky_store_item(Mod_LuckyStore_Base::ShenMiShangRen, item_id, lucky_store_id);
         if (data[0].asInt() != Mod_LuckyStore_Base::LUCKY_SUCCESS) {
             common::log(boost::str(boost::format("【神秘商人】购买 [%1%] 失败，result[%2%]") % db.get_code(version, "Item", item_id)["text"] % data[0]), iEdit);

@@ -26,7 +26,7 @@ std::string conv_between(const char* text, const std::string &to_encoding, const
     /* buffer */
     char buffer[BUFFER_SIZE];
     /* four parameters for iconv */
-    const char* inbuf = text;
+    char* inbuf = (char*)text;
     size_t inbytesleft = strlen(text);
     char *outbuf;
     size_t outbytesleft;
