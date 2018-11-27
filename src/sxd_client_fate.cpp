@@ -65,54 +65,60 @@ void sxd_client::batch_fate(int count) {
 // R179 猎命
 //============================================================================
 void sxd_client::fate() {
-    this->Mod_Fate_Base_merge_all_in_bag();
-
-    // 命格空间
-    auto data = this->Mod_Fate_Base_get_temp_fate();
-    auto temp_fates = data[0];
-
-    // 一键卖出
-    std::vector<Json::Value> temp_fates_bad;
-    std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_bad), [](const Json::Value& x) {return x[1].asInt()<=9;});
-
-    std::vector<long long> temp_fate_ids_bad;
-    std::transform(temp_fates_bad.begin(), temp_fates_bad.end(), std::back_inserter(temp_fate_ids_bad), [](const Json::Value& x) {return x[0].asInt64();});
-
-    if (temp_fate_ids_bad.size()) {
-        data = this->Mod_Fate_Base_sale_temp_fate(temp_fate_ids_bad);
-        if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【猎命】一键卖出失败，msg[%1%]") % data[0]), iEdit);
-            return;
-        }
-        common::log("【猎命】一键卖出", iEdit);
-    }
-
-    // 一键拾取
-    std::vector<Json::Value> temp_fates_good;
-    std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_good), [](const Json::Value& x) {return x[1].asInt()>9;});
-    std::vector<long long> temp_fate_ids_good;
-    std::transform(temp_fates_good.begin(), temp_fates_good.end(), std::back_inserter(temp_fate_ids_good), [](const Json::Value& x) {return x[0].asInt64();});
-    if (temp_fate_ids_good.size()) {
-        data = this->Mod_Fate_Base_pickup_fate(temp_fate_ids_good);
-        if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【猎命】一键拾取失败，msg[%1%]") % data[0]), iEdit);
-            return;
-        }
-        common::log("【猎命】一键拾取", iEdit);
-    }
-
-    this->Mod_Fate_Base_merge_all_in_bag();
-
+    // read config
+    auto config = atoi(db.get_config(user_id.c_str(), "Fate").c_str());
+    common::log(boost::str(boost::format("【Fate】[%1%] (置0为不猎命，置1为每天免费猎一次命，置2为猎到姜子牙即停)") % config), 0);
     for (;;) {
+        this->Mod_Fate_Base_merge_all_in_bag();
+
+        // 命格空间
+        auto data = this->Mod_Fate_Base_get_temp_fate();
+        auto temp_fates = data[0];
+
+        // 一键卖出
+        std::vector<Json::Value> temp_fates_bad;
+        std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_bad), [](const Json::Value& x) {return x[1].asInt()<=9;});
+
+        std::vector<long long> temp_fate_ids_bad;
+        std::transform(temp_fates_bad.begin(), temp_fates_bad.end(), std::back_inserter(temp_fate_ids_bad), [](const Json::Value& x) {return x[0].asInt64();});
+
+        if (temp_fate_ids_bad.size()) {
+            data = this->Mod_Fate_Base_sale_temp_fate(temp_fate_ids_bad);
+            if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【猎命】一键卖出失败，msg[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log("【猎命】一键卖出", iEdit);
+        }
+
+        // 一键拾取
+        std::vector<Json::Value> temp_fates_good;
+        std::copy_if(temp_fates.begin(), temp_fates.end(), std::back_inserter(temp_fates_good), [](const Json::Value& x) {return x[1].asInt()>9;});
+        std::vector<long long> temp_fate_ids_good;
+        std::transform(temp_fates_good.begin(), temp_fates_good.end(), std::back_inserter(temp_fate_ids_good), [](const Json::Value& x) {return x[0].asInt64();});
+        if (temp_fate_ids_good.size()) {
+            data = this->Mod_Fate_Base_pickup_fate(temp_fate_ids_good);
+            if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
+                common::log(boost::str(boost::format("【猎命】一键拾取失败，msg[%1%]") % data[0]), iEdit);
+                return;
+            }
+            common::log("【猎命】一键拾取", iEdit);
+        }
+
+        this->Mod_Fate_Base_merge_all_in_bag();
+
         data = this->Mod_Fate_Base_get_fate_npc();
         int free_appoint_times = data[0].asInt();
-        if (free_appoint_times == 0)
-            break;
         auto npcs = data[1];
         std::vector<Json::Value> npcs_valid;
         std::copy_if(npcs.begin(), npcs.end(), std::back_inserter(npcs_valid), [](const Json::Value& x) {return x[1].asInt()==1;});
         auto npc_opt = *std::max_element(npcs_valid.begin(), npcs_valid.end(), [](const Json::Value& x1, const Json::Value& x2) {return x1[0].asInt()<x2[0].asInt();});
-
+        if (config <= 0 || config > 2)
+            return;
+        if (config == 1 && free_appoint_times == 0)
+            return;
+        if (config == 2 && free_appoint_times == 0 && npc_opt[0].asInt() == 5)
+            return;
         data = this->Mod_Fate_Base_appoint_fate_npc(npc_opt[0].asInt());
         if (data[0].asInt() != Mod_Fate_Base::SUCCESS) {
             common::log(boost::str(boost::format("【猎命】猎命失败，msg[%1%]") % data[0]), iEdit);
