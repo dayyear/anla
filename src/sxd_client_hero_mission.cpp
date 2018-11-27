@@ -17,10 +17,14 @@ void sxd_client::hero_mission() {
     Json::Value data = this->Mod_Player_Base_get_player_info();
     if (!data[6].asInt())
         return;
-
-    // 55:天河镇, 14:扬州城
-    int town_ids[] = { 55, 54, 43, 40, 39, 35, 33, 29, 27, 26, 24, 23, 22, 21, 15, 14 };
+    // read config
+    auto config = atoi(db.get_config(user_id.c_str(), "HeroMission").c_str());
+    common::log(boost::str(boost::format("【HeroMission】[%1%]") % config), 0);
+    // 55:天河镇, ..., 14:扬州城, 13:不归山, 9:雁门郡, 8:玄霄宫, 7:古道城, 4:天剑宗
+    int town_ids[] = { 55, 54, 43, 40, 39, 35, 33, 29, 27, 26, 24, 23, 22, 21, 15, 14, 13, 9, 8, 7, 4 };
     for (int town_id : town_ids) {
+        if (town_id < config)
+            break;
         data = this->Mod_HeroMission_Base_get_hero_mission_list(town_id);
         Json::Value missions = data[0];
         if (std::none_of(missions.begin(), missions.end(), [](const Json::Value& x) {return x[1].asInt()==1 && x[3].asInt()==1;}))
