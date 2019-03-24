@@ -11,6 +11,7 @@ public:
 };
 
 void sxd_client::email() {
+    //try {
     Json::Value data = this->Mod_Email_Base_get_email_info();
     Json::Value email_info = data;
     for (const auto& email : email_info[0]) {
@@ -21,8 +22,10 @@ void sxd_client::email() {
                 continue;
             }
             std::ostringstream oss;
-            for (const auto& item : email[7])
-                oss << "[" << db.get_code(version, "Item", item[0].asInt())["text"] << "×" << item[1] << "]，";
+            for (const auto& item : email[7]) {
+                if (item[0].asInt())
+                    oss << "[" << db.get_code(version, "Item", item[0].asInt())["text"] << "×" << item[1] << "]，";
+            }
             common::log(boost::str(boost::format("【邮箱】收取附件 %1%") % oss.str().substr(0, oss.str().size() - 2)), iEdit);
         }
         data = this->Mod_Email_Base_delete_email(Mod_Email_Base::ONE, email[0].asInt());
@@ -32,7 +35,9 @@ void sxd_client::email() {
         }
         common::log(boost::str(boost::format("【邮箱】删除邮件 [%1%]") % common::utf2gbk(email[1].asString())), iEdit);
     }
-
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(email)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================

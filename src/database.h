@@ -35,7 +35,8 @@ public:
     // table facture_reel
     std::list<mss> get_facture_reel(const std::string& version, int item_id);
     std::list<mss> get_facture_reel(const char* version, int item_id);
-
+    // max version
+    std::string get_max_version();
 
 private:
     static int callback(void* p, int argc, char** argv, char** azColName);

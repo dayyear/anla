@@ -18,9 +18,9 @@ void sxd_client::st_daoyuan_shop() {
     Json::Value items = data[0];
 
     // buy
-    int ids[] = { 21, 15 };
-    std::string names[] = { "普通进阶丹", "真元" };
-    for (int i = 0; i < 2; i++) {
+    int ids[] = { 21, 15, 13, 16, 19, 5, 4, 7, 10, 11, 3 };
+    std::string names[] = { "普通进阶丹", "真元", "灵珠", "驯养令", "融合精华", "血脉精华", "器魂", "内丹", "琴瑟之声", "高级灵石", "喇叭" };
+    for (int i = 0; i < 11; i++) {
         int id = ids[i];
         std::string name = names[i];
         auto item_select = std::find_if(items.begin(), items.end(), [id](const Json::Value& x) {return x[0].asInt()==id;});
@@ -33,7 +33,7 @@ void sxd_client::st_daoyuan_shop() {
         data = this->Mod_StDaoyuanShop_Base_buy_daoyuan_shop_item(id, (*item_select)[1].asInt());
         if (data[0].asInt() == Mod_StDaoyuanShop_Base::NOT_ENOUGH_DAOYUAN) {
             common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，道缘不足") % name), 0);
-            continue;
+            break;
         }
         if (data[0].asInt() != Mod_StDaoyuanShop_Base::SUCCESS) {
             common::log(boost::str(boost::format("【仙界商店】购买 [%1%] 失败，result[%2%]") % name % data[0]), 0);

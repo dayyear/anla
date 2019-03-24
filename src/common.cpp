@@ -21,12 +21,12 @@ std::string conv_between(const char* text, const std::string &to_encoding, const
     iconv_t cd = iconv_open(to_encoding.c_str(), from_encoding.c_str());
     if (cd == (iconv_t) -1) {
         perror("iconv_open");
-        throw std::runtime_error("iconv_open");
+        throw std::runtime_error("iconv_open error");
     }
     /* buffer */
     char buffer[BUFFER_SIZE];
     /* four parameters for iconv */
-    char* inbuf = (char*)text;
+    char* inbuf = (char*) text;
     size_t inbytesleft = strlen(text);
     char *outbuf;
     size_t outbytesleft;
@@ -40,12 +40,23 @@ std::string conv_between(const char* text, const std::string &to_encoding, const
     while (inbytesleft) {
         outbuf = buffer;
         outbytesleft = BUFFER_SIZE;
-        if (iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft) == (size_t) -1 && errno != E2BIG) {
+        size_t r = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+        if (r != (size_t) -1)
+            oss.write(buffer, BUFFER_SIZE - outbytesleft);
+        else if (errno == E2BIG)
+            oss.write(buffer, BUFFER_SIZE - outbytesleft);
+        else if (errno == EILSEQ) {
+            oss.write(buffer, BUFFER_SIZE - outbytesleft);
+            ++inbuf;
+            --inbytesleft;
+        } else if (errno == EINVAL) {
+            oss.write(buffer, BUFFER_SIZE - outbytesleft);
+            break;
+        } else {
             iconv_close(cd);
             perror("iconv");
-            throw std::runtime_error("iconv");
+            throw std::runtime_error(std::string("iconv error, text: ") + text + ", to_encoding: " + to_encoding + ", from_encoding: " + from_encoding);
         }
-        oss.write(buffer, BUFFER_SIZE - outbytesleft);
     }
     /* iconv_close */
     iconv_close(cd);
@@ -266,6 +277,18 @@ std::string common::to_string(const std::time_t t, const char* format) {
     return str;
 }
 
+std::string common::sprintf(const char* fmt, ...) {
+    va_list args1;
+    va_start(args1, fmt);
+    va_list args2;
+    va_copy(args2, args1);
+    std::vector<char> buf(1 + std::vsnprintf(nullptr, 0, fmt, args1));
+    va_end(args1);
+    std::vsnprintf(buf.data(), buf.size(), fmt, args2);
+    va_end(args2);
+    return std::string(buf.data(), buf.size() - 1);
+}
+
 void common::log(const std::string& message, int hwnd, bool file, bool time) {
     std::time_t now = std::time(0);
     std::string path = "log";
@@ -274,30 +297,31 @@ void common::log(const std::string& message, int hwnd, bool file, bool time) {
         std::ofstream ofile(path + "\\" + to_string(now, "%Y-%m-%d.txt"), std::ios::binary | std::ios::out | std::ios::app);
         if (time) {
             if (hwnd < 0)
-                std::cout << to_string(now, "%H:%M:%S") << " ";
+                std::cout << to_string(now, "%H:%M:%S") << " " << std::flush;
             else {
                 SendMessage((HWND) hwnd, EM_SETSEL, SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0), SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0));
                 SendMessage((HWND) hwnd, EM_REPLACESEL, 0, (LPARAM) (to_string(now, "%H:%M:%S") + " ").c_str());
             }
-            ofile << to_string(now, "%H:%M:%S") << " ";
+            ofile << to_string(now, "%H:%M:%S") << " " << std::flush;
         }
         if (hwnd < 0)
-            std::cout << message << "\r\n";
+            std::cout << message << "\r\n" << std::flush;
         else {
             SendMessage((HWND) hwnd, EM_SETSEL, SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0), SendMessage((HWND) hwnd, WM_GETTEXTLENGTH, 0, 0));
             SendMessage((HWND) hwnd, EM_REPLACESEL, 0, (LPARAM) (message + "\r\n").c_str());
         }
-        ofile << message << "\r\n";
+        ofile << message << "\r\n" << std::flush;
     }
     if (file) {
         std::ofstream ofile(path + "\\" + to_string(now, "%Y-%m-%d.log"), std::ios::binary | std::ios::out | std::ios::app);
         if (time)
-            ofile << to_string(now, "%H:%M:%S") << " ";
-        ofile << message << "\r\n";
+            ofile << to_string(now, "%H:%M:%S") << " " << std::flush;
+        ofile << message << "\r\n" << std::flush;
         ofile.close();
     }
 }
 
-bool common::contain(const std::vector<std::string>& v, const std::string& s){
+bool common::contain(const std::vector<std::string>& v, const std::string& s) {
     return std::find(v.begin(), v.end(), s) != v.end();
 }
+

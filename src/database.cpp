@@ -158,6 +158,18 @@ std::list<mss> database::get_facture_reel(const char* version, int item_id){
     return this->get_records("facture_reel", where_clause.str());
 }
 
+std::string database::get_max_version(){
+    std::list<mss> items;
+    char* zErrMsg = nullptr;
+    if (sqlite3_exec(db, "select max(version) mv from protocol", &database::callback, static_cast<void *>(&items), &zErrMsg)) {
+        std::ostringstream err;
+        err << "SQL error: " << zErrMsg;
+        sqlite3_free(zErrMsg);
+        throw std::runtime_error(err.str());
+    }
+    return (*items.begin())["mv"];
+}
+
 int database::callback(void* p, int argc, char** argv, char** azColName) {
     auto pitems = static_cast<std::list<mss>*>(p);
     mss item;

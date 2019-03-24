@@ -5,10 +5,13 @@
 class Mod_ThreeAnniversarySignIn_Base {
 public:
     static const int YES = 0;
-    static const int SUCCESS = 25;
+    static const int SUCCESS = 27;
 };
 
 void sxd_client::sign_in() {
+    if (!this->get_empty_pack_num())
+        return;
+
     Json::Value data = this->Mod_ThreeAnniversarySignIn_Base_get_sign_in_status();
     if (data[0].asInt() != Mod_ThreeAnniversarySignIn_Base::YES)
         common::log(boost::str(boost::format("【新年签到】活动未开启，isActivity[%1%]") % data[0]), 0);

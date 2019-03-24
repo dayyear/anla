@@ -44,6 +44,9 @@ public:
     // 时间日期格式化
     static std::string to_string(const std::time_t t, const char* format);
 
+    // 字符串格式化
+    static std::string sprintf(const char* fmt, ...);
+
     // 日志
     static void log(const std::string& message, int hwnd = -1, bool file = true, bool time = true);
 

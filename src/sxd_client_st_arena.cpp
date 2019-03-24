@@ -126,7 +126,7 @@ void sxd_client::exploit_shop() {
         int good_id = 2;
         auto good = std::find_if(shop_item_list.begin(), shop_item_list.end(), [good_id](const Json::Value& x) {return x[0].asInt()==good_id;});
         if (good == shop_item_list.end()) {
-            common::log("【荣誉商店】商品不存在", iEdit);
+            common::log("【荣誉商店】商品不存在", 0);
             return;
         }
         if ((*good)[1].asInt()) {

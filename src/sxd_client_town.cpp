@@ -13,7 +13,7 @@ public:
 
 class Mod_Town_Base {
 public:
-    static const int SUCCESS = 43;
+    static const int SUCCESS = 45;
 };
 
 int sxd_client::login_town(const std::string& web_page) {
@@ -47,27 +47,29 @@ int sxd_client::login_town(const std::string& web_page) {
     Json::Value data = this->Mod_Player_Base_login(user_id, hash_code, time, source, regdate, id_card, open_time, is_newst, stage, client);
     if (data[0].asInt() != Mod_Player_Base::SUCCEED) {
         common::log(boost::str(boost::format("【登录】失败，result[%1%]") % data[0].asInt()), iEdit);
-        return 3;
+        return 2;
     }
     player_id = data[1].asInt();
-    common::log(boost::str(boost::format("【登录】成功，player_id[%1%]") % player_id), iEdit);
+    common::log(boost::str(boost::format("【登录】成功，当前版本[%1%]，player_id[%2%]") % version % player_id), iEdit);
 
     // 5. player infomation
     data = this->Mod_Player_Base_get_player_info();
-    std::string nickname = data[0].asString();
+    std::string nickname = common::utf2gbk(data[0].asString());
     int town_map_id = data[9].asInt();
-    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]，体力[%6%]") % common::utf2gbk(nickname) % data[1] % data[14] % data[2] % data[3] % data[6]), iEdit);
-
+    common::log(boost::str(boost::format("【登录】玩家基本信息，昵称[%1%]，[%2%]级，[VIP%3%]，元宝[%4%]，铜钱[%5%]，体力[%6%]") % nickname % data[1] % data[14] % data[2] % data[3] % data[6]), iEdit);
+#ifndef GUI
+    SetConsoleTitle(nickname.c_str());
+#endif
     // 6. player contrast infomation
     data = this->Mod_Player_Base_player_info_contrast(player_id);
     common::log(boost::str(boost::format("【登录】玩家排名信息，竞技排名[%1%]，帮派[%2%]，战力[%3%]，声望[%4%]，阅历[%5%]，成就[%6%]，先攻[%7%]，境界[%8%]，鲜花[%9%]，仙令[%10%]") % data[0][0][1] % common::utf2gbk(data[0][0][2].asString()) % data[0][0][3] % data[0][0][4] % data[0][0][5] % data[0][0][6] % data[0][0][7] % data[0][0][8] % data[0][0][9] % data[0][0][10]), iEdit);
 
     // 7. enter_town
     data = this->Mod_Town_Base_enter_town(town_map_id);
-    /*if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
-     common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]), iEdit);
-     return 4;
-     }*/
+    if (data[0].asInt() != Mod_Town_Base::SUCCESS) {
+        common::log(boost::str(boost::format("【登录】玩家进入 [%1%] 失败，result[%2%]") % db.get_code(version, "Town", town_map_id)["text"] % data[0]), iEdit);
+        return 3;
+    }
     common::log(boost::str(boost::format("【登录】玩家进入 [%1%]") % db.get_code(version, "Town", town_map_id)["text"]), iEdit);
 
     // 8. chat
@@ -279,5 +281,33 @@ Json::Value sxd_client::Mod_Town_Base_move_to(int x1, int y1, int x2, int y2) {
     data.append(y1);
     data.append(x2);
     data.append(y2);
-    return this->send_and_receive(data, 1, 2, [this](const Json::Value& x){return x[0].asInt() == this->player_id;});
+    return this->send_and_receive(data, 1, 2, [this](const Json::Value& x) {return x[0].asInt() == this->player_id;});
+}
+
+//============================================================================
+// R196 CD
+// "module":0,"action":41,"request":[Utils.IntUtil],"response":[Utils.IntUtil]
+// WarCdTimeType.as:
+//     public static const Mission:int = 13;
+//     public static const Peach:int = 17;
+//     public static const Tower:int = 19;
+//     public static const Zodiac:int = 20;
+//     public static const HeroesWar:int = 23;
+//     public static const FactionMonsterWar:int = 24;
+//     public static const CircleWarWar:int = 29;
+//     public static const UnLockPartner:int = 28;
+//     public static const TriplePartner:int = 30;
+//     public static const ForbiddenArea:int = 38;
+//     public static const MiracleFightersPVE:int = 42;
+//     public static const SaArena:int = 45;
+//     public static const SaDragonArea:int = 51;
+// PlayerData.as:
+//     this.warCdTime = param1[0];
+// Example
+//     [ 19 ] -> [ 0 ]
+//============================================================================
+Json::Value sxd_client::Mod_Player_Base_get_player_war_cd_time(int type) {
+    Json::Value data;
+    data.append(type);
+    return this->send_and_receive(data, 0, 41);
 }

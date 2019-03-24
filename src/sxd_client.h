@@ -25,7 +25,7 @@ private:
 
     int iEdit;
     bool bLogin;
-    int x,y;
+    int x, y;
 
     //============================================================================
     // - sxd_client.cpp
@@ -60,6 +60,15 @@ public:
     Json::Value Mod_Town_Base_enter_town(int town_map_id);
     void town_move_to(int x, int y);
     Json::Value Mod_Town_Base_move_to(int x1, int y1, int x2, int y2);
+    Json::Value Mod_Player_Base_get_player_war_cd_time(int type);
+
+    //============================================================================
+    // - sxd_client_bug.cpp
+    //============================================================================
+    void bug();
+    void mission_practice();
+    Json::Value Mod_MissionPractice_Base_start_practice(int mission_id);
+    Json::Value Mod_MissionPractice_Base_quickly();
 
     //============================================================================
     // - sxd_client_chat.cpp
@@ -100,6 +109,7 @@ public:
     //============================================================================
     // - sxd_client_item.cpp
     //============================================================================
+    int get_empty_pack_num();
     void item_reel();
     void item_use();
     void item_sell();
@@ -113,6 +123,8 @@ public:
     Json::Value Mod_Item_Base_player_use_grid_item(int box_id);
     Json::Value Mod_Item_Base_player_sell_item(int box_id);
     Json::Value Mod_Item_Base_get_all_player_item_infos();
+    Json::Value Mod_GiftItemPack_Base_put_item_to_package(int box_id);
+    Json::Value Mod_Item_Base_move_pack_grid_item_to_supergift_warehouse(int box_id);
 
     //============================================================================
     // - sxd_client_release_welfare.cpp
@@ -120,6 +132,28 @@ public:
     void release_welfare();
     Json::Value Mod_ReleaseWelfare_Base_get_info();
     Json::Value Mod_ReleaseWelfare_Base_get_welfare(int id);
+
+    //============================================================================
+    // - sxd_client_equipment.cpp
+    //============================================================================
+    void equipment();
+    Json::Value Mod_Equipment_Base_upgrade_equip(int player_item_id, int select_gem_id, int use_coin_upgrade);
+
+    //============================================================================
+    // - sxd_client_library.cpp
+    //============================================================================
+    void library();
+    Json::Value Mod_FindImmortal_Base_exchange_xian_ling(int num);
+    Json::Value Mod_Library_Base_get_library_info();
+    Json::Value Mod_Library_Base_activate_library_upgrade();
+    Json::Value Mod_Library_Base_up_library_level(int job_id);
+
+    //============================================================================
+    // - sxd_client_research.cpp
+    //============================================================================
+    void research();
+    Json::Value Mod_Research_Base_research_list();
+    Json::Value Mod_Research_Base_research_upgrade(int id);
 
     //============================================================================
     // - sxd_client_rune.cpp
@@ -180,12 +214,77 @@ public:
     Json::Value Mod_DiceMessenger_Base_get_award();
     Json::Value Mod_DiceMessenger_Base_tol_get();
 
+
     //============================================================================
     // - sxd_client_dunhuang_treasure.cpp
     //============================================================================
     void dunhuang_treasure();
     Json::Value Mod_DunhuangTreasure_Base_get_dunhuang_treasure_info();
     Json::Value Mod_DunhuangTreasure_Base_open_treasure(int type);
+
+    //============================================================================
+    // - sxd_client_memoirs.cpp
+    //============================================================================
+    Json::Value Mod_Memoirs_Base_is_activity_open();
+
+    //============================================================================
+    // - sxd_client_spring_carnival.cpp
+    //============================================================================
+    void spring_carnival();
+    void spring_big_run();
+    Json::Value Mod_SpringBigRun_Base_panel_info();
+    Json::Value Mod_SpringBigRun_Base_gain_award();
+    Json::Value Mod_SpringBigRun_Base_gain_total_award(int id);
+    void spring_open_year();
+    Json::Value Mod_NewYearSmallActivity_Base_get_open_year_award(int id);
+    void assistant_turntable_two();
+    Json::Value Mod_Memoirs_Base_assistant_turntable_lottery_two();
+    void charge_back();
+    Json::Value Mod_ChargeBack_Base_activate_fuction_of_mascot_befall(int function_id);
+    void regression_dice();
+    Json::Value Mod_Regression_Base_dice();
+    void fan_fan_le();
+    Json::Value Mod_FanFanLe_Base_get_info();
+    Json::Value Mod_FanFanLe_Base_flop(int id);
+    Json::Value Mod_FanFanLe_Base_get_extra_award();
+    void online_award();
+    Json::Value Mod_SpringActivity_Base_get_online_award_info();
+    Json::Value Mod_SpringActivity_Base_get_online_award(int id);
+    void lucky_poker();
+    Json::Value Mod_LuckyPoker_Base_get_info();
+    Json::Value Mod_LuckyPoker_Base_lottery_draw();
+    Json::Value Mod_LuckyPoker_Base_exchange_award();
+    Json::Value Mod_Memoirs_Base_get_exchange_item_info(int reflection_id);
+    Json::Value Mod_Memoirs_Base_exchange_item_award(int reflection_id, int award_id);
+    void golden_worker();
+    Json::Value Mod_ActivityGame_Base_start_play_kuang_gong();
+    Json::Value Mod_ActivityGame_Base_kuang_gong_game_over(int golden);
+    Json::Value Mod_ActivityGame_Base_player_score_exchange_info();
+    Json::Value Mod_ActivityGame_Base_exchange_award(int award_id);
+
+    //============================================================================
+    // - sxd_client_regression.cpp
+    //============================================================================
+    void regression();
+    void back_assistant();
+    Json::Value Mod_Regression_Base_get_back_assistant_award(int id);
+    void go_back_shop();
+    Json::Value Mod_GoBackShop_Base_open_panel();
+    Json::Value Mod_GoBackShop_Base_buy_shop_item(int type, int shop_item_id);
+    void go_back_login();
+    Json::Value Mod_GoBackLogin_Base_get_award(int id);
+    void back_send_gift();
+    Json::Value Mod_Regression_Base_get_back_send_gift_award();
+    void go_back_task();
+    Json::Value Mod_GoBackTask_Base_get_award(int id);
+
+    //============================================================================
+    // - sxd_client_find_treasure.cpp
+    //============================================================================
+    void find_treasure();
+    Json::Value Mod_FindTreasure_Base_open_find_treasure();
+    Json::Value Mod_FindTreasure_Base_find_treasure(int is_lock);
+    Json::Value Mod_FindTreasure_Base_exchange_score_award(int id);
 
     //============================================================================
     // - sxd_client_link_fate.cpp
@@ -443,6 +542,17 @@ public:
     Json::Value Mod_NpcFriendship_Base_give_present(int id, int npc_id);
 
     //============================================================================
+    // - sxd_client_tower.cpp
+    //============================================================================
+    void tower();
+    Json::Value Mod_Tower_Base_get_tower_info();
+    Json::Value Mod_Tower_Base_start_challenge(int war_idx, int auto_sell_l, int auto_sell_z);
+    Json::Value Mod_Tower_Base_reset_layer();
+    Json::Value Mod_Tower_Base_start_auto_challenge(int auto_sell_l,int auto_sell_z);
+    Json::Value Mod_Tower_Base_quickly_auto_challenge(int auto_sell_l,int auto_sell_z);
+    Json::Value Mod_Tower_Base_enter_next();
+
+    //============================================================================
     // - sxd_client_faction.cpp
     //============================================================================
     std::string get_faction_name();
@@ -457,7 +567,8 @@ public:
 
     void seal_satan();
     Json::Value Mod_Faction_Base_seal_satan_member_list();
-    Json::Value Mod_Faction_Base_join_seal_satan();
+    void Mod_Faction_Base_join_seal_satan();
+    //Json::Value Mod_Faction_Base_join_seal_satan();
 
     void faction_lucky_wheel();
     Json::Value Mod_LuckyWheel_Base_open_lucky_wheel();

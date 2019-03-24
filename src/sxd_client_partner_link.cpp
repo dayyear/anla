@@ -6,6 +6,7 @@ class Mod_PartnerLink_Base {
 public:
     static const int SUCCESS = 2;
     static const int GENERAL = 5;
+    static const int ADVANCED = 6;
 };
 
 //============================================================================
@@ -14,7 +15,7 @@ public:
 void sxd_client::partner_link() {
     for (;;) {
         auto data = this->Mod_PartnerLink_Base_get_shopping_info();
-        // 我们只关注普通缘魂宝箱
+        // 普通缘魂宝箱
         auto item = *std::find_if(data[0].begin(), data[0].end(), [](const Json::Value& x) {return x[0].asInt()==Mod_PartnerLink_Base::GENERAL;});
         int times = item[2].asInt();
         if (times == 0)
@@ -22,9 +23,23 @@ void sxd_client::partner_link() {
         data = this->Mod_PartnerLink_Base_buy_item(Mod_PartnerLink_Base::GENERAL);
         if (data[0].asInt() != Mod_PartnerLink_Base::SUCCESS) {
             common::log(boost::str(boost::format("【天缘系统】开启普通缘魂宝箱失败，result[%1%]") % data[0]), iEdit);
-            return;
+            break;
         }
         common::log("【天缘系统】开启普通缘魂宝箱", iEdit);
+    }
+    for (;;) {
+        auto data = this->Mod_PartnerLink_Base_get_shopping_info();
+        // 高级缘魂宝箱
+        auto item = *std::find_if(data[0].begin(), data[0].end(), [](const Json::Value& x) {return x[0].asInt()==Mod_PartnerLink_Base::ADVANCED;});
+        auto times = item[2].asInt();
+        if (times == 0)
+            break;
+        data = this->Mod_PartnerLink_Base_buy_item(Mod_PartnerLink_Base::ADVANCED);
+        if (data[0].asInt() != Mod_PartnerLink_Base::SUCCESS) {
+            common::log(boost::str(boost::format("【天缘系统】开启高级缘魂宝箱失败，result[%1%]") % data[0]), iEdit);
+            break;
+        }
+        common::log("【天缘系统】开启高级缘魂宝箱", iEdit);
     }
 }
 

@@ -5,7 +5,7 @@
 class Mod_Player_Base {
 public:
     static const int SUCCEED = 0;
-    static const int ACTION_SUCCESS = 88;
+    static const int ACTION_SUCCESS = 89;
 };
 
 class Mod_Farm_Base {

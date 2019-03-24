@@ -27,8 +27,10 @@ sxd::~sxd() {
 }
 
 void sxd::run(std::string arg, bool auto_exit) {
+    system(("del /q /f log\\" + common::to_string(std::time(0) - 3 * 24 * 60 * 60, "%Y-%m-%d*")).c_str());
+
     std::string user_ini = common::read_file("user.ini");
-    boost::regex user_regex("\\[(?<user_id>.*?)\\]\r\nurl=(?<url>.*?)\r\ncode=(?<user>.*?)\r\ntime=(?<_time>.*?)\r\nhash=(?<_hash>.*?)\r\ntime1=(?<login_time_sxd_xxxxxxxx>.*?)\r\nhash1=(?<login_hash_sxd_xxxxxxxx>.*?)\r\nname=(?<name>.*?)\r\n");
+    boost::regex user_regex("\\[(?<user_id>.*?)\\]\r\nurl=(?<url>.*?)\r\ncode=(?<user>.*?)\r\ntime=(?<_time>.*?)\r\nhash=(?<_hash>.*?)\r\ntime1=(?<login_time_sxd_xxxxxxxx>.*?)\r\nhash1=(?<login_hash_sxd_xxxxxxxx>.*?)\r\nversion=(?<version>.*?)\r\nname=(?<name>.*?)\r\n");
     if (arg == "menu") {
         int i = 0;
         for (auto it = boost::sregex_iterator(user_ini.begin(), user_ini.end(), user_regex); it != boost::sregex_iterator(); it++)
@@ -65,10 +67,11 @@ void sxd::run(std::string arg, bool auto_exit) {
                 oss << "login_time_sxd_xxxxxxxx=" << (*it)["login_time_sxd_xxxxxxxx"] << ";login_hash_sxd_xxxxxxxx=" << (*it)["login_hash_sxd_xxxxxxxx"] << "\r\n";
                 std::string user_id = (*it)["user_id"];
                 std::string url = (*it)["url"];
+                std::string version = (*it)["version"];
                 std::string cookie = oss.str();
-                //sxd::batch_fate("R190", user_id, url, cookie);
-                sxd::auto_play("R190", user_id, url, cookie);
-                //std::thread thread([url, cookie]() {sxd::play("R190", url, cookie);});
+                //sxd::batch_fate(version, user_id, url, cookie);
+                sxd::auto_play(version, user_id, url, cookie);
+                //std::thread thread([url, cookie]() {sxd::play(version, url, cookie);});
             } catch (const std::exception& ex) {
                 common::log(boost::str(boost::format("发现错误(run)：%1%") % ex.what()));
             }
@@ -148,13 +151,13 @@ void sxd::login() {
 
 void sxd::analyze() {
     // read file to be analyzed
-    std::cout << "请输入数据文件名：" << std::endl;
+    std::cout << "请输入数据文件名：" << std::endl << std::flush;
     std::string file_name;
     std::cin >> file_name;
-    //file_name = "Debug/9400.txt";
     common::log(boost::str(boost::format("分析数据文件：%1%") % file_name));
     std::string str = common::read_file(file_name);
-
+    // read max version
+    std::string version = db.get_max_version();
     // split items and loop
     std::vector<std::string> times;
     for (auto it = boost::sregex_iterator(str.begin(), str.end(), boost::regex("\r\n(?<time>\\[\\d{4}.*?\\])\r\n"), boost::match_not_dot_newline); it != boost::sregex_iterator(); it++)
@@ -214,13 +217,13 @@ void sxd::analyze() {
                 action = common::read_int16(fis);
 
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R190", module, action);
+                protocol = db.get_protocol(version.c_str(), module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(fis, data, pattern);
             } else {
                 // get response pattern from database corresponding to module and action
-                protocol = db.get_protocol("R190", module, action);
+                protocol = db.get_protocol(version.c_str(), module, action);
                 std::istringstream(protocol[i % 2 ? "request" : "response"]) >> pattern;
                 // decode frame
                 protocol::decode_frame(ss, data, pattern);
@@ -264,6 +267,14 @@ void sxd::batch_fate(const std::string& version, const std::string& user_id, con
 
 void sxd::auto_play(const std::string& version, const std::string& user_id, const std::string& url, const std::string& cookie) {
 
+    /*Json::Value config;
+     std::istringstream("[\"\u60c5\u7fa9\u4e4b\u5dd4\u00b0\u27aa.s156\"]") >> config;
+     std::string u = config[0].asString();
+     std::string g = common::utf2gbk(u);
+     common::log(u, 0);
+     common::log(g, 0);
+     exit(1);*/
+
     // initialize four clients
     sxd_client sxd_client_town(version);
     sxd_client sxd_client_super_town(version);
@@ -289,6 +300,10 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     if (sxd_client_town.login_town(web_page))
         return;
 
+    // bug
+    if (0)
+        sxd_client_town.bug();
+
     // get player functions
     std::vector<std::string> function_names;
     std::vector<std::string> function_ids;
@@ -308,14 +323,12 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     }
 
     // gift
-    sxd_client_town.item_use();
     sxd_client_town.gift3();                                    // 灵石, 俸禄, 仙令
     sxd_client_town.function_end();                             // 随机礼包
     sxd_client_town.gift();                                     // 各种礼包
     sxd_client_town.Mod_HeroesWar_Base_get_end_gift();          // 阵营战礼包
     sxd_client_town.Mod_StChallenge_Base_get_end_li_bao();      // 自定义挑战礼包
     sxd_client_town.Mod_UnlimitChallenge_Base_get_end_award();  // 极限挑战宝箱
-    sxd_client_town.item_use();
 
     // lucky shop
     if (!common::contain(function_names, "神秘商人"))
@@ -330,7 +343,27 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
     // release welfare，更新福利
     sxd_client_town.release_welfare();
-    sxd_client_town.item_use();
+
+    // equipment
+    if (!common::contain(function_names, "强化"))
+        common::log("【强化】未开启", 0);
+    else {
+        sxd_client_town.equipment();
+    }
+
+    // library
+    if (!common::contain(function_names, "藏经阁"))
+        common::log("【藏经阁】未开启", 0);
+    else {
+        sxd_client_town.library();
+    }
+
+    // research
+    if (!common::contain(function_names, "奇术"))
+        common::log("【奇术】未开启", 0);
+    else {
+        sxd_client_town.research();
+    }
 
     // rune
     if (!common::contain(function_names, "招财神符"))
@@ -373,6 +406,12 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
         sxd_client_town.dice_messenger();
         // dunhuang treasure，敦煌秘宝
         sxd_client_town.dunhuang_treasure();
+        // spring carnival，新春嘉年华
+        sxd_client_town.spring_carnival();
+        // regression，回归
+        sxd_client_town.regression();
+        // find treasure，龙宫探宝
+        sxd_client_town.find_treasure();
     }
 
     // link fate
@@ -507,13 +546,6 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
     // nine regions，九空无界
     sxd_client_town.nine_regions();
 
-    // nimbus
-    if (!common::contain(function_names, "灵脉"))
-        common::log("【灵脉】未开启", 0);
-    else {
-        //sxd_client_town.nimbus();
-    }
-
     // dance
     if (!common::contain(function_names, "舞蹈动作"))
         common::log("【群仙乱舞】未开启", 0);
@@ -567,6 +599,13 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
         common::log("【NPC结交】未开启", 0);
     else {
         //sxd_client_town.npc_friendship();
+    }
+
+    // tower
+    if (!common::contain(function_names, "爬塔"))
+        common::log("【六道轮回】未开启", 0);
+    else {
+        sxd_client_town.tower();
     }
 
     // faction
@@ -749,15 +788,18 @@ void sxd::auto_play(const std::string& version, const std::string& user_id, cons
 
 void sxd::collect() {
     try {
-        sxd::collect_protocol("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\protocols");
-        sxd::collect_end_function_gift("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_function("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
-        sxd::collect_gift("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
-        sxd::collect_item("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_lucky_shop_item("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
-        sxd::collect_role("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\RoleType.as");
-        sxd::collect_town("R190", "H:\\神仙道\\基础数据准备\\R190\\templet\\com\\assist\\server\\source\\TownTypeData.as");
-        sxd::collect_facture_reel("R190", "H:\\神仙道\\基础数据准备\\R190\\Main\\com\\assist\\server\\FactureReelType.as");
+        std::cout << "请输入版本号：" << std::endl << std::flush;
+        std::string version;
+        std::cin >> version;
+        sxd::collect_protocol(version, "H:\\神仙道\\基础数据准备\\" + version + "\\Main\\com\\protocols");
+        sxd::collect_end_function_gift(version, "H:\\神仙道\\基础数据准备\\" + version + "\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_function(version, "H:\\神仙道\\基础数据准备\\" + version + "\\templet\\com\\assist\\server\\source\\FunctionTypeData.as");
+        sxd::collect_gift(version, "H:\\神仙道\\基础数据准备\\" + version + "\\Main\\com\\assist\\server\\source\\GiftTypeData.as");
+        sxd::collect_item(version, "H:\\神仙道\\基础数据准备\\" + version + "\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_lucky_shop_item(version, "H:\\神仙道\\基础数据准备\\" + version + "\\templet\\com\\assist\\server\\source\\ItemTypeData.as");
+        sxd::collect_role(version, "H:\\神仙道\\基础数据准备\\" + version + "\\Main\\com\\assist\\server\\RoleType.as");
+        sxd::collect_town(version, "H:\\神仙道\\基础数据准备\\" + version + "\\templet\\com\\assist\\server\\source\\TownTypeData.as");
+        sxd::collect_facture_reel(version, "H:\\神仙道\\基础数据准备\\" + version + "\\Main\\com\\assist\\server\\FactureReelType.as");
     } catch (const std::exception& ex) {
         std::cerr << boost::str(boost::format("发现错误(collect)：%1%") % ex.what()) << std::endl;
     }

@@ -30,32 +30,33 @@ public:
     static const int YES = 26;
     static const int NO = 27;
     static const int SUCCESS = 28;
+    static const int NO_ENOUGH_CHALLENGE_TIMES = 33;
 };
 
 //============================================================================
 // R172 排名奖励
 //============================================================================
 void sxd_client::get_rank_award(sxd_client* sxd_client_town) {
-    try {
-        // get player is_get_award
-        Json::Value data = this->Mod_StSuperSport_Base_get_player_st_super_sport();
-        if (data[5] == Mod_StSuperSport_Base::YES)
-            return;
+    //try {
+    // get player is_get_award
+    Json::Value data = this->Mod_StSuperSport_Base_get_player_st_super_sport();
+    if (data[5] == Mod_StSuperSport_Base::YES)
+        return;
 
-        // get player level
-        data = sxd_client_town->Mod_Player_Base_get_player_info();
-        int level = data[1].asInt();
+    // get player level
+    data = sxd_client_town->Mod_Player_Base_get_player_info();
+    int level = data[1].asInt();
 
-        // get rank award
-        data = this->Mod_StSuperSport_Base_get_rank_award(level);
-        if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【神魔竞技】领取排名奖励失败，result[%1%]") % data[0]), iEdit);
-            return;
-        }
-        common::log(boost::str(boost::format("【神魔竞技】领取排名奖励，[铜钱×%1%]，[声望×%2%]，[血脉精华×%3%]") % data[1] % data[2] % data[3]), iEdit);
-    } catch (const std::exception& ex) {
-        common::log(boost::str(boost::format("发现错误(get rank award)：%1%") % ex.what()));
+    // get rank award
+    data = this->Mod_StSuperSport_Base_get_rank_award(level);
+    if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
+        common::log(boost::str(boost::format("【神魔竞技】领取排名奖励失败，result[%1%]") % data[0]), iEdit);
+        return;
     }
+    common::log(boost::str(boost::format("【神魔竞技】领取排名奖励，[铜钱×%1%]，[声望×%2%]，[血脉精华×%3%]") % data[1] % data[2] % data[3]), iEdit);
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(get rank award)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================
@@ -95,41 +96,41 @@ Json::Value sxd_client::Mod_StSuperSport_Base_get_rank_award(int level) {
 // R172 神魔大礼
 //============================================================================
 void sxd_client::get_score_award() {
-    try {
-        // can get score award
-        Json::Value data = this->Mod_StSuperSport_Base_can_get_score_award();
-        if (data[0].asInt() != Mod_StSuperSport_Base::YES)
+    //try {
+    // can get score award
+    Json::Value data = this->Mod_StSuperSport_Base_can_get_score_award();
+    if (data[0].asInt() != Mod_StSuperSport_Base::YES)
+        return;
+
+    // player score award information
+    data = this->Mod_StSuperSport_Base_player_score_award_info();
+    int self_score = data[0].asInt();
+    Json::Value award_info = data[1];
+
+    // player get score award
+    Json::Value awards;
+    std::istringstream("[[1, \"普通宝箱\", 1100, 5, 20, 300000, 500, 2], [2, \"普通宝箱\", 1300, 8, 50, 500000, 600, 2], [3, \"普通宝箱\", 1500, 10, 100, 1000000, 800, 2], [4, \"普通宝箱\", 1800, 20, 200, 1200000, 1000, 2], [5, \"普通宝箱\", 2000, 30, 300, 1500000, 1200, 2], [6, \"青铜宝箱\", 2200, 50, 500, 2000000, 1500, 3], [7, \"白银宝箱\", 2400, 80, 700, 3000000, 1600, 4], [8, \"黄金宝箱\", 2600, 100, 1000, 5000000, 1800, 5]]") >> awards;
+    for (const auto& award : awards) {
+        if (award[2].asInt() > self_score)
+            break;
+        int index = award[0].asInt();
+        auto award_info_select = std::find_if(award_info.begin(), award_info.end(), [index](const Json::Value& x) {return x[0].asInt()==index;});
+        if (award_info_select == award_info.end()) {
+            common::log(boost::str(boost::format("【神魔竞技】领取 [神魔大礼] 数据异常，index[%1%]") % index), iEdit);
             return;
-
-        // player score award information
-        data = this->Mod_StSuperSport_Base_player_score_award_info();
-        int self_score = data[0].asInt();
-        Json::Value award_info = data[1];
-
-        // player get score award
-        Json::Value awards;
-        std::istringstream("[[1, \"普通宝箱\", 1100, 5, 20, 300000, 500, 2], [2, \"普通宝箱\", 1300, 8, 50, 500000, 600, 2], [3, \"普通宝箱\", 1500, 10, 100, 1000000, 800, 2], [4, \"普通宝箱\", 1800, 20, 200, 1200000, 1000, 2], [5, \"普通宝箱\", 2000, 30, 300, 1500000, 1200, 2], [6, \"青铜宝箱\", 2200, 50, 500, 2000000, 1500, 3], [7, \"白银宝箱\", 2400, 80, 700, 3000000, 1600, 4], [8, \"黄金宝箱\", 2600, 100, 1000, 5000000, 1800, 5]]") >> awards;
-        for (const auto& award : awards) {
-            if (award[2].asInt() > self_score)
-                break;
-            int index = award[0].asInt();
-            auto award_info_select = std::find_if(award_info.begin(), award_info.end(), [index](const Json::Value& x) {return x[0].asInt()==index;});
-            if (award_info_select == award_info.end()) {
-                common::log(boost::str(boost::format("【神魔竞技】领取 [神魔大礼] 数据异常，index[%1%]") % index), iEdit);
-                return;
-            }
-            if ((*award_info_select)[1] == Mod_StSuperSport_Base::YES)
-                continue;
-            data = this->Mod_StSuperSport_Base_player_get_score_award(index);
-            if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【神魔竞技】领取 [神魔大礼] 失败，result[%1%]") % data[0]), iEdit);
-                return;
-            }
-            common::log(boost::str(boost::format("【神魔竞技】领取 [神魔大礼]，[铜钱×%1%]，[声望×%2%]，[血脉精华×%3%]") % award[5] % award[6] % award[3]), iEdit);
         }
-    } catch (const std::exception& ex) {
-        common::log(boost::str(boost::format("发现错误(get score award)：%1%") % ex.what()));
+        if ((*award_info_select)[1] == Mod_StSuperSport_Base::YES)
+            continue;
+        data = this->Mod_StSuperSport_Base_player_get_score_award(index);
+        if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
+            common::log(boost::str(boost::format("【神魔竞技】领取 [神魔大礼] 失败，result[%1%]") % data[0]), iEdit);
+            return;
+        }
+        common::log(boost::str(boost::format("【神魔竞技】领取 [神魔大礼]，[铜钱×%1%]，[声望×%2%]，[血脉精华×%3%]") % award[5] % award[6] % award[3]), iEdit);
     }
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(get score award)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================
@@ -174,63 +175,65 @@ Json::Value sxd_client::Mod_StSuperSport_Base_player_get_score_award(int index) 
 // R172 积分赛
 //============================================================================
 void sxd_client::point_race(sxd_client* sxd_client_town) {
-    try {
-        // get status
-        Json::Value data = this->Mod_StSuperSport_Base_get_st_super_sport_status();
-        if (data[0].asInt() < Mod_StSuperSport_Base::POINT_RACE_FIRST_DAY || data[0].asInt() > Mod_StSuperSport_Base::POINT_RACE_FOUR_DAY)
-            return;
-        common::log("【神魔竞技】今日 [积分赛]", 0);
+    //try {
+    // get status
+    Json::Value data = this->Mod_StSuperSport_Base_get_st_super_sport_status();
+    if (data[0].asInt() < Mod_StSuperSport_Base::POINT_RACE_FIRST_DAY || data[0].asInt() > Mod_StSuperSport_Base::POINT_RACE_FOUR_DAY)
+        return;
+    common::log("【神魔竞技】今日 [积分赛]", 0);
 
-        // get player information
-        data = this->Mod_StSuperSport_Base_get_player_st_super_sport();
-        common::log(boost::str(boost::format("【神魔竞技】排名 [%1%]，今日还可挑战 [%2%] 次") % data[0] % data[2]), 0);
-        if (data[2].asInt() == 0)
-            return;
-        // cd
-        if (data[3].asInt()) {
-            common::log("【神魔竞技】CD中...", 0);
-            return;
-        }
-
-        // challenge list
-        data = this->Mod_StSuperSport_Base_challenge_list();
-        // 1. sort
-        std::vector<Json::Value> challenge_players;
-        std::copy(data[0].begin(), data[0].end(), std::back_inserter(challenge_players));
-        std::sort(challenge_players.begin(), challenge_players.end(), [](const Json::Value& x, const Json::Value& y) {return x[5].asInt()<y[5].asInt();});
-        // 2. filter(AM)
-        data = sxd_client_town->Mod_Player_Base_server_time();
-        //auto server_time = boost::posix_time::from_time_t(data[0].asInt());
-        std::time_t server_time = data[0].asInt();
-        int hour = (std::stoi(common::to_string(server_time, "%H")) + 8) % 24;
-        if (hour < 12) {
-            //challenge_players.assign(challenge_players.begin(), challenge_players.begin() + 2);
-            challenge_players.pop_back();
-            challenge_players.pop_back();
-            challenge_players.pop_back();
-        }
-        // 3. filter(is_challenge==Mod_StSuperSport_Base::NO)
-        std::vector<Json::Value> challenge_players_valid;
-        std::copy_if(challenge_players.begin(), challenge_players.end(), std::back_inserter(challenge_players_valid), [](const Json::Value& x) {return x[6].asInt()==Mod_StSuperSport_Base::NO;});
-        if (challenge_players_valid.size() == 0)
-            return;
-
-        // challenge
-        for (const auto& player : challenge_players_valid) {
-            data = this->Mod_StSuperSport_Base_challenge(player[0].asInt());
-            if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
-                common::log(boost::str(boost::format("【神魔竞技】挑战 [%1%(%2%)] 失败，result[%3%]") % common::utf2gbk(player[2].asString()) % player[1] % data[0]), iEdit);
-                return;
-            }
-            if (data[8].asInt()) {
-                common::log(boost::str(boost::format("【神魔竞技】挑战 [%1%(%2%)]，战败") % common::utf2gbk(player[2].asString()) % player[1]), iEdit);
-                return;
-            }
-            common::log(boost::str(boost::format("【神魔竞技】挑战 [%1%(%2%)]，战胜") % common::utf2gbk(player[2].asString()) % player[1]), iEdit);
-        }
-    } catch (const std::exception& ex) {
-        common::log(boost::str(boost::format("发现错误(point race)：%1%") % ex.what()));
+    // get player information
+    data = this->Mod_StSuperSport_Base_get_player_st_super_sport();
+    common::log(boost::str(boost::format("【神魔竞技】排名 [%1%]，今日还可挑战 [%2%] 次") % data[0] % data[2]), 0);
+    if (data[2].asInt() == 0)
+        return;
+    // cd
+    if (data[3].asInt()) {
+        common::log("【神魔竞技】CD中...", 0);
+        return;
     }
+
+    // challenge list
+    data = this->Mod_StSuperSport_Base_challenge_list();
+    // 1. sort
+    std::vector<Json::Value> challenge_players;
+    std::copy(data[0].begin(), data[0].end(), std::back_inserter(challenge_players));
+    std::sort(challenge_players.begin(), challenge_players.end(), [](const Json::Value& x, const Json::Value& y) {return x[5].asInt()<y[5].asInt();});
+    // 2. filter(AM)
+    data = sxd_client_town->Mod_Player_Base_server_time();
+    //auto server_time = boost::posix_time::from_time_t(data[0].asInt());
+    std::time_t server_time = data[0].asInt();
+    int hour = (std::stoi(common::to_string(server_time, "%H")) + 8) % 24;
+    if (hour < 12) {
+        //challenge_players.assign(challenge_players.begin(), challenge_players.begin() + 2);
+        challenge_players.pop_back();
+        challenge_players.pop_back();
+        challenge_players.pop_back();
+    }
+    // 3. filter(is_challenge==Mod_StSuperSport_Base::NO)
+    std::vector<Json::Value> challenge_players_valid;
+    std::copy_if(challenge_players.begin(), challenge_players.end(), std::back_inserter(challenge_players_valid), [](const Json::Value& x) {return x[6].asInt()==Mod_StSuperSport_Base::NO;});
+    if (challenge_players_valid.size() == 0)
+        return;
+
+    // challenge
+    for (const auto& player : challenge_players_valid) {
+        data = this->Mod_StSuperSport_Base_challenge(player[0].asInt());
+        if (data[0].asInt() == Mod_StSuperSport_Base::NO_ENOUGH_CHALLENGE_TIMES)
+            return;
+        if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
+            common::log(boost::str(boost::format("【神魔竞技】挑战 [%1%(%2%)] 失败，result[%3%]") % common::utf2gbk(player[2].asString()) % player[1] % data[0]), iEdit);
+            return;
+        }
+        if (data[8].asInt()) {
+            common::log(boost::str(boost::format("【神魔竞技】挑战 [%1%(%2%)]，战败") % common::utf2gbk(player[2].asString()) % player[1]), iEdit);
+            return;
+        }
+        common::log(boost::str(boost::format("【神魔竞技】挑战 [%1%(%2%)]，战胜") % common::utf2gbk(player[2].asString()) % player[1]), iEdit);
+    }
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(point race)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================
@@ -282,156 +285,156 @@ Json::Value sxd_client::Mod_StSuperSport_Base_challenge(int index) {
 // R172 神魔大战
 //============================================================================
 void sxd_client::war_race(sxd_client* sxd_client_town) {
-    try {
-        // get status
-        Json::Value data = this->Mod_StSuperSport_Base_get_st_super_sport_status();
-        if (data[0].asInt() != Mod_StSuperSport_Base::WAR_RACE)
-            return;
-        common::log("【神魔竞技】今日 [神魔大战]", 0);
+    //try {
+    // get status
+    Json::Value data = this->Mod_StSuperSport_Base_get_st_super_sport_status();
+    if (data[0].asInt() != Mod_StSuperSport_Base::WAR_RACE)
+        return;
+    common::log("【神魔竞技】今日 [神魔大战]", 0);
 
-        // get race step
-        data = this->Mod_StSuperSport_Base_get_race_step();
-        if (data[10].asInt()) {
-            common::log("【神魔竞技】已下注", 0);
-            return;
-        }
-        int race_step = data[0].asInt();
-        // 5, 7, 9 ,11, 13, 15
-        if ((race_step - Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_PREPARE) % 2)
-            return;
-        if (race_step < Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_PREPARE)
-            return;
-        if (race_step > Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_1_COMPLETE)
-            return;
-
-        // get race list
-        std::vector<Json::Value> players_all, players_top16, players_top8, players_top4, players_top2, players_top1;
-        // 神族
-        data = this->Mod_StSuperSport_Base_get_race_list(Mod_StSuperSport_Base::GROUP_TIAN_BANG);
-        for (const auto& player : data[1]) {
-            Json::Value temp1, temp2;
-            for (int i = 0; i < 14; i++)
-                temp1.append(player[i]);
-            players_all.push_back(temp1);
-            for (int i = 14; i < 28; i++)
-                temp2.append(player[i]);
-            players_all.push_back(temp2);
-        }
-        for (const auto& player : data[3]) {
-            int player_id = player[0].asInt();
-            players_top16.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        for (const auto& player : data[4]) {
-            int player_id = player[0].asInt();
-            players_top8.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        for (const auto& player : data[5]) {
-            int player_id = player[0].asInt();
-            players_top4.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        for (const auto& player : data[6]) {
-            int player_id = player[0].asInt();
-            players_top2.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        if (data[7].asInt()) {
-            int player_id = data[7].asInt();
-            players_top1.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-
-        // 魔族
-        data = this->Mod_StSuperSport_Base_get_race_list(Mod_StSuperSport_Base::GROUP_DI_BANG);
-        for (const auto& player : data[1]) {
-            Json::Value temp1, temp2;
-            for (int i = 0; i < 14; i++)
-                temp1.append(player[i]);
-            players_all.push_back(temp1);
-            for (int i = 14; i < 28; i++)
-                temp2.append(player[i]);
-            players_all.push_back(temp2);
-        }
-        for (const auto& player : data[3]) {
-            int player_id = player[0].asInt();
-            players_top16.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        for (const auto& player : data[4]) {
-            int player_id = player[0].asInt();
-            players_top8.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        for (const auto& player : data[5]) {
-            int player_id = player[0].asInt();
-            players_top4.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        for (const auto& player : data[6]) {
-            int player_id = player[0].asInt();
-            players_top2.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-        if (data[7].asInt()) {
-            int player_id = data[7].asInt();
-            players_top1.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
-        }
-
-        /*for (const auto& player : players_all)
-         common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
-         common::log("【16强】", iEdit);
-         for (const auto& player : players_top16)
-         common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
-         common::log("【8强】", iEdit);
-         for (const auto& player : players_top8)
-         common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
-         common::log("【4强】", iEdit);
-         for (const auto& player : players_top4)
-         common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
-         common::log("【2强】", iEdit);
-         for (const auto& player : players_top2)
-         common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
-         common::log("【1强】", iEdit);
-         for (const auto& player : players_top1)
-         common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);*/
-
-        // select
-        std::vector<Json::Value>::iterator player_select;
-        switch (race_step) {
-        case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_PREPARE:
-            std::sort(players_all.begin(), players_all.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
-            player_select = players_all.begin();
-            break;
-        case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_16_COMPLETE:
-            std::sort(players_top16.begin(), players_top16.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
-            player_select = players_top16.begin();
-            break;
-        case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_8_COMPLETE:
-            std::sort(players_top8.begin(), players_top8.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
-            player_select = players_top8.begin();
-            break;
-        case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_4_COMPLETE:
-            std::sort(players_top4.begin(), players_top4.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
-            player_select = players_top4.begin();
-            break;
-        case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_2_COMPLETE:
-            std::sort(players_top2.begin(), players_top2.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
-            player_select = players_top2.begin();
-            break;
-        case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_1_COMPLETE:
-            std::sort(players_top1.begin(), players_top1.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
-            player_select = players_top1.begin();
-            break;
-        default:
-            // impossible
-            break;
-        }
-
-        // bet
-        int player_id_select = (*player_select)[0].asInt();
-        std::string player_name_select = common::utf2gbk((*player_select)[1].asString());
-        data = this->Mod_StSuperSport_Base_bet(player_id_select);
-        if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
-            common::log(boost::str(boost::format("【神魔竞技】下注 [%1%(%2%)] 失败，result[%3%]") % player_name_select % player_id_select % data[0]), iEdit);
-            return;
-        }
-        common::log(boost::str(boost::format("【神魔竞技】下注 [%1%(%2%)]") % player_name_select % player_id_select), iEdit);
-    } catch (const std::exception& ex) {
-        common::log(boost::str(boost::format("发现错误(war race)：%1%") % ex.what()));
+    // get race step
+    data = this->Mod_StSuperSport_Base_get_race_step();
+    if (data[10].asInt()) {
+        common::log("【神魔竞技】已下注", 0);
+        return;
     }
+    int race_step = data[0].asInt();
+    // 5, 7, 9 ,11, 13, 15
+    if ((race_step - Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_PREPARE) % 2)
+        return;
+    if (race_step < Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_PREPARE)
+        return;
+    if (race_step > Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_1_COMPLETE)
+        return;
+
+    // get race list
+    std::vector<Json::Value> players_all, players_top16, players_top8, players_top4, players_top2, players_top1;
+    // 神族
+    data = this->Mod_StSuperSport_Base_get_race_list(Mod_StSuperSport_Base::GROUP_TIAN_BANG);
+    for (const auto& player : data[1]) {
+        Json::Value temp1, temp2;
+        for (int i = 0; i < 14; i++)
+            temp1.append(player[i]);
+        players_all.push_back(temp1);
+        for (int i = 14; i < 28; i++)
+            temp2.append(player[i]);
+        players_all.push_back(temp2);
+    }
+    for (const auto& player : data[3]) {
+        int player_id = player[0].asInt();
+        players_top16.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    for (const auto& player : data[4]) {
+        int player_id = player[0].asInt();
+        players_top8.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    for (const auto& player : data[5]) {
+        int player_id = player[0].asInt();
+        players_top4.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    for (const auto& player : data[6]) {
+        int player_id = player[0].asInt();
+        players_top2.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    if (data[7].asInt()) {
+        int player_id = data[7].asInt();
+        players_top1.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+
+    // 魔族
+    data = this->Mod_StSuperSport_Base_get_race_list(Mod_StSuperSport_Base::GROUP_DI_BANG);
+    for (const auto& player : data[1]) {
+        Json::Value temp1, temp2;
+        for (int i = 0; i < 14; i++)
+            temp1.append(player[i]);
+        players_all.push_back(temp1);
+        for (int i = 14; i < 28; i++)
+            temp2.append(player[i]);
+        players_all.push_back(temp2);
+    }
+    for (const auto& player : data[3]) {
+        int player_id = player[0].asInt();
+        players_top16.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    for (const auto& player : data[4]) {
+        int player_id = player[0].asInt();
+        players_top8.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    for (const auto& player : data[5]) {
+        int player_id = player[0].asInt();
+        players_top4.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    for (const auto& player : data[6]) {
+        int player_id = player[0].asInt();
+        players_top2.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+    if (data[7].asInt()) {
+        int player_id = data[7].asInt();
+        players_top1.push_back(*std::find_if(players_all.begin(), players_all.end(), [player_id](const Json::Value& x) {return x[0].asInt()==player_id;}));
+    }
+
+    /*for (const auto& player : players_all)
+     common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
+     common::log("【16强】", iEdit);
+     for (const auto& player : players_top16)
+     common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
+     common::log("【8强】", iEdit);
+     for (const auto& player : players_top8)
+     common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
+     common::log("【4强】", iEdit);
+     for (const auto& player : players_top4)
+     common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
+     common::log("【2强】", iEdit);
+     for (const auto& player : players_top2)
+     common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);
+     common::log("【1强】", iEdit);
+     for (const auto& player : players_top1)
+     common::log(boost::str(boost::format("【神魔竞技】[%1%(%2%)]，[战力%3%]") % common::utf2gbk(player[1].asString()) % player[0] % player[3]), iEdit);*/
+
+    // select
+    std::vector<Json::Value>::iterator player_select;
+    switch (race_step) {
+    case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_PREPARE:
+        std::sort(players_all.begin(), players_all.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
+        player_select = players_all.begin();
+        break;
+    case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_16_COMPLETE:
+        std::sort(players_top16.begin(), players_top16.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
+        player_select = players_top16.begin();
+        break;
+    case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_8_COMPLETE:
+        std::sort(players_top8.begin(), players_top8.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
+        player_select = players_top8.begin();
+        break;
+    case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_4_COMPLETE:
+        std::sort(players_top4.begin(), players_top4.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
+        player_select = players_top4.begin();
+        break;
+    case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_2_COMPLETE:
+        std::sort(players_top2.begin(), players_top2.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
+        player_select = players_top2.begin();
+        break;
+    case Mod_StSuperSport_Base::ST_SUPER_SPORT_WAR_1_COMPLETE:
+        std::sort(players_top1.begin(), players_top1.end(), [](const Json::Value& x, const Json::Value& y) {return x[3].asInt()>y[3].asInt();});
+        player_select = players_top1.begin();
+        break;
+    default:
+        // impossible
+        break;
+    }
+
+    // bet
+    int player_id_select = (*player_select)[0].asInt();
+    std::string player_name_select = common::utf2gbk((*player_select)[1].asString());
+    data = this->Mod_StSuperSport_Base_bet(player_id_select);
+    if (data[0].asInt() != Mod_StSuperSport_Base::SUCCESS) {
+        common::log(boost::str(boost::format("【神魔竞技】下注 [%1%(%2%)] 失败，result[%3%]") % player_name_select % player_id_select % data[0]), iEdit);
+        return;
+    }
+    common::log(boost::str(boost::format("【神魔竞技】下注 [%1%(%2%)]") % player_name_select % player_id_select), iEdit);
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("发现错误(war race)：%1%") % ex.what()));
+    //}
 }
 
 //============================================================================

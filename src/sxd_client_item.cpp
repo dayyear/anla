@@ -1,3 +1,4 @@
+#include <vector>
 #include <boost/format.hpp>
 #include "common.h"
 #include "sxd_client.h"
@@ -9,11 +10,18 @@ public:
     static const int NOT_ENOUGH_FATE_GRID = 46;
 };
 
-class Mod_LuckyStore_Base {
+class Mod_GiftItemPack_Base {
 public:
-    static const int LUCKY_SUCCESS = 10;
-    static const int ShenMiShangRen = 101;
+    static const int SUCCESS = 4;
 };
+
+//============================================================================
+// 获取背包中空格子数量
+//============================================================================
+int sxd_client::get_empty_pack_num() {
+    auto data = this->Mod_Item_Base_get_player_pack_item_list();
+    return data[0].asInt() - data[2].size();
+}
 
 void sxd_client::item_reel() {
     // read config
@@ -73,10 +81,22 @@ void sxd_client::item_use() {
                 common::log(boost::str(boost::format("【背包】使用 [%1%] 失败，命格背包满") % item_name), iEdit);
                 break;
             } else {
-                common::log(boost::str(boost::format("【背包】使用 [%1%]失败，result[%2%]") % item_name % data[0]), iEdit);
+                common::log(boost::str(boost::format("【背包】使用 [%1%]失败，result[%2%]") % item_name % data[0]), 0);
                 break;
             }
         }
+    }
+    for (const auto& item : items) {
+        int item_id = item[1].asInt();
+        int box_id = item[2].asInt();
+        std::string item_name = db.get_code(version, "Item", item_id)["text"];
+
+        data = this->Mod_GiftItemPack_Base_put_item_to_package(box_id);
+        if (data[0].asInt() == Mod_GiftItemPack_Base::SUCCESS)
+            common::log(boost::str(boost::format("【背包】 [%1%] 转移至礼包仓库") % item_name), iEdit);
+        data = this->Mod_Item_Base_move_pack_grid_item_to_supergift_warehouse(box_id);
+        if (data[0].asInt() == Mod_Item_Base::ACTION_SUCCESS)
+            common::log(boost::str(boost::format("【背包】 [%1%] 转移至礼包仓库") % item_name), iEdit);
     }
 }
 
@@ -89,7 +109,7 @@ void sxd_client::item_sell() {
     // pack
     Json::Value data = this->Mod_Item_Base_get_player_pack_item_list();
     Json::Value items = data[2];
-    // sell
+    // 卖掉配置的物品
     for (const auto& item : items) {
         int item_id = item[1].asInt();
         int box_id = item[2].asInt();
@@ -101,6 +121,58 @@ void sxd_client::item_sell() {
             common::log(boost::str(boost::format("【背包】出售 [%1%]失败，result[%2%]") % item_name % data[0]), iEdit);
         else
             common::log(boost::str(boost::format("【背包】出售 [%1%]") % item_name), iEdit);
+    }
+
+    // 准备items_config2
+    Json::Value config2;
+    std::map<int, int> items_config2;
+    std::istringstream(db.get_config(user_id.c_str(), "LuckyStore2")) >> config2;
+    for (const auto& item : config2)
+        items_config2[item[0].asInt()] = item[1].asInt();
+    // 准备equips
+    data = this->Mod_Role_Base_get_role_list(player_id);
+    auto roles = data[14];
+    data = this->Mod_Item_Base_get_all_player_item_infos();
+    std::vector<Json::Value> equips;
+    std::copy_if(data[0].begin(), data[0].end(), std::back_inserter(equips), [](const Json::Value& x) {return x[16].asInt();});
+    // 卖掉无用的材料
+    for (const auto& item : items) {
+        int item_id = item[1].asInt();
+        int box_id = item[2].asInt();
+        std::string item_name = db.get_code(version, "Item", item_id)["text"];
+        // 1. 必须facture_reel中存在
+        std::ostringstream where_clause;
+        where_clause << "version='" << version << "' and item_id=" << item_id;
+        auto items = db.get_records("facture_reel", where_clause.str());
+        if (!items.size())
+            continue;
+        // 2. 必须是装备制作材料
+        where_clause.str("");
+        where_clause << "version='" << version << "' and type='Item' and value='" << item_id << "' and comment like '%" << common::gbk2utf("装备") << "%'";
+        items = db.get_records("code", where_clause.str());
+        if (!items.size())
+            continue;
+        // 3. 不能在LuckyStore2中存在
+        if (items_config2.find(item_id) != items_config2.end())
+            continue;
+        // 4. 不能是有用的装备制作材料
+        bool can_sell = true;
+        for (const auto& equip : equips) {
+            int player_role_id = equip[16].asInt();
+            if (std::find_if(roles.begin(), roles.end(), [player_role_id](const Json::Value& role) {return role[2].asInt() == player_role_id;}) == roles.end())
+                continue;
+            auto materials = db.get_facture_reel(version, equip[1].asInt());
+            if (std::find_if(materials.begin(), materials.end(), [item_id](mss& material) {return atoi(material["item_id"].c_str()) == item_id;}) != materials.end())
+                can_sell = false;
+        }
+        // 5. 卖吧
+        if (can_sell) {
+            data = this->Mod_Item_Base_player_sell_item(box_id);
+            if (data[0].asInt() != Mod_Item_Base::ACTION_SUCCESS)
+                common::log(boost::str(boost::format("【背包】自动出售无用材料 [%1%]失败，result[%2%]") % item_name % data[0]), iEdit);
+            else
+                common::log(boost::str(boost::format("【背包】自动出售无用材料 [%1%]") % item_name), iEdit);
+        }
     }
 }
 
@@ -288,3 +360,29 @@ Json::Value sxd_client::Mod_Item_Base_get_all_player_item_infos() {
     Json::Value data;
     return this->send_and_receive(data, 2, 3);
 }
+
+//============================================================================
+// 礼包转移到仓库1
+// "module":161,"action":2,"request":[Utils.ShortUtil],"response":[Utils.UByteUtil]
+// Example
+//     [ 22(box_id) ] -> [ 4(Mod_GiftItemPack_Base::SUCCESS) ]
+//============================================================================
+Json::Value sxd_client::Mod_GiftItemPack_Base_put_item_to_package(int box_id) {
+    Json::Value data;
+    data.append(box_id);
+    return this->send_and_receive(data, 161, 2);
+}
+
+//============================================================================
+// 礼包转移到仓库2
+// "module":2,"action":154,"request":[Utils.ShortUtil,Utils.ShortUtil],
+// Example
+//     [ 17(box_id), 0 ] -> [ 20(Mod_Item_Base::ACTION_SUCCESS), [ [ 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], [ 8920208, 5147, 1007, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ] ]
+//============================================================================
+Json::Value sxd_client::Mod_Item_Base_move_pack_grid_item_to_supergift_warehouse(int box_id) {
+    Json::Value data;
+    data.append(box_id);
+    data.append(0);
+    return this->send_and_receive(data, 2, 154);
+}
+

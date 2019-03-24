@@ -54,7 +54,7 @@ void protocol::decode_frame(std::istream& is, Json::Value& data, const Json::Val
         if (pattern[i].isString()) {
             std::string item = pattern[i].asString();
             if (item.compare("Utils.UByteUtil") == 0) {
-                data.append(common::read_int8(is));
+                data.append((uint8_t)common::read_int8(is));
             } else if (item.compare("Utils.ByteUtil") == 0) {
                 data.append(common::read_int8(is));
             } else if (item.compare("Utils.ShortUtil") == 0) {

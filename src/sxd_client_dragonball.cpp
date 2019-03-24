@@ -26,11 +26,12 @@ void sxd_client::dragonball() {
 
         // 普通上供
         data = this->Mod_Dragonball_Base_sacrifice(Mod_Dragonball_Base::NORMAL, Mod_Dragonball_Base::NOT_AUTO);
-        if (data[0].asInt() != Mod_Dragonball_Base::SUCCESS) {
+        if (data[0].asInt() != Mod_Dragonball_Base::SUCCESS){
             common::log(boost::str(boost::format("【神龙上供】普通上供失败，result[%1%]") % data[0]), iEdit);
             return;
         }
-        common::log(boost::str(boost::format("【神龙上供】普通上供，获得 [%1%]") % dragonball_names[data[1][0][1].asInt()]), iEdit);
+        else
+            common::log(boost::str(boost::format("【神龙上供】普通上供，获得 [%1%]") % dragonball_names[data[1][0][1].asInt()]), iEdit);
 
         // 卖出或拾取
         data = this->Mod_Dragonball_Base_get_tmp_dragonball_basic_info();

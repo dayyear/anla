@@ -130,12 +130,17 @@ Json::Value sxd_client::Mod_Faction_Base_roll_cake() {
 // R179 ÆßĞÇ·âÄ§
 //============================================================================
 void sxd_client::seal_satan() {
-    if (rand() % 3)
+    //try {
+    if (rand() % 7)
         return;
     this->Mod_Faction_Base_seal_satan_member_list();
-    auto data = this->Mod_Faction_Base_join_seal_satan();
-    if (data[0].asInt() == Mod_Faction_Base::JOIN_SUCCESS)
-        common::log("¡¾°ïÅÉ¡¿¼ÓÈë [ÆßĞÇ·âÄ§]", iEdit);
+    this->Mod_Faction_Base_join_seal_satan();
+    //auto data = this->Mod_Faction_Base_join_seal_satan();
+    //if (data[0].asInt() == Mod_Faction_Base::JOIN_SUCCESS)
+    //    common::log("¡¾°ïÅÉ¡¿¼ÓÈë [ÆßĞÇ·âÄ§]", iEdit);
+    //} catch (const std::exception& ex) {
+    //    common::log(boost::str(boost::format("·¢ÏÖ´íÎó(seal_satan)£º%1%") % ex.what()));
+    //}
 }
 
 //============================================================================
@@ -155,9 +160,10 @@ Json::Value sxd_client::Mod_Faction_Base_seal_satan_member_list() {
 // Example
 //     [ 54 ]
 //============================================================================
-Json::Value sxd_client::Mod_Faction_Base_join_seal_satan() {
+void sxd_client::Mod_Faction_Base_join_seal_satan() {
     Json::Value data;
-    return this->send_and_receive(data, 10, 28);
+    this->send_frame(data, 10, 28);
+    //return this->send_and_receive(data, 10, 28);
 }
 
 //============================================================================
