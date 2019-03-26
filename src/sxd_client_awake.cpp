@@ -6,15 +6,15 @@
 class Mod_Awake_Base {
 public:
     static const int SUCCESS = 5;
-    static const int MORTAL = 16;   // 人间
-    static const int REGULUS = 17;  // 轩辕
-    static const int ANCIENT = 18;  // 上古
-    static const int ONCE = 19;
-    static const int MULTI = 20;
+    static const int MORTAL = 18;   // 人间
+    static const int REGULUS = 19;  // 轩辕
+    static const int ANCIENT = 20;  // 上古
+    static const int ONCE = 21;
+    static const int MULTI = 22;
 };
 
 void sxd_client::awake() {
-    std::map<int, std::string> forbidden_map = { { 16, "人间" }, { 17, "轩辕" }, { 18, "上古" } };
+    std::map<int, std::string> forbidden_map = { { 18, "人间" }, { 19, "轩辕" }, { 20, "上古" } };
     Json::Value data = this->Mod_Awake_Base_player_forbidden_book_info();
     Json::Value items = data[0];
     for (const auto& item : items) {
