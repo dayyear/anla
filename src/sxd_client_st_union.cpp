@@ -6,6 +6,7 @@
 class Mod_StUnionActivity_Base {
 public:
     static const int SUCCESS = 2;
+    static const int HAS_FINISH = 6;
     static const int BLESS_SUCCESS = 7;
 };
 
@@ -82,6 +83,8 @@ void sxd_client::st_union_activity() {
     } else if (tree_info[5].size() == 3) {
         int index = rand() % 3;
         data = this->Mod_StUnionActivity_Base_choose_wish_item(tree_info[5][index][0].asInt());
+        if (data[0].asInt() == Mod_StUnionActivity_Base::HAS_FINISH)
+            return;
         if (data[0].asInt() != Mod_StUnionActivity_Base::SUCCESS) {
             common::log(boost::str(boost::format("¡¾ÏÉÃËÖ®Ê÷¡¿ÐíÔ¸Ñ¡ÔñÊ§°Ü£¬result[%1%]") % data[0]), iEdit);
             return;
@@ -92,11 +95,11 @@ void sxd_client::st_union_activity() {
     data = this->Mod_StUnionActivity_Base_need_bless_player();
     Json::Value players = data[0];
     for (const auto& player : players) {
-        //if (count == 0)
-        //    break;
         if (player[4].asInt())
             continue;
         data = this->Mod_StUnionActivity_Base_bless_st_union_player(player[0].asInt());
+        if (data[0].asInt() == Mod_StUnionActivity_Base::HAS_FINISH)
+            return;
         if (data[0].asInt() != Mod_StUnionActivity_Base::SUCCESS) {
             common::log(boost::str(boost::format("¡¾ÏÉÃËÖ®Ê÷¡¿×£¸£ [%1%] Ê§°Ü£¬result[%2%]") % common::utf2gbk(player[1].asString()) % data[0]), iEdit);
             return;

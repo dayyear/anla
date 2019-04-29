@@ -168,6 +168,7 @@ public:
     void get_peach();
     Json::Value Mod_GetPeach_Base_peach_info();
     Json::Value Mod_GetPeach_Base_batch_get_peach();
+    Json::Value Mod_GetPeach_Base_get_peach();
 
     //============================================================================
     // - sxd_client_farm.cpp
@@ -261,6 +262,14 @@ public:
     Json::Value Mod_ActivityGame_Base_kuang_gong_game_over(int golden);
     Json::Value Mod_ActivityGame_Base_player_score_exchange_info();
     Json::Value Mod_ActivityGame_Base_exchange_award(int award_id);
+    void mid_back_lottery();
+    Json::Value Mod_MidBackLottery_Base_get_back_lottery_info();
+    Json::Value Mod_MidBackLottery_Base_back_lottery(int id);
+    Json::Value Mod_MidBackLottery_Base_memento_coin_exchange(int item_id);
+    Json::Value Mod_MidBackLottery_Base_get_memento_coin_exchange_info();
+    void thanks_feedback();
+    Json::Value Mod_ThanksFeedback_Base_open_panel();
+    Json::Value Mod_ThanksFeedback_Base_get_award(int id);
 
     //============================================================================
     // - sxd_client_regression.cpp

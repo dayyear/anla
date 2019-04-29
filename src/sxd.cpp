@@ -68,6 +68,11 @@ void sxd::run(std::string arg, bool auto_exit) {
                 std::string user_id = (*it)["user_id"];
                 std::string url = (*it)["url"];
                 std::string version = (*it)["version"];
+                std::string max_version = db.get_max_version();
+                if (version != max_version) {
+                    common::log(common::sprintf("当前版本 [%s]，最新版本 [%s]，请及时更新版本", version.c_str(), max_version.c_str()));
+                    version = max_version;
+                }
                 std::string cookie = oss.str();
                 //sxd::batch_fate(version, user_id, url, cookie);
                 sxd::auto_play(version, user_id, url, cookie);

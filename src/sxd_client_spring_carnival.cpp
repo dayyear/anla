@@ -53,6 +53,16 @@ public:
     static const int SUCCESS = 10;
 };
 
+class Mod_MidBackLottery_Base {
+public:
+    static const int SUCCESS = 2;
+};
+
+class Mod_ThanksFeedback_Base {
+public:
+    static const int SUCCESS = 0;
+};
+
 //============================================================================
 // 新春嘉年华
 // 1. 新春大放送; 2. 开年献礼; 3. 福神转盘; 4. 幸运骰子; 5. 翻翻乐; 6. 在线奖励
@@ -94,6 +104,14 @@ void sxd_client::spring_carnival() {
                 /* 43: 黄金矿工, golden_worker */
                 if (activity_type == 43 && is_open == Mod_Memoirs_Base::OPEN)
                     golden_worker();
+                /* 99: 新回馈抽奖, mid_back_lottery */
+                if (activity_type == 99 && is_open == Mod_Memoirs_Base::OPEN)
+                    mid_back_lottery();
+
+                /* 161: R200感恩回馈, thanks_feedback */
+                if (activity_type == 161 && is_open == Mod_Memoirs_Base::OPEN)
+                    thanks_feedback();
+
             }
             break;
         }
@@ -621,3 +639,117 @@ Json::Value sxd_client::Mod_ActivityGame_Base_exchange_award(int award_id) {
     return this->send_and_receive(data, 194, 8);
 }
 
+//============================================================================
+// 新回馈抽奖
+//============================================================================
+void sxd_client::mid_back_lottery() {
+    for (;;) {
+        auto data = this->Mod_MidBackLottery_Base_get_back_lottery_info();
+        int remain_free_count = data[2].asInt();
+        if (!remain_free_count)
+            break;
+        std::vector<Json::Value> box_infos;
+        std::copy_if(data[4].begin(), data[4].end(), std::back_inserter(box_infos), [](const Json::Value& x) {return x[1].asInt();});
+        if (!box_infos.size())
+            break;
+        int id = box_infos[rand() % box_infos.size()][0].asInt();
+        data = this->Mod_MidBackLottery_Base_back_lottery(id);
+        if (data[0].asInt() != Mod_MidBackLottery_Base::SUCCESS)
+            break;
+        common::log(common::sprintf("【新回馈抽奖】抽奖第 [%d] 个礼包", id), iEdit);
+    }
+    auto data = this->Mod_MidBackLottery_Base_get_memento_coin_exchange_info();
+    auto infos = data[0];
+    for (const auto info : infos) {
+        int item_id = info[0].asInt();
+        int is_exchange = info[3].asInt();
+        if (!is_exchange)
+            continue;
+        data = this->Mod_MidBackLottery_Base_memento_coin_exchange(item_id);
+        if (data[0].asInt() == Mod_MidBackLottery_Base::SUCCESS)
+            common::log(common::sprintf("【新回馈抽奖】兑换物品 [%d]", item_id), iEdit);
+    }
+}
+
+//============================================================================
+// 新回馈抽奖-面板
+// "module":378,"action":0,
+// Example
+//     [ 0, 17, 2(remain_free_count), [ [ 1740, 50, 1 ], [ 1747, 8, 1 ], [ 4982, 3, 1 ], [ 347, 120, 1 ], [ 1743, 300, 1 ], [ 5773, 3, 1 ] ],
+//         box_info: [ [ 1(id), 1(is_open) ], [ 2, 1 ], [ 3, 0 ], [ 4, 1 ], [ 5, 1 ], [ 6, 1 ], [ 7, 1 ], [ 8, 1 ], [ 9, 1 ], [ 10, 1 ], [ 11, 1 ], [ 12, 1 ], [ 13, 1 ], [ 14, 1 ], [ 15, 1 ], [ 16, 1 ], [ 17, 1 ], [ 18, 1 ] ], 82350951 ]
+//     [ 0, 16, 1(remain_free_count), [ [ 1740, 50, 1 ], [ 1747, 8, 1 ], [ 4982, 3, 1 ], [ 347, 120, 1 ], [ 1743, 300, 1 ], [ 5773, 3, 1 ] ],
+//         box_info: [ [ 1(id), 1(is_open) ], [ 2, 1 ], [ 3, 0 ], [ 4, 1 ], [ 5, 1 ], [ 6, 1 ], [ 7, 1 ], [ 8, 1 ], [ 9, 0 ], [ 10, 1 ], [ 11, 1 ], [ 12, 1 ], [ 13, 1 ], [ 14, 1 ], [ 15, 1 ], [ 16, 1 ], [ 17, 1 ], [ 18, 1 ] ], 83350951 ]
+//============================================================================
+Json::Value sxd_client::Mod_MidBackLottery_Base_get_back_lottery_info() {
+    Json::Value data;
+    return this->send_and_receive(data, 378, 0);
+}
+
+//============================================================================
+// 新回馈抽奖-抽奖
+// "module":378,"action":1,"request":[Utils.IntUtil],
+// Example
+//     [ 9 ] -> [ 2(Mod_MidBackLottery_Base::SUCCESS), 1411(item_id), 6(item_num) ]
+//============================================================================
+Json::Value sxd_client::Mod_MidBackLottery_Base_back_lottery(int id) {
+    Json::Value data;
+    data.append(id);
+    return this->send_and_receive(data, 378, 1);
+}
+
+//============================================================================
+// 新回馈抽奖-兑换
+// "module":378,"action":2,"request":[Utils.ShortUtil],
+// Example
+//
+//============================================================================
+Json::Value sxd_client::Mod_MidBackLottery_Base_memento_coin_exchange(int item_id) {
+    Json::Value data;
+    data.append(item_id);
+    return this->send_and_receive(data, 378, 2);
+}
+
+//============================================================================
+// 新回馈抽奖-兑换面板
+// "module":378,"action":3,
+// Example
+//     [ [ [ 5104(item_id), 10, 10, 1(is_exchange) ], [ 1787, 10, 10, 1 ], [ 4431, 1, 10, 1 ] ] ]
+//============================================================================
+Json::Value sxd_client::Mod_MidBackLottery_Base_get_memento_coin_exchange_info() {
+    Json::Value data;
+    return this->send_and_receive(data, 378, 3);
+}
+
+//============================================================================
+// R200感恩回馈
+//============================================================================
+void sxd_client::thanks_feedback() {
+    for (int id = 1; id <= 7; id++) {
+        auto data = this->Mod_ThanksFeedback_Base_get_award(id);
+        if (data[0].asInt() == Mod_ThanksFeedback_Base::SUCCESS)
+            common::log(common::sprintf("【R200感恩回馈】领取第 [%d] 天奖励", id), iEdit);
+    }
+}
+
+//============================================================================
+// R200感恩回馈
+// "module":464,"action":1,
+// Example
+//     [ 4(login_day), [ [ 1, 20, 20, 1(已领取) ], [ 2, 20, 20, 0(未领取) ], [ 3, 20, 20, 0 ], [ 4, 30, 30, 0 ], [ 5, 30, 30, 0 ], [ 6, 30, 30, 0 ], [ 7, 50, 50, 0 ] ] ]
+//============================================================================
+Json::Value sxd_client::Mod_ThanksFeedback_Base_open_panel() {
+    Json::Value data;
+    return this->send_and_receive(data, 464, 1);
+}
+
+//============================================================================
+// R200感恩回馈
+// "module":464,"action":2,"request":[Utils.IntUtil],
+// Example
+//     [ 1(1-7) ] -> [ 0(Mod_ThanksFeedback_Base::SUCCESS) ]
+//============================================================================
+Json::Value sxd_client::Mod_ThanksFeedback_Base_get_award(int id) {
+    Json::Value data;
+    data.append(id);
+    return this->send_and_receive(data, 464, 2);
+}
